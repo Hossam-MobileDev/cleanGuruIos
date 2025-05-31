@@ -1,14 +1,4 @@
-name: CI
-
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-3. Delete ALL that default content and paste your workflow:
-Select all (Ctrl+A) → Delete → Paste this:
-yamlname: iOS App Store Deployment
+name: iOS App Store Deployment
 
 on:
   push:
