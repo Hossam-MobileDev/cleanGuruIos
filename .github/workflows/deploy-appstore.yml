@@ -44,14 +44,16 @@ jobs:
       run: |
         echo "Current directory contents:"
         ls -la
-        echo "Project structure:"
+        echo "GHGG.xcodeproj contents:"
+        ls -la GHGG.xcodeproj/
+        echo "Looking for workspace and project files:"
         find . -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "ExportOptions.plist"
         
     - name: Build Archive
       run: |
         mkdir -p build
-        echo "Using workspace: project.xcworkspace"
-        xcodebuild -workspace project.xcworkspace \
+        echo "Using workspace: GHGG.xcodeproj/project.xcworkspace"
+        xcodebuild -workspace GHGG.xcodeproj/project.xcworkspace \
           -scheme "GHGG" \
           -configuration Release \
           -destination generic/platform=iOS \
