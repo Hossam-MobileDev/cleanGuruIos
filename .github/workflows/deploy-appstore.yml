@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+3. Delete ALL that default content and paste your workflow:
+Select all (Ctrl+A) → Delete → Paste this:
+yamlname: iOS App Store Deployment
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy'
+        required: true
+        default: '1.0.0'
+
+env:
+  XCODE_VERSION: '15.2'
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ env.XCODE_VERSION }}
+        
+    - name: Install CocoaPods (if needed)
+      run: |
+        if [ -f "Podfile" ]; then
+          sudo gem install cocoapods
+          pod install --repo-update
+        fi
+        
+    - name: Install Apple Certificate
+      uses: apple-actions/import-codesign-certs@v2
+      with:
+        p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+        p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        
+    - name: Build Archive
+      run: |
+        if [ -f "*.xcworkspace" ]; then
+          WORKSPACE=$(ls *.xcworkspace | head -n1)
+          xcodebuild -workspace "$WORKSPACE" \
+            -scheme "GHGG" \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -archivePath ./build/App.xcarchive \
+            archive
+        else
+          PROJECT=$(ls *.xcodeproj | head -n1)
+          xcodebuild -project "$PROJECT" \
+            -scheme "GHGG" \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -archivePath ./build/App.xcarchive \
+            archive
+        fi
+        
+    - name: Export IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath ./build/App.xcarchive \
+          -exportPath ./build \
+          -exportOptionsPlist ./ExportOptions.plist
+          
+    - name: Upload to App Store Connect
+      run: |
+        xcrun altool --upload-app \
+          --type ios \
+          --file ./build/*.ipa \
+          --username ${{ secrets.APPLE_ID_EMAIL }} \
+          --password ${{ secrets.APPLE_ID_PASSWORD }}
