@@ -58,6 +58,7 @@ jobs:
           -configuration Release \
           -destination generic/platform=iOS \
           -archivePath ./build/App.xcarchive \
+          -allowProvisioningUpdates \
           archive
         
     - name: Export IPA
