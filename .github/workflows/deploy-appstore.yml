@@ -40,24 +40,42 @@ jobs:
         p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
         p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         
+    - name: List project files
+      run: |
+        echo "Current directory contents:"
+        ls -la
+        echo "Looking for Xcode projects:"
+        find . -name "*.xcodeproj" -o -name "*.xcworkspace"
+        
     - name: Build Archive
       run: |
-        if [ -f "*.xcworkspace" ]; then
+        # Create build directory
+        mkdir -p build
+        
+        # Find the actual project file
+        if ls *.xcworkspace 1> /dev/null 2>&1; then
           WORKSPACE=$(ls *.xcworkspace | head -n1)
+          echo "Using workspace: $WORKSPACE"
           xcodebuild -workspace "$WORKSPACE" \
             -scheme "GHGG" \
             -configuration Release \
             -destination generic/platform=iOS \
             -archivePath ./build/App.xcarchive \
             archive
-        else
+        elif ls *.xcodeproj 1> /dev/null 2>&1; then
           PROJECT=$(ls *.xcodeproj | head -n1)
+          echo "Using project: $PROJECT"
           xcodebuild -project "$PROJECT" \
             -scheme "GHGG" \
             -configuration Release \
             -destination generic/platform=iOS \
             -archivePath ./build/App.xcarchive \
             archive
+        else
+          echo "No .xcodeproj or .xcworkspace found!"
+          echo "Available files:"
+          ls -la
+          exit 1
         fi
         
     - name: Export IPA
