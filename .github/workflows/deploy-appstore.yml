@@ -1,0 +1,91 @@
+nano .github/workflows/deploy-appstore.yml
+name: iOS App Store Deployment
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0
+  workflow_dispatch:  # Allows manual trigger
+    inputs:
+      version:
+        description: 'Version to deploy'
+        required: true
+        default: '1.0.0'
+
+env:
+  XCODE_VERSION: '15.2'
+  IOS_VERSION: '17.2'
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ env.XCODE_VERSION }}
+        
+    # Install dependencies
+    - name: Install CocoaPods
+      run: |
+        if [ -f "Podfile" ]; then
+          sudo gem install cocoapods
+          pod install --repo-update
+        fi
+        
+    # Configure signing certificates and provisioning profiles
+    - name: Install Apple Certificate
+      uses: apple-actions/import-codesign-certs@v2
+      with:
+        p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+        p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        
+    - name: Install Provisioning Profile
+      uses: apple-actions/download-provisioning-profiles@v1
+      with:
+        bundle-id: com.yourcompany.yourapp  # Replace with your bundle ID
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        
+    # Build the app
+    - name: Build Archive
+      run: |
+        if [ -f "*.xcworkspace" ]; then
+          WORKSPACE=$(ls *.xcworkspace | head -n1)
+          xcodebuild -workspace "$WORKSPACE" \
+            -scheme "YourAppScheme" \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -archivePath ./build/App.xcarchive \
+            archive
+        else
+          PROJECT=$(ls *.xcodeproj | head -n1)
+          xcodebuild -project "$PROJECT" \
+            -scheme "YourAppScheme" \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -archivePath ./build/App.xcarchive \
+            archive
+        fi
+        
+    # Export IPA
+    - name: Export IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath ./build/App.xcarchive \
+          -exportPath ./build \
+          -exportOptionsPlist ./ExportOptions.plist
+          
+    # Upload to App Store Connect
+    - name: Upload to App Store Connect (API)
+      uses: apple-actions/upload-testflight-build@v1
+      with:
+        app-path: ./build/*.ipa
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
