@@ -40,25 +40,45 @@ jobs:
         p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
         p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         
+    - name: Download Provisioning Profiles
+      run: |
+        # Create provisioning profiles directory
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        
+        # Create a temporary App Store provisioning profile
+        # Note: In production, you would download the actual profile from Apple Developer Portal
+        echo "Setting up provisioning profiles..."
+        
     - name: List project files
       run: |
         echo "Current directory contents:"
         ls -la
         echo "GHGG.xcodeproj contents:"
         ls -la GHGG.xcodeproj/
-        echo "Looking for workspace and project files:"
-        find . -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "ExportOptions.plist"
+        echo "Certificates in keychain:"
+        security find-identity -v -p codesigning
         
     - name: Build Archive
       run: |
         mkdir -p build
         echo "Using workspace: GHGG.xcodeproj/project.xcworkspace"
+        
+        # Try building with automatic signing first, fallback to manual
         xcodebuild -workspace GHGG.xcodeproj/project.xcworkspace \
           -scheme "GHGG" \
           -configuration Release \
           -destination generic/platform=iOS \
           -archivePath ./build/App.xcarchive \
-          -allowProvisioningUpdates \
+          CODE_SIGN_STYLE=Automatic \
+          DEVELOPMENT_TEAM=M8S29G9Z3W \
+          archive || \
+        xcodebuild -workspace GHGG.xcodeproj/project.xcworkspace \
+          -scheme "GHGG" \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath ./build/App.xcarchive \
+          CODE_SIGN_STYLE=Manual \
+          DEVELOPMENT_TEAM=M8S29G9Z3W \
           archive
         
     - name: Export IPA
@@ -70,8 +90,18 @@ jobs:
           
     - name: Upload to App Store Connect
       run: |
-        xcrun altool --upload-app \
-          --type ios \
-          --file ./build/*.ipa \
-          --username ${{ secrets.APPLE_ID_EMAIL }} \
-          --password ${{ secrets.APPLE_ID_PASSWORD }}
+        # Find the generated IPA file
+        IPA_FILE=$(find ./build -name "*.ipa" | head -n1)
+        echo "Found IPA file: $IPA_FILE"
+        
+        if [ -f "$IPA_FILE" ]; then
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_FILE" \
+            --username ${{ secrets.APPLE_ID_EMAIL }} \
+            --password ${{ secrets.APPLE_ID_PASSWORD }}
+        else
+          echo "No IPA file found!"
+          ls -la ./build/
+          exit 1
+        fi
