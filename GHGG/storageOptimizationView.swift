@@ -12,1314 +12,8 @@ import CryptoKit
 import Contacts
 import EventKit
 
-//extension FileManager {
-//    func deviceStorageInfo() -> (total: Int64, used: Int64, free: Int64) {
-//        let fileURL = URL(fileURLWithPath: NSHomeDirectory() as String)
-//        do {
-//            let values = try fileURL.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityKey, .volumeAvailableCapacityForImportantUsageKey])
-//            
-//            // Get the total capacity, defaulting to 0 if nil
-//            let totalCapacity: Int64 = values.volumeTotalCapacity.map { Int64($0) } ?? 0
-//            
-//            // Try to get volumeAvailableCapacityForImportantUsage first, then fall back to volumeAvailableCapacity
-//            let availableCapacity: Int64
-//            if let importantUsage = values.volumeAvailableCapacityForImportantUsage {
-//                availableCapacity = Int64(importantUsage)
-//            } else if let regularAvailable = values.volumeAvailableCapacity {
-//                availableCapacity = Int64(regularAvailable)
-//            } else {
-//                availableCapacity = 0
-//            }
-//            
-//            let usedCapacity = totalCapacity - availableCapacity
-//            return (totalCapacity, usedCapacity, availableCapacity)
-//        } catch {
-//            print("Error retrieving storage info: \(error)")
-//        }
-//        return (0, 0, 0)
-//    }
-//}
-//
-//// MARK: - Duplicate Photo Model
-//struct DuplicatePhotoGroup: Identifiable {
-//    let id = UUID()
-//    let hash: String
-//    var assets: [PHAsset]
-//    var bestAsset: PHAsset? // The one to keep
-//    
-//    var totalSize: Int64 {
-//        assets.reduce(0) { sum, asset in
-//            sum + getAssetSize(asset)
-//        }
-//    }
-//    
-//    var potentialSavings: Int64 {
-//        // Size of all duplicates except the best one
-//        guard let best = bestAsset else { return totalSize }
-//        return assets.reduce(0) { sum, asset in
-//            asset == best ? sum : sum + getAssetSize(asset)
-//        }
-//    }
-//    
-//    private func getAssetSize(_ asset: PHAsset) -> Int64 {
-//        // Estimate based on dimensions
-//        if asset.mediaType == .image {
-//            return Int64(Double(asset.pixelWidth * asset.pixelHeight) * 0.1)
-//        }
-//        return 0
-//    }
-//}
-//
-//// MARK: - Main View
-//struct StorageOptimizationView: View {
-//    // Use @State for dynamic storage values
-//    @State private var totalStorage: Int64 = 0
-//    @State private var usedStorage: Int64 = 0
-//    @State private var freeStorage: Int64 = 0
-//    
-//    @State private var selectedContacts: Set<String> = []
-//
-//    @State private var selectedTab = "Duplicates"
-//    @State private var selectedPhotos: Set<Int> = []
-//    @State private var selectedVideos: Set<Int> = []
-//    @State private var selectedMediaItems: Set<String> = [] // Using localIdentifiers
-//    @State private var selectedMediaCategory = "Photos" // Default category
-//    
-//    // Photos access states
-//    @State private var photoAssets: PHFetchResult<PHAsset>?
-//    @State private var photoAccessGranted = false
-//    @State private var isLoading = true
-//    
-//    // Duplicate detection states
-//    @State private var duplicateGroups: [DuplicatePhotoGroup] = []
-//    @State private var selectedDuplicates: Set<String> = [] // localIdentifiers
-//    @State private var isAnalyzingDuplicates = false
-//    @State private var duplicatesAccessGranted = false
-//    @State private var analyzedPhotosCount = 0
-//    @State private var totalPhotosCount = 0
-//    
-//    let tabs = ["Duplicates",  "Clean Media", "Contacts Cleanup", "Calendar Cleaner"]
-//    let mediaCategories = ["Photos", "Videos", "Audio"]
-//    
-//    // Photo and video data
-//    let photoItems = [0, 1, 2, 3]
-//    let videoItems = [0, 1, 2, 3]
-//    
-//    var body: some View {
-//        VStack(spacing: 0) {
-//            // Navigation bar
-//            VStack(spacing: 20) {
-//                HStack {
-//                    Button(action: {}) {
-//                        Image(systemName: "chevron.left")
-//                            .foregroundColor(.blue)
-//                    }
-//                    Spacer()
-//                    Text("Storage Optimization")
-//                        .font(.headline)
-//                    Spacer()
-//                    Spacer().frame(width: 20) // For visual balance
-//                }
-//                
-//                .padding(.horizontal)
-//                .padding(.top)
-//                
-//                // Storage analysis section
-//                storageAnalysisSection
-//                
-//                // Tab selection
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    HStack(spacing: 15) {
-//                        ForEach(tabs, id: \.self) { tab in
-//                            Text(tab)
-//                                .padding(.vertical, 8)
-//                                .padding(.horizontal, 10)
-//                                .font(.subheadline)
-//                                .foregroundColor(selectedTab == tab ? .black : .gray)
-//                                .background(
-//                                    selectedTab == tab ?
-//                                    Rectangle()
-//                                        .fill(Color.white)
-//                                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-//                                    : nil
-//                                )
-//                                .cornerRadius(4)
-//                                .onTapGesture {
-//                                    selectedTab = tab
-//                                    if tab == "Duplicates" && duplicateGroups.isEmpty && !isAnalyzingDuplicates {
-//                                        requestPhotoAccessForDuplicates()
-//                                    } else if tab == "Clean Media" && photoAssets == nil {
-//                                        requestPhotoAccess()
-//                                    }
-//                                }
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                }
-//                .background(Color.gray.opacity(0.1))
-//            }
-//            
-//            // Content area
-//            if selectedTab == "Duplicates" {
-//                duplicatesContentView
-//            }else if selectedTab == "Clean Media" {
-//                cleanMediaView
-//            } else if selectedTab == "Contacts Cleanup" {
-//                ContactsCleanupView()
-//            }
-//            
-//           
-//            
-//            else if selectedTab == "Calendar Cleaner" {
-//                CalendarCleanerView()
-//            }
-//            
-//            // Delete button for duplicates
-//            if selectedTab == "Duplicates" && !selectedDuplicates.isEmpty && !isAnalyzingDuplicates {
-//                VStack {
-//                    Spacer()
-//                    deleteSelectedDuplicatesButton
-//                }
-//            }
-//            
-//            // Delete button only when items selected
-//            if selectedTab == "Clean Media" && !selectedMediaItems.isEmpty {
-//                Spacer()
-//                Button(action: {
-//                    // Action to delete selected photos
-//                    deleteSelectedPhotos()
-//                }) {
-//                    Text("Delete Selected Photos")
-//                        .font(.headline)
-//                        .foregroundColor(.white)
-//                        .frame(maxWidth: .infinity)
-//                        .padding(.vertical, 15)
-//                        .background(Color.blue)
-//                        .cornerRadius(8)
-//                }
-//                .padding(.horizontal)
-//                .padding(.bottom, 20)
-//                .transition(.opacity)
-//                .animation(.easeInOut(duration: 0.2), value: !selectedMediaItems.isEmpty)
-//            }
-//        }
-//        .background(Color(.systemBackground))
-//        .onAppear {
-//            // Get real device storage information when the view appears
-//            updateStorageInfo()
-//        }
-//    }
-//    
-//    // Add this method to update storage info
-//    private func updateStorageInfo() {
-//        let storageInfo = FileManager.default.deviceStorageInfo()
-//        self.totalStorage = storageInfo.total
-//        self.usedStorage = storageInfo.used
-//        self.freeStorage = storageInfo.free
-//    }
-//    
-//    // Helper method to format bytes into human-readable format
-//    private func formatBytes(_ bytes: Int64) -> String {
-//        let formatter = ByteCountFormatter()
-//        formatter.allowedUnits = [.useGB]
-//        formatter.countStyle = .file
-//        return formatter.string(fromByteCount: bytes)
-//    }
-//    
-//    // MARK: - Photo Library Access
-//    
-//    private func requestPhotoAccess() {
-//        isLoading = true
-//        
-//        PHPhotoLibrary.requestAuthorization { status in
-//            DispatchQueue.main.async {
-//                if status == .authorized || status == .limited {
-//                    self.photoAccessGranted = true
-//                    self.fetchMedia() // Changed from fetchPhotos
-//                } else {
-//                    self.photoAccessGranted = false
-//                    self.isLoading = false
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func fetchMedia() {
-//        let options = PHFetchOptions()
-//        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-//        
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            let mediaType: PHAssetMediaType
-//            
-//            switch self.selectedMediaCategory {
-//            case "Photos":
-//                mediaType = .image
-//            case "Videos":
-//                mediaType = .video
-//            case "Audio":
-//                // For audio, we can try to fetch using .audio type, but note that
-//                // this typically won't return many results from Photos library
-//                mediaType = .audio
-//            default:
-//                mediaType = .image
-//            }
-//            
-//            // Fetch assets of the specific type
-//            let assets = PHAsset.fetchAssets(with: mediaType, options: options)
-//            
-//            DispatchQueue.main.async {
-//                self.photoAssets = assets
-//                self.isLoading = false
-//            }
-//        }
-//    }
-//    
-//    // Delete selected photos
-//    private func deleteSelectedPhotos() {
-//        guard !selectedMediaItems.isEmpty, photoAccessGranted else { return }
-//        
-//        // In a real app, you would delete the actual photos
-//        // This is just simulating the deletion
-//        selectedMediaItems.removeAll()
-//    }
-//    
-//    // MARK: - Duplicates Content View
-//    private var duplicatesContentView: some View {
-//        VStack {
-//            if isAnalyzingDuplicates {
-//                // Analyzing progress view
-//                VStack(spacing: 20) {
-//                    ProgressView()
-//                        .scaleEffect(1.5)
-//                    
-//                    Text("Analyzing photos for duplicates...")
-//                        .font(.headline)
-//                    
-//                    Text("\(analyzedPhotosCount) of \(totalPhotosCount) photos analyzed")
-//                        .font(.subheadline)
-//                        .foregroundColor(.gray)
-//                    
-//                    // Progress bar
-//                    GeometryReader { geometry in
-//                        ZStack(alignment: .leading) {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.3))
-//                                .frame(height: 4)
-//                                .cornerRadius(2)
-//                            
-//                            Rectangle()
-//                                .fill(Color.blue)
-//                                .frame(width: geometry.size.width * CGFloat(analyzedPhotosCount) / CGFloat(max(totalPhotosCount, 1)), height: 4)
-//                                .cornerRadius(2)
-//                        }
-//                    }
-//                    .frame(height: 4)
-//                    .padding(.horizontal, 40)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            } else if !duplicatesAccessGranted {
-//                // Permission view
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.stack")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.gray)
-//                    
-//                    Text("Photo Access Required")
-//                        .font(.headline)
-//                    
-//                    Text("Please allow access to analyze your photos for duplicates.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                    
-//                    Button("Grant Access") {
-//                        requestPhotoAccessForDuplicates()
-//                    }
-//                    .foregroundColor(.white)
-//                    .padding(.horizontal, 30)
-//                    .padding(.vertical, 12)
-//                    .background(Color.blue)
-//                    .cornerRadius(8)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            } else if duplicateGroups.isEmpty {
-//                // No duplicates found
-//                VStack(spacing: 20) {
-//                    Image(systemName: "checkmark.circle.fill")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.green)
-//                    
-//                    Text("No Duplicates Found")
-//                        .font(.headline)
-//                    
-//                    Text("Great! Your photo library doesn't have any duplicate images.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                        .foregroundColor(.gray)
-//                    
-//                    Button("Scan Again") {
-//                        analyzeDuplicates()
-//                    }
-//                    .foregroundColor(.blue)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            } else {
-//                // Show duplicate groups
-//                ScrollView {
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        // Summary
-//                        HStack {
-//                            Text("\(duplicateGroups.count) duplicate groups found")
-//                                .font(.subheadline)
-//                                .foregroundColor(.gray)
-//                            
-//                            Spacer()
-//                            
-//                            if !selectedDuplicates.isEmpty {
-//                                Button("Deselect All") {
-//                                    selectedDuplicates.removeAll()
-//                                }
-//                                .font(.subheadline)
-//                                .foregroundColor(.blue)
-//                            }
-//                        }
-//                        .padding()
-//                        
-//                        // Potential savings
-//                        if !selectedDuplicates.isEmpty {
-//                            let savings = calculateSelectedSavings()
-//                            Text("Potential savings: \(formatBytes(savings))")
-//                                .font(.caption)
-//                                .foregroundColor(.green)
-//                                .padding(.horizontal)
-//                                .padding(.bottom, 10)
-//                        }
-//                        
-//                        // Duplicate groups
-//                        ForEach(duplicateGroups) { group in
-//                            DuplicateGroupView(
-//                                group: group,
-//                                selectedDuplicates: $selectedDuplicates
-//                            )
-//                            
-//                            Divider()
-//                                .padding(.horizontal)
-//                        }
-//                        
-//                        // Bottom padding for delete button
-//                        Color.clear.frame(height: 100)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    
-//    // MARK: - Delete Button for Duplicates
-//    private var deleteSelectedDuplicatesButton: some View {
-//        Button(action: {
-//            deleteSelectedDuplicates()
-//        }) {
-//            VStack(spacing: 4) {
-//                Text("Delete \(selectedDuplicates.count) Duplicates")
-//                    .font(.headline)
-//                Text("Save \(formatBytes(calculateSelectedSavings()))")
-//                    .font(.caption)
-//            }
-//            .foregroundColor(.white)
-//            .frame(maxWidth: .infinity)
-//            .padding(.vertical, 15)
-//            .background(Color.red)
-//            .cornerRadius(8)
-//        }
-//        .padding(.horizontal)
-//        .padding(.bottom, 20)
-//        .transition(.opacity)
-//        .animation(.easeInOut(duration: 0.2), value: !selectedDuplicates.isEmpty)
-//    }
-//    
-//    // MARK: - Photo Access for Duplicates
-//    private func requestPhotoAccessForDuplicates() {
-//        PHPhotoLibrary.requestAuthorization { status in
-//            DispatchQueue.main.async {
-//                if status == .authorized || status == .limited {
-//                    self.duplicatesAccessGranted = true
-//                    self.analyzeDuplicates()
-//                } else {
-//                    self.duplicatesAccessGranted = false
-//                }
-//            }
-//        }
-//    }
-//    
-//    // MARK: - Analyze Duplicates
-//    private func analyzeDuplicates() {
-//        isAnalyzingDuplicates = true
-//        duplicateGroups.removeAll()
-//        selectedDuplicates.removeAll()
-//        analyzedPhotosCount = 0
-//        
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            let fetchOptions = PHFetchOptions()
-//            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-//            let allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-//            
-//            DispatchQueue.main.async {
-//                self.totalPhotosCount = allPhotos.count
-//            }
-//            
-//            var hashGroups: [String: [PHAsset]] = [:]
-//            let imageManager = PHImageManager.default()
-//            let options = PHImageRequestOptions()
-//            options.isSynchronous = true
-//            options.deliveryMode = .fastFormat
-//            options.resizeMode = .fast
-//            
-//            // Process in batches to update progress
-//            let batchSize = 50
-//            for i in stride(from: 0, to: allPhotos.count, by: batchSize) {
-//                autoreleasepool {
-//                    let endIndex = min(i + batchSize, allPhotos.count)
-//                    
-//                    for j in i..<endIndex {
-//                        let asset = allPhotos[j]
-//                        
-//                        // Request small thumbnail for hash calculation
-//                        imageManager.requestImage(
-//                            for: asset,
-//                            targetSize: CGSize(width: 100, height: 100),
-//                            contentMode: .aspectFit,
-//                            options: options
-//                        ) { image, _ in
-//                            if let image = image,
-//                               let imageData = image.jpegData(compressionQuality: 0.5) {
-//                                let hash = SHA256.hash(data: imageData)
-//                                let hashString = hash.compactMap { String(format: "%02x", $0) }.joined()
-//                                
-//                                if hashGroups[hashString] == nil {
-//                                    hashGroups[hashString] = []
-//                                }
-//                                hashGroups[hashString]?.append(asset)
-//                            }
-//                        }
-//                    }
-//                    
-//                    DispatchQueue.main.async {
-//                        self.analyzedPhotosCount = endIndex
-//                    }
-//                }
-//            }
-//            
-//            // Filter groups with duplicates and create DuplicatePhotoGroup objects
-//            let duplicateGroupsArray = hashGroups.compactMap { (hash, assets) -> DuplicatePhotoGroup? in
-//                guard assets.count > 1 else { return nil }
-//                
-//                // Sort by creation date and quality to determine best
-//                let sortedAssets = assets.sorted { asset1, asset2 in
-//                    // Prefer higher resolution
-//                    let pixels1 = asset1.pixelWidth * asset1.pixelHeight
-//                    let pixels2 = asset2.pixelWidth * asset2.pixelHeight
-//                    
-//                    if pixels1 != pixels2 {
-//                        return pixels1 > pixels2
-//                    }
-//                    
-//                    // Then by creation date (newer first)
-//                    if let date1 = asset1.creationDate, let date2 = asset2.creationDate {
-//                        return date1 > date2
-//                    }
-//                    
-//                    return false
-//                }
-//                
-//                var group = DuplicatePhotoGroup(hash: hash, assets: sortedAssets)
-//                group.bestAsset = sortedAssets.first
-//                return group
-//            }
-//            
-//            DispatchQueue.main.async {
-//                self.duplicateGroups = duplicateGroupsArray.sorted { $0.potentialSavings > $1.potentialSavings }
-//                self.isAnalyzingDuplicates = false
-//            }
-//        }
-//    }
-//    
-//    // MARK: - Calculate Savings
-//    private func calculateSelectedSavings() -> Int64 {
-//        var totalSavings: Int64 = 0
-//        
-//        for group in duplicateGroups {
-//            for asset in group.assets {
-//                if selectedDuplicates.contains(asset.localIdentifier) {
-//                    let resources = PHAssetResource.assetResources(for: asset)
-//                    if let resource = resources.first {
-//                        // Estimate size
-//                        let estimatedSize = Int64(Double(asset.pixelWidth * asset.pixelHeight) * 0.1)
-//                        totalSavings += estimatedSize
-//                    }
-//                }
-//            }
-//        }
-//        
-//        return totalSavings
-//    }
-//    
-//    // MARK: - Delete Selected Duplicates
-//    private func deleteSelectedDuplicates() {
-//        guard !selectedDuplicates.isEmpty else { return }
-//        
-//        PHPhotoLibrary.shared().performChanges({
-//            let assetsToDelete = self.duplicateGroups.flatMap { group in
-//                group.assets.filter { self.selectedDuplicates.contains($0.localIdentifier) }
-//            }
-//            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSArray)
-//        }) { success, error in
-//            DispatchQueue.main.async {
-//                if success {
-//                    // Remove deleted items from groups
-//                    self.duplicateGroups = self.duplicateGroups.compactMap { group in
-//                        let remainingAssets = group.assets.filter { !self.selectedDuplicates.contains($0.localIdentifier) }
-//                        if remainingAssets.count > 1 {
-//                            var updatedGroup = group
-//                            updatedGroup.assets = remainingAssets
-//                            return updatedGroup
-//                        }
-//                        return nil
-//                    }
-//                    self.selectedDuplicates.removeAll()
-//                } else if let error = error {
-//                    print("Error deleting duplicates: \(error)")
-//                }
-//            }
-//        }
-//    }
-//    
-//    // MARK: - Clean Media View
-//    
-//    private var cleanMediaView: some View {
-//        VStack(spacing: 0) {
-//            // Media category selection
-//            HStack(spacing: 20) {
-//                ForEach(mediaCategories, id: \.self) { category in
-//                    mediaCategoryButton(category: category)
-//                }
-//            }
-//            .padding(.horizontal)
-//            .padding(.top, 15)
-//            .padding(.bottom, 5)
-//            
-//            if isLoading {
-//                // Loading view
-//                ProgressView("Loading photos...")
-//                    .padding()
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            } else if !photoAccessGranted {
-//                // Permission denied view
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.on.rectangle.angled")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.gray)
-//                    Text("Photo Access Required")
-//                        .font(.headline)
-//                    Text("Please allow access to your photos in Settings.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                    Button("Open Settings") {
-//                        if let url = URL(string: UIApplication.openSettingsURLString) {
-//                            UIApplication.shared.open(url)
-//                        }
-//                    }
-//                    .foregroundColor(.blue)
-//                }
-//                .padding()
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            } else if let assets = photoAssets, assets.count > 0 {
-//                // Selected count and media list
-//                HStack {
-//                    let selectedCount = selectedMediaItems.count
-//                    Text("\(selectedCount) Photo selected")
-//                        .font(.subheadline)
-//                        .foregroundColor(.gray)
-//                    Spacer()
-//                    if selectedCount > 0 {
-//                        Button("Deselect All") {
-//                            selectedMediaItems.removeAll()
-//                        }
-//                        .font(.subheadline)
-//                        .foregroundColor(.blue)
-//                    }
-//                }
-//                .padding(.horizontal)
-//                .padding(.vertical, 10)
-//                
-//                // Media items list
-//                ScrollView {
-//                    LazyVStack(spacing: 0) {
-//                        ForEach(0..<assets.count, id: \.self) { index in
-//                            let asset = assets[index]
-//                            AssetRow(
-//                                asset: asset,
-//                                isSelected: selectedMediaItems.contains(asset.localIdentifier),
-//                                onTap: {
-//                                    toggleSelection(id: asset.localIdentifier)
-//                                }
-//                            )
-//                            Divider()
-//                        }
-//                    }
-//                    .padding(.bottom, 120)
-//                }
-//            } else {
-//                // No photos found
-//                Text("No \(selectedMediaCategory.lowercased()) found")
-//                    .font(.headline)
-//                    .foregroundColor(.gray)
-//                    .padding()
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            }
-//        }
-//    }
-//    
-//    // Media category button
-//    private func mediaCategoryButton(category: String) -> some View {
-//        VStack {
-//            Button(action: {
-//                if selectedMediaCategory != category {
-//                    selectedMediaCategory = category
-//                    isLoading = true
-//                    selectedMediaItems.removeAll() // Clear selections when changing categories
-//                    
-//                    if category == "Audio" {
-//                        // For audio files, still use fetchMedia but be aware that
-//                        // it might not return many results from Photos library
-//                        fetchMedia()
-//                        
-//                        // Optional: If you wanted to show a message about limited audio support
-//                        /*
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//                            if self.photoAssets?.count == 0 {
-//                                // Could show some UI message about limited audio support
-//                            }
-//                        }
-//                        */
-//                    } else {
-//                        // For photos and videos
-//                        fetchMedia()
-//                    }
-//                }
-//            }) {
-//                VStack(spacing: 8) {
-//                    ZStack {
-//                        RoundedRectangle(cornerRadius: 12)
-//                            .fill(Color.white)
-//                            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-//                            .frame(width: 100, height: 80)
-//                        
-//                        Image(systemName: categoryIcon(for: category))
-//                            .font(.system(size: 24))
-//                            .foregroundColor(.blue)
-//                    }
-//                    
-//                    Text(category)
-//                        .font(.subheadline)
-//                        .foregroundColor(selectedMediaCategory == category ? .blue : .primary)
-//                }
-//            }
-//            
-//            // Indicator for selected category
-//            Rectangle()
-//                .fill(selectedMediaCategory == category ? Color.blue : Color.clear)
-//                .frame(height: 2)
-//                .cornerRadius(1)
-//        }
-//    }
-//    // Helper function to get icon for category
-//    private func categoryIcon(for category: String) -> String {
-//        switch category {
-//        case "Photos":
-//            return "photo"
-//        case "Videos":
-//            return "video"
-//        case "Audio":
-//            return "music.note"
-//        default:
-//            return "doc"
-//        }
-//    }
-//    
-//    // Toggle selection
-//    private func toggleSelection(id: String) {
-//        if selectedMediaItems.contains(id) {
-//            selectedMediaItems.remove(id)
-//        } else {
-//            selectedMediaItems.insert(id)
-//        }
-//    }
-//    
-//    // MARK: - Storage Analysis Section
-//    
-//    private var storageAnalysisSection: some View {
-//        VStack(alignment: .leading, spacing: 10) {
-//            Text("Storage analysis")
-//                .font(.headline)
-//                .padding(.horizontal)
-//            
-//            HStack(spacing: 20) {
-//                // Total Storage - using real values
-//                storageItem(
-//                    color: .blue,
-//                    title: "Total Storage",
-//                    value: formatBytes(totalStorage)
-//                )
-//                
-//                // Used Storage - using real values
-//                storageItem(
-//                    color: .red,
-//                    title: "Used Storage",
-//                    value: formatBytes(usedStorage)
-//                )
-//                
-//                // Free Storage - using real values
-//                storageItem(
-//                    color: .green,
-//                    title: "Free Storage",
-//                    value: formatBytes(freeStorage)
-//                )
-//            }
-//            .padding(.horizontal)
-//        }
-//    }
-//    
-//    private func storageItem(color: Color, title: String, value: String) -> some View {
-//        HStack(spacing: 6) {
-//            Circle()
-//                .fill(color)
-//                .frame(width: 8, height: 8)
-//            
-//            VStack(alignment: .leading, spacing: 2) {
-//                Text(title)
-//                    .font(.caption)
-//                    .foregroundColor(.gray)
-//                Text(value)
-//                    .font(.subheadline)
-//                    .fontWeight(.medium)
-//            }
-//        }
-//    }
-//    
-//    private func toggleContactSelection(id: String) {
-//        if selectedContacts.contains(id) {
-//            selectedContacts.remove(id)
-//        } else {
-//            selectedContacts.insert(id)
-//        }
-//    }
-//}
-//
-//// MARK: - Asset Row Component
-//struct AssetRow: View {
-//    let asset: PHAsset
-//    let isSelected: Bool
-//    let onTap: () -> Void
-//    
-//    @State private var thumbnail: UIImage?
-//    @State private var fileName: String = ""
-//    @State private var fileSize: String = ""
-//    
-//    var body: some View {
-//        Button(action: onTap) {
-//            HStack(spacing: 12) {
-//                // Thumbnail - different display for each media type
-//                if asset.mediaType == .audio {
-//                    // Specialized audio thumbnail
-//                    ZStack {
-//                        Rectangle()
-//                            .fill(Color.blue.opacity(0.1))
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                        
-//                        Image(systemName: "music.note")
-//                            .font(.system(size: 24))
-//                            .foregroundColor(.blue)
-//                    }
-//                } else if asset.mediaType == .video {
-//                    // Video thumbnail with duration indicator
-//                    ZStack(alignment: .bottomTrailing) {
-//                        if let image = thumbnail {
-//                            Image(uiImage: image)
-//                                .resizable()
-//                                .aspectRatio(contentMode: .fill)
-//                                .frame(width: 60, height: 60)
-//                                .cornerRadius(4)
-//                                .clipped()
-//                        } else {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.2))
-//                                .frame(width: 60, height: 60)
-//                                .cornerRadius(4)
-//                                .overlay(
-//                                    ProgressView()
-//                                )
-//                        }
-//                        
-//                        // Video duration label
-//                        Text(formatDuration(asset.duration))
-//                            .font(.system(size: 10))
-//                            .padding(.horizontal, 4)
-//                            .padding(.vertical, 2)
-//                            .background(Color.black.opacity(0.6))
-//                            .foregroundColor(.white)
-//                            .cornerRadius(2)
-//                            .padding(4)
-//                    }
-//                } else {
-//                    // Standard photo thumbnail
-//                    if let image = thumbnail {
-//                        Image(uiImage: image)
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fill)
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                            .clipped()
-//                    } else {
-//                        Rectangle()
-//                            .fill(Color.gray.opacity(0.2))
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                            .overlay(
-//                                ProgressView()
-//                            )
-//                    }
-//                }
-//                
-//                // Details
-//                VStack(alignment: .leading, spacing: 2) {
-//                    Text(fileName)
-//                        .font(.system(size: 16))
-//                        .foregroundColor(.primary)
-//                    
-//                    HStack {
-//                        if asset.mediaType == .audio {
-//                            Text("Duration")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text(formatDuration(asset.duration))
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                        } else {
-//                            Text("Taken")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text(formattedDate)
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                        }
-//                    }
-//                    
-//                    Text(fileSize)
-//                        .foregroundColor(.gray)
-//                        .font(.system(size: 14))
-//                }
-//                
-//                Spacer()
-//                
-//                // Selection indicator
-//                ZStack {
-//                    Circle()
-//                        .fill(isSelected ? Color.blue : Color.clear)
-//                        .frame(width: 24, height: 24)
-//                    
-//                    if isSelected {
-//                        Image(systemName: "checkmark")
-//                            .foregroundColor(.white)
-//                            .font(.system(size: 12, weight: .bold))
-//                    } else {
-//                        Circle()
-//                            .strokeBorder(Color.gray, lineWidth: 1)
-//                            .frame(width: 24, height: 24)
-//                    }
-//                }
-//            }
-//            .padding(.vertical, 10)
-//            .padding(.horizontal, 16)
-//        }
-//        .buttonStyle(PlainButtonStyle())
-//        .onAppear {
-//            // Don't try to load thumbnail for audio files
-//            if asset.mediaType != .audio {
-//                loadThumbnail()
-//            }
-//            loadAssetInfo()
-//        }
-//    }
-//    
-//    private func formatDuration(_ duration: TimeInterval) -> String {
-//          let minutes = Int(duration) / 60
-//          let seconds = Int(duration) % 60
-//          return String(format: "%d:%02d", minutes, seconds)
-//      }
-//    
-//    private var formattedDate: String {
-//            let formatter = DateFormatter()
-//            formatter.dateFormat = "MM/dd/yyyy"
-//            if let date = asset.creationDate {
-//                return formatter.string(from: date)
-//            }
-//            return "Unknown"
-//        }
-//    
-//    private func loadThumbnail() {
-//            let manager = PHImageManager.default()
-//            let options = PHImageRequestOptions()
-//            options.deliveryMode = .opportunistic
-//            options.resizeMode = .exact
-//            options.isNetworkAccessAllowed = true
-//            
-//            manager.requestImage(
-//                for: asset,
-//                targetSize: CGSize(width: 120, height: 120),
-//                contentMode: .aspectFill,
-//                options: options
-//            ) { image, _ in
-//                if let image = image {
-//                    DispatchQueue.main.async {
-//                        self.thumbnail = image
-//                    }
-//                }
-//            }
-//        }
-//    
-//    // Load asset metadata
-//    private func loadAssetInfo() {
-//        let resources = PHAssetResource.assetResources(for: asset)
-//        if let resource = resources.first {
-//            self.fileName = resource.originalFilename
-//            
-//            // Estimate file size based on dimensions
-//            let sizeInBytes: Int64
-//            if asset.mediaType == .image {
-//                sizeInBytes = Int64(Double(asset.pixelWidth * asset.pixelHeight) * 0.1)
-//            } else {
-//                sizeInBytes = Int64(asset.duration * 500000)
-//            }
-//            
-//            let formatter = ByteCountFormatter()
-//            formatter.allowedUnits = [.useKB, .useMB]
-//            formatter.countStyle = .file
-//            self.fileSize = formatter.string(fromByteCount: sizeInBytes)
-//        } else {
-//            self.fileName = "Photo \(asset.localIdentifier.suffix(8))"
-//            self.fileSize = "Unknown"
-//        }
-//    }
-//}
-//
-//// MARK: - Duplicate Group View
-//struct DuplicateGroupView: View {
-//    let group: DuplicatePhotoGroup
-//    @Binding var selectedDuplicates: Set<String>
-//    @State private var isExpanded = false
-//    @State private var thumbnails: [String: UIImage] = [:] // localIdentifier -> thumbnail
-//    
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 12) {
-//            // Header with best photo
-//            HStack(spacing: 12) {
-//                // Best photo thumbnail
-//                if let bestAsset = group.bestAsset {
-//                    ZStack(alignment: .topLeading) {
-//                        if let thumbnail = thumbnails[bestAsset.localIdentifier] {
-//                            Image(uiImage: thumbnail)
-//                                .resizable()
-//                                .aspectRatio(contentMode: .fill)
-//                                .frame(width: 80, height: 80)
-//                                .cornerRadius(8)
-//                                .clipped()
-//                        } else {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.2))
-//                                .frame(width: 80, height: 80)
-//                                .cornerRadius(8)
-//                                .overlay(
-//                                    ProgressView()
-//                                )
-//                        }
-//                        
-//                        // Best badge
-//                        Text("BEST")
-//                            .font(.system(size: 10, weight: .bold))
-//                            .foregroundColor(.white)
-//                            .padding(.horizontal, 6)
-//                            .padding(.vertical, 2)
-//                            .background(Color.green)
-//                            .cornerRadius(4)
-//                            .padding(4)
-//                    }
-//                }
-//                
-//                // Info
-//                VStack(alignment: .leading, spacing: 4) {
-//                    Text("\(group.assets.count) photos")
-//                        .font(.headline)
-//                    
-//                    Text("Potential savings: \(formatBytes(group.potentialSavings))")
-//                        .font(.subheadline)
-//                        .foregroundColor(.gray)
-//                    
-//                    if let bestAsset = group.bestAsset {
-//                        Text("\(bestAsset.pixelWidth) × \(bestAsset.pixelHeight) px")
-//                            .font(.caption)
-//                            .foregroundColor(.gray)
-//                    }
-//                }
-//                
-//                Spacer()
-//                
-//                // Expand/Collapse button
-//                Button(action: {
-//                    withAnimation {
-//                        isExpanded.toggle()
-//                    }
-//                }) {
-//                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-//                        .foregroundColor(.gray)
-//                }
-//            }
-//            .padding(.horizontal)
-//            .contentShape(Rectangle())
-//            .onTapGesture {
-//                withAnimation {
-//                    isExpanded.toggle()
-//                }
-//            }
-//            
-//            // Expanded duplicates
-//            if isExpanded {
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    HStack(spacing: 12) {
-//                        ForEach(group.assets.filter { $0 != group.bestAsset }, id: \.localIdentifier) { asset in
-//                            DuplicatePhotoItemView(
-//                                asset: asset,
-//                                isSelected: selectedDuplicates.contains(asset.localIdentifier),
-//                                thumbnail: thumbnails[asset.localIdentifier]
-//                            ) {
-//                                toggleDuplicateSelection(asset.localIdentifier)
-//                            }
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                }
-//            }
-//        }
-//        .padding(.vertical, 8)
-//        .onAppear {
-//            loadThumbnails()
-//        }
-//    }
-//    
-//    private func loadThumbnails() {
-//        let manager = PHImageManager.default()
-//        let options = PHImageRequestOptions()
-//        options.deliveryMode = .opportunistic
-//        options.resizeMode = .exact
-//        options.isNetworkAccessAllowed = true
-//        
-//        for asset in group.assets {
-//            manager.requestImage(
-//                for: asset,
-//                targetSize: CGSize(width: 160, height: 160),
-//                contentMode: .aspectFill,
-//                options: options
-//            ) { image, _ in
-//                if let image = image {
-//                    DispatchQueue.main.async {
-//                        self.thumbnails[asset.localIdentifier] = image
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func toggleDuplicateSelection(_ id: String) {
-//        if selectedDuplicates.contains(id) {
-//            selectedDuplicates.remove(id)
-//        } else {
-//            selectedDuplicates.insert(id)
-//        }
-//    }
-//    
-//    private func formatBytes(_ bytes: Int64) -> String {
-//        let formatter = ByteCountFormatter()
-//        formatter.allowedUnits = [.useKB, .useMB]
-//        formatter.countStyle = .file
-//        return formatter.string(fromByteCount: bytes)
-//    }
-//}
-//
-//// MARK: - Duplicate Photo Item View
-//struct DuplicatePhotoItemView: View {
-//    let asset: PHAsset
-//    let isSelected: Bool
-//    let thumbnail: UIImage?
-//    let onTap: () -> Void
-//    
-//    var body: some View {
-//        ZStack(alignment: .topTrailing) {
-//            VStack(spacing: 4) {
-//                // Thumbnail
-//                if let thumbnail = thumbnail {
-//                    Image(uiImage: thumbnail)
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fill)
-//                        .frame(width: 80, height: 80)
-//                        .cornerRadius(8)
-//                        .clipped()
-//                } else {
-//                    Rectangle()
-//                        .fill(Color.gray.opacity(0.2))
-//                        .frame(width: 80, height: 80)
-//                        .cornerRadius(8)
-//                        .overlay(
-//                            ProgressView()
-//                        )
-//                }
-//                
-//                // Info
-//                VStack(spacing: 2) {
-//                    Text("\(asset.pixelWidth)×\(asset.pixelHeight)")
-//                        .font(.system(size: 10))
-//                        .foregroundColor(.gray)
-//                    
-//                    if let date = asset.creationDate {
-//                        Text(dateFormatter.string(from: date))
-//                            .font(.system(size: 10))
-//                            .foregroundColor(.gray)
-//                    }
-//                }
-//            }
-//            
-//            // Selection checkbox
-//            ZStack {
-//                Circle()
-//                    .fill(isSelected ? Color.red : Color.black.opacity(0.5))
-//                    .frame(width: 24, height: 24)
-//                
-//                if isSelected {
-//                    Image(systemName: "checkmark")
-//                        .foregroundColor(.white)
-//                        .font(.system(size: 12, weight: .bold))
-//                } else {
-//                    Circle()
-//                        .strokeBorder(Color.white, lineWidth: 2)
-//                        .frame(width: 22, height: 22)
-//                }
-//            }
-//            .padding(4)
-//        }
-//        .onTapGesture {
-//            onTap()
-//        }
-//    }
-//    
-//    private var dateFormatter: DateFormatter {
-//        let formatter = DateFormatter()
-//        formatter.dateFormat = "MM/dd"
-//        return formatter
-//    }
-//}
-//
-//// MARK: - Contacts Cleanup View
-//
-//    
-//  
-//    
-//    
-//
-//// MARK: - Contact Row
-//
-//
-//// MARK: - Calendar Cleaner View
-//
-//    
-//
-//// MARK: - Event Row
-//struct EventRow: View {
-//    let event: EKEvent
-//    let isSelected: Bool
-//    let onTap: () -> Void
-//    
-//    var body: some View {
-//        Button(action: onTap) {
-//            HStack(spacing: 12) {
-//                // Calendar color indicator
-//                Rectangle()
-//                    .fill(Color(event.calendar.cgColor))
-//                    .frame(width: 4, height: 50)
-//                    .cornerRadius(2)
-//                
-//                VStack(alignment: .leading, spacing: 2) {
-//                    Text(event.title ?? "Untitled Event")
-//                        .font(.system(size: 16))
-//                        .foregroundColor(.primary)
-//                    
-//                    if let startDate = event.startDate {
-//                        Text(dateFormatter.string(from: startDate))
-//                            .font(.system(size: 14))
-//                            .foregroundColor(.gray)
-//                    }
-//                    
-//                    Text(event.calendar.title)
-//                        .font(.system(size: 12))
-//                        .foregroundColor(.gray)
-//                }
-//                
-//                Spacer()
-//                
-//                // Selection indicator
-//                ZStack {
-//                    Circle()
-//                        .fill(isSelected ? Color.red : Color.clear)
-//                        .frame(width: 24, height: 24)
-//                    
-//                    if isSelected {
-//                        Image(systemName: "checkmark")
-//                            .foregroundColor(.white)
-//                            .font(.system(size: 12, weight: .bold))
-//                    } else {
-//                        Circle()
-//                            .strokeBorder(Color.gray, lineWidth: 1)
-//                            .frame(width: 24, height: 24)
-//                    }
-//                }
-//            }
-//            .padding(.vertical, 8)
-//            .padding(.horizontal)
-//        }
-//        .buttonStyle(PlainButtonStyle())
-//    }
-//    
-//    private var dateFormatter: DateFormatter {
-//        let formatter = DateFormatter()
-//        formatter.dateStyle = .medium
-//        formatter.timeStyle = .short
-//        return formatter
-//    }
-//}
-//
-//
-//
-//extension CNContact {
-//    var initials: String {
-//        let first = givenName.first.map { String($0) } ?? ""
-//        let last = familyName.first.map { String($0) } ?? ""
-//        return (first + last).uppercased()
-//    }
-//}
 
-// MARK: - Duplicate Photo Model
+
 struct DuplicatePhotoGroup: Identifiable {
     let id = UUID()
     let hash: String
@@ -1357,6 +51,7 @@ struct StorageOptimizationView: View {
     @State private var freeStorage: Int64 = 0
     
     @State private var selectedContacts: Set<String> = []
+    @EnvironmentObject var storageState: StorageOptimizationState
 
     @State private var selectedTab = "Duplicates"
     @State private var selectedPhotos: Set<Int> = []
@@ -1369,6 +64,8 @@ struct StorageOptimizationView: View {
     @State private var photoAccessGranted = false
     @State private var isLoading = true
     
+    @EnvironmentObject var languageManager: LanguageManager // Add this line
+
     // Duplicate detection states
     @State private var duplicateGroups: [DuplicatePhotoGroup] = []
     @State private var selectedDuplicates: Set<String> = [] // localIdentifiers
@@ -1379,122 +76,617 @@ struct StorageOptimizationView: View {
     @State private var analyzedPhotosCount = 0
     @State private var totalPhotosCount = 0
     
-    let tabs = ["Duplicates",  "Clean Media", "Contacts Cleanup", "Calendar Cleaner"]
+    let tabs = ["Duplicates", "media_compression",  "Clean Media", "Contacts Cleanup", "Calendar Cleaner"]
+    
+    var localizedTabs: [String] {
+            [
+                LocalizedStrings.string(for: "duplicates", language: languageManager.currentLanguage),
+                LocalizedStrings.string(for: "media_compression", language: languageManager.currentLanguage),
+                LocalizedStrings.string(for: "clean_media", language: languageManager.currentLanguage),
+                LocalizedStrings.string(for: "contacts_cleanup", language: languageManager.currentLanguage),
+                LocalizedStrings.string(for: "calendar_cleaner", language: languageManager.currentLanguage)
+            ]
+        }
+    
+    private func getOriginalTabKey(for localizedTab: String) -> String {
+          let tabs = ["Duplicates", "media_compression", "Clean Media", "Contacts Cleanup", "Calendar Cleaner"]
+          let keys = ["duplicates", "media_compression", "clean_media", "contacts_cleanup", "calendar_cleaner"]
+          
+          for (index, key) in keys.enumerated() {
+              if LocalizedStrings.string(for: key, language: languageManager.currentLanguage) == localizedTab {
+                  return tabs[index]
+              }
+          }
+          return "Duplicates"
+      }
+    
     let mediaCategories = ["Photos", "Videos", "Audio"]
     
     // Photo and video data
     let photoItems = [0, 1, 2, 3]
     let videoItems = [0, 1, 2, 3]
     
+//
+//    var body: some View {
+//        VStack(spacing: 0) {
+//            // Navigation bar
+//            VStack(spacing: 20) {
+//                HStack {
+//                    Spacer()
+//                    Text("Storage Optimization")
+//                        .font(.headline)
+//                    Spacer()
+//                    Spacer().frame(width: 20)
+//                }
+//                .padding(.horizontal)
+//                .padding(.top)
+//                
+//                // Storage analysis section
+//                storageAnalysisSection
+//                
+//                // Tab selection
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    HStack(spacing: 15) {
+//                        ForEach(tabs, id: \.self) { tab in
+//                            Text(tab)
+//                                .padding(.vertical, 8)
+//                                .padding(.horizontal, 10)
+//                                .font(.subheadline)
+//                                .foregroundColor(storageState.selectedTab == tab ? .black : .gray)
+//                                .background(
+//                                    storageState.selectedTab == tab ?
+//                                    Rectangle()
+//                                        .fill(Color.white)
+//                                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+//                                    : nil
+//                                )
+//                                .cornerRadius(4)
+//                                .onTapGesture {
+//                                    storageState.selectedTab = tab
+//                                    
+//                                    if tab == "Duplicates" {
+//                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+//                                            requestPhotoAccessForDuplicates()
+//                                        }
+//                                    }
+//                                    else if tab == "Clean Media" && storageState.photoAssets == nil {
+//                                        requestPhotoAccess()
+//                                    }
+//                                }
+//                        }
+//                    }
+//                    .padding(.horizontal)
+//                }
+//                .background(Color.gray.opacity(0.1))
+//            }
+//            
+//            // Content area with proper layout
+//            if storageState.selectedTab == "Duplicates" {
+//                duplicatesContentViewFixed
+//            }
+//            else if storageState.selectedTab == "media_compression" {
+//                MediaCompressionView()
+//            }
+//            else if storageState.selectedTab == "Clean Media" {
+//                cleanMediaViewFixed
+//            } else if storageState.selectedTab == "Contacts Cleanup" {
+//                ContactsCleanupView()
+//            }
+//            else if storageState.selectedTab == "Calendar Cleaner" {
+//                CalendarCleanerView()
+//            }
+//        }
+//        .background(Color(.systemBackground))
+//        .onAppear {
+//            updateStorageInfo()
+//        }
+//    }
+//    
     var body: some View {
-        VStack(spacing: 0) {
-            // Navigation bar
-            VStack(spacing: 20) {
-                HStack {
-                  
-                    Spacer()
-                    Text("Storage Optimization")
-                        .font(.headline)
-                    Spacer()
-                    Spacer().frame(width: 20) // For visual balance
-                }
-                
-                .padding(.horizontal)
-                .padding(.top)
-                
-                // Storage analysis section
-                storageAnalysisSection
-                
-                // Tab selection
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 15) {
-                        ForEach(tabs, id: \.self) { tab in
-                            Text(tab)
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 10)
-                                .font(.subheadline)
-                                .foregroundColor(selectedTab == tab ? .black : .gray)
-                                .background(
-                                    selectedTab == tab ?
-                                    Rectangle()
-                                        .fill(Color.white)
-                                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-                                    : nil
-                                )
-                                .cornerRadius(4)
-                                .onTapGesture {
-                                    selectedTab = tab
-                                    if tab == "Duplicates" && duplicateGroups.isEmpty && !isAnalyzingDuplicates && !hasAnalyzedDuplicates {
-                                        requestPhotoAccessForDuplicates()
-                                    } else if tab == "Clean Media" && photoAssets == nil {
-                                        requestPhotoAccess()
-                                    }
-                                }
-                        }
+            VStack(spacing: 0) {
+                // Navigation bar
+                VStack(spacing: 20) {
+                    HStack {
+                        Spacer()
+                        LocalizedText("storage_optimization")
+                            .font(.headline)
+                        Spacer()
+                        Spacer().frame(width: 20)
                     }
                     .padding(.horizontal)
+                    .padding(.top)
+                    
+                    // Storage analysis section
+                //    storageAnalysisSection
+                    
+                    // Tab selection with localized names
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 15) {
+                            ForEach(localizedTabs, id: \.self) { localizedTab in
+                                let originalTab = getOriginalTabKey(for: localizedTab)
+                                
+                                Text(localizedTab)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 10)
+                                    .font(.subheadline)
+                                    .foregroundColor(storageState.selectedTab == originalTab ? .black : .gray)
+                                    .background(
+                                        storageState.selectedTab == originalTab ?
+                                        Rectangle()
+                                            .fill(Color.white)
+                                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                        : nil
+                                    )
+                                    .cornerRadius(4)
+                                    .onTapGesture {
+                                        storageState.selectedTab = originalTab
+                                        
+                                        if originalTab == "Duplicates" {
+                                            if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+                                                requestPhotoAccessForDuplicates()
+                                            }
+                                        }
+                                        else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+                                            requestPhotoAccess()
+                                        }
+                                    }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .background(Color.gray.opacity(0.1))
                 }
-                .background(Color.gray.opacity(0.1))
-            }
-            
-            // Content area
-            if selectedTab == "Duplicates" {
-                duplicatesContentView
-            }else if selectedTab == "Clean Media" {
-                cleanMediaView
-            } else if selectedTab == "Contacts Cleanup" {
-                ContactsCleanupView()
-            }
-            
-           
-            
-            else if selectedTab == "Calendar Cleaner" {
-                CalendarCleanerView()
-            }
-            
-            // Delete button for duplicates
-            if selectedTab == "Duplicates" && !selectedDuplicates.isEmpty && !isAnalyzingDuplicates {
-                VStack {
-                    Spacer()
-                    deleteSelectedDuplicatesButton
+                
+                // Content area with proper layout
+                if storageState.selectedTab == "Duplicates" {
+                    duplicatesContentViewFixed
+                }
+                else if storageState.selectedTab == "media_compression" {
+                    MediaCompressionView()
+                }
+                else if storageState.selectedTab == "Clean Media" {
+                    cleanMediaViewFixed
+                } else if storageState.selectedTab == "Contacts Cleanup" {
+                    ContactsCleanupView()
+                }
+                else if storageState.selectedTab == "Calendar Cleaner" {
+                    CalendarCleanerView()
                 }
             }
-            
-            // Delete button only when items selected
-            if selectedTab == "Clean Media" && !selectedMediaItems.isEmpty {
-                Spacer()
-                Button(action: {
-                    // Action to delete selected photos
-                    deleteSelectedPhotos()
-                }) {
-                    Text("Delete Selected Photos")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .background(Color.blue)
-                        .cornerRadius(8)
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 20)
-                .transition(.opacity)
-                .animation(.easeInOut(duration: 0.2), value: !selectedMediaItems.isEmpty)
+            .background(Color(.systemBackground))
+            .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+            .onAppear {
+                updateStorageInfo()
             }
         }
-        .background(Color(.systemBackground))
-        .onAppear {
-            // Get real device storage information when the view appears
-            updateStorageInfo()
+        
+    private var duplicatesContentViewFixed: some View {
+            VStack(spacing: 0) {
+                if storageState.isAnalyzingDuplicates {
+                    // Analyzing progress view
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        
+                        LocalizedText("analyzing_photos")
+                            .font(.headline)
+                        
+                        Text("\(storageState.analyzedPhotosCount) \(LocalizedStrings.string(for: "of", language: languageManager.currentLanguage)) \(storageState.totalPhotosCount) \(LocalizedStrings.string(for: "photos_analyzed", language: languageManager.currentLanguage))")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        
+                        // Progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(height: 4)
+                                    .cornerRadius(2)
+                                
+                                Rectangle()
+                                    .fill(Color.blue)
+                                    .frame(width: geometry.size.width * CGFloat(storageState.analyzedPhotosCount) / CGFloat(max(storageState.totalPhotosCount, 1)), height: 4)
+                                    .cornerRadius(2)
+                            }
+                        }
+                        .frame(height: 4)
+                        .padding(.horizontal, 40)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                }
+                else if !storageState.duplicatesAccessGranted {
+                    // Permission view
+                    VStack(spacing: 20) {
+                        Image(systemName: "photo.stack")
+                            .font(.system(size: 48))
+                            .foregroundColor(.gray)
+                        
+                        LocalizedText("photo_access_required")
+                            .font(.headline)
+                        
+                        LocalizedText("please_allow_access_analyze")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        Button(action: {
+                            storageState.hasCheckedDuplicatesAccess = false
+                            requestPhotoAccessForDuplicates()
+                        }) {
+                            LocalizedText("grant_access")
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 30)
+                                .padding(.vertical, 12)
+                                .background(Color.blue)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                }
+                else if storageState.duplicateGroups.isEmpty && !storageState.hasAnalyzedDuplicates {
+                    // Initial state - show analyze button
+                    VStack(spacing: 20) {
+                        Image(systemName: "photo.stack")
+                            .font(.system(size: 48))
+                            .foregroundColor(.blue)
+                        
+                        LocalizedText("find_duplicate_photos")
+                            .font(.headline)
+                        
+                        LocalizedText("scan_photo_library_description")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                            .foregroundColor(.gray)
+                        
+                        Button(action: {
+                            analyzeDuplicates()
+                        }) {
+                            LocalizedText("start_scanning")
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 30)
+                                .padding(.vertical, 12)
+                                .background(Color.blue)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                }
+                else if storageState.duplicateGroups.isEmpty && storageState.hasAnalyzedDuplicates {
+                    // No duplicates found
+                    VStack(spacing: 20) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 48))
+                            .foregroundColor(.green)
+                        
+                        LocalizedText("no_duplicates_found")
+                            .font(.headline)
+                        
+                        LocalizedText("great_no_duplicates")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                            .foregroundColor(.gray)
+                        
+                        Button(action: {
+                            analyzeDuplicates()
+                        }) {
+                            LocalizedText("scan_again")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                }
+                else {
+                    // Show duplicate groups with proper spacing for delete button
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            // Summary
+                            HStack {
+                                Text("\(storageState.duplicateGroups.count) \(LocalizedStrings.string(for: "duplicate_groups_found", language: languageManager.currentLanguage))")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                Spacer()
+                                
+                                if !storageState.selectedDuplicates.isEmpty {
+                                    Button(action: {
+                                        storageState.selectedDuplicates.removeAll()
+                                    }) {
+                                        LocalizedText("deselect_all")
+                                            .font(.subheadline)
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                            }
+                            .padding()
+                            
+                            // Potential savings
+                            if !storageState.selectedDuplicates.isEmpty {
+                                let savings = calculateSelectedSavings()
+                                Text("\(LocalizedStrings.string(for: "potential_savings", language: languageManager.currentLanguage)): \(formatBytes(savings))")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                                    .padding(.horizontal)
+                                    .padding(.bottom, 10)
+                            }
+                            
+                            // Duplicate groups
+                            ForEach(storageState.duplicateGroups) { group in
+                                DuplicateGroupView(
+                                    group: group,
+                                    selectedDuplicates: $storageState.selectedDuplicates
+                                )
+                                .environmentObject(languageManager)
+                                
+                                Divider()
+                                    .padding(.horizontal)
+                            }
+                            
+                            // Bottom padding to prevent overlap with delete button
+                            if !storageState.selectedDuplicates.isEmpty {
+                                Color.clear.frame(height: 90)
+                            } else {
+                                Color.clear.frame(height: 20)
+                            }
+                        }
+                    }
+                }
+                
+                // Delete button positioned at bottom without overlapping
+                if !storageState.selectedDuplicates.isEmpty && !storageState.isAnalyzingDuplicates {
+                    deleteSelectedDuplicatesButtonFixed
+                }
+            }
         }
-    }
+        
+//    private var duplicatesContentViewFixed: some View {
+//        VStack(spacing: 0) {
+//            if storageState.isAnalyzingDuplicates {
+//                // Analyzing progress view
+//                VStack(spacing: 20) {
+//                    ProgressView()
+//                        .scaleEffect(1.5)
+//                    
+//                    Text("Analyzing photos for duplicates...")
+//                        .font(.headline)
+//                    
+//                    Text("\(storageState.analyzedPhotosCount) of \(storageState.totalPhotosCount) photos analyzed")
+//                        .font(.subheadline)
+//                        .foregroundColor(.gray)
+//                    
+//                    // Progress bar
+//                    GeometryReader { geometry in
+//                        ZStack(alignment: .leading) {
+//                            Rectangle()
+//                                .fill(Color.gray.opacity(0.3))
+//                                .frame(height: 4)
+//                                .cornerRadius(2)
+//                            
+//                            Rectangle()
+//                                .fill(Color.blue)
+//                                .frame(width: geometry.size.width * CGFloat(storageState.analyzedPhotosCount) / CGFloat(max(storageState.totalPhotosCount, 1)), height: 4)
+//                                .cornerRadius(2)
+//                        }
+//                    }
+//                    .frame(height: 4)
+//                    .padding(.horizontal, 40)
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .padding()
+//            }
+//            else if !storageState.duplicatesAccessGranted {
+//                // Permission view
+//                VStack(spacing: 20) {
+//                    Image(systemName: "photo.stack")
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.gray)
+//                    
+//                    Text("Photo Access Required")
+//                        .font(.headline)
+//                    
+//                    Text("Please allow access to analyze your photos for duplicates.")
+//                        .multilineTextAlignment(.center)
+//                        .padding(.horizontal)
+//                    
+//                    Button("Grant Access") {
+//                        storageState.hasCheckedDuplicatesAccess = false
+//                        requestPhotoAccessForDuplicates()
+//                    }
+//                    .foregroundColor(.white)
+//                    .padding(.horizontal, 30)
+//                    .padding(.vertical, 12)
+//                    .background(Color.blue)
+//                    .cornerRadius(8)
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .padding()
+//            }
+//            else if storageState.duplicateGroups.isEmpty && !storageState.hasAnalyzedDuplicates {
+//                // Initial state - show analyze button
+//                VStack(spacing: 20) {
+//                    Image(systemName: "photo.stack")
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.blue)
+//                    
+//                    Text("Find Duplicate Photos")
+//                        .font(.headline)
+//                    
+//                    Text("Scan your photo library to find and remove duplicate images to free up storage space.")
+//                        .multilineTextAlignment(.center)
+//                        .padding(.horizontal)
+//                        .foregroundColor(.gray)
+//                    
+//                    Button("Start Scanning") {
+//                        analyzeDuplicates()
+//                    }
+//                    .foregroundColor(.white)
+//                    .padding(.horizontal, 30)
+//                    .padding(.vertical, 12)
+//                    .background(Color.blue)
+//                    .cornerRadius(8)
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .padding()
+//            }
+//            else if storageState.duplicateGroups.isEmpty && storageState.hasAnalyzedDuplicates {
+//                // No duplicates found
+//                VStack(spacing: 20) {
+//                    Image(systemName: "checkmark.circle.fill")
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.green)
+//                    
+//                    Text("No Duplicates Found")
+//                        .font(.headline)
+//                    
+//                    Text("Great! Your photo library doesn't have any duplicate images.")
+//                        .multilineTextAlignment(.center)
+//                        .padding(.horizontal)
+//                        .foregroundColor(.gray)
+//                    
+//                    Button("Scan Again") {
+//                        analyzeDuplicates()
+//                    }
+//                    .foregroundColor(.blue)
+//                }
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .padding()
+//            }
+//            else {
+//                // Show duplicate groups with proper spacing for delete button
+//                ScrollView {
+//                    VStack(alignment: .leading, spacing: 0) {
+//                        // Summary
+//                        HStack {
+//                            Text("\(storageState.duplicateGroups.count) duplicate groups found")
+//                                .font(.subheadline)
+//                                .foregroundColor(.gray)
+//                            
+//                            Spacer()
+//                            
+//                            if !storageState.selectedDuplicates.isEmpty {
+//                                Button("Deselect All") {
+//                                    storageState.selectedDuplicates.removeAll()
+//                                }
+//                                .font(.subheadline)
+//                                .foregroundColor(.blue)
+//                            }
+//                        }
+//                        .padding()
+//                        
+//                        // Potential savings
+//                        if !storageState.selectedDuplicates.isEmpty {
+//                            let savings = calculateSelectedSavings()
+//                            Text("Potential savings: \(formatBytes(savings))")
+//                                .font(.caption)
+//                                .foregroundColor(.green)
+//                                .padding(.horizontal)
+//                                .padding(.bottom, 10)
+//                        }
+//                        
+//                        // Duplicate groups
+//                        ForEach(storageState.duplicateGroups) { group in
+//                            DuplicateGroupView(
+//                                group: group,
+//                                selectedDuplicates: $storageState.selectedDuplicates
+//                            )
+//                            
+//                            Divider()
+//                                .padding(.horizontal)
+//                        }
+//                        
+//                        // Bottom padding to prevent overlap with delete button
+//                        if !storageState.selectedDuplicates.isEmpty {
+//                            Color.clear.frame(height: 90) // Space for delete button
+//                        } else {
+//                            Color.clear.frame(height: 20) // Normal bottom padding
+//                        }
+//                    }
+//                }
+//            }
+//            
+//            // Delete button positioned at bottom without overlapping
+//            if !storageState.selectedDuplicates.isEmpty && !storageState.isAnalyzingDuplicates {
+//                deleteSelectedDuplicatesButtonFixed
+//            }
+//        }
+//    }
     
+    private var deleteSelectedDuplicatesButtonFixed: some View {
+            VStack(spacing: 0) {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.clear, Color(.systemBackground).opacity(0.9), Color(.systemBackground)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 20)
+                
+                Button(action: {
+                    deleteSelectedDuplicates()
+                }) {
+                    VStack(spacing: 4) {
+                        Text("\(LocalizedStrings.string(for: "delete", language: languageManager.currentLanguage)) \(storageState.selectedDuplicates.count) \(LocalizedStrings.string(for: "duplicates", language: languageManager.currentLanguage))")
+                            .font(.headline)
+                        Text("\(LocalizedStrings.string(for: "save", language: languageManager.currentLanguage)) \(formatBytes(calculateSelectedSavings()))")
+                            .font(.caption)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .background(Color.red)
+                    .cornerRadius(12)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 20)
+                .background(Color(.systemBackground))
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .animation(.easeInOut(duration: 0.3), value: !storageState.selectedDuplicates.isEmpty)
+        }
+        
+    
+//    private var deleteSelectedDuplicatesButtonFixed: some View {
+//        VStack(spacing: 0) {
+//            // Semi-transparent background overlay to separate from content
+//            LinearGradient(
+//                gradient: Gradient(colors: [Color.clear, Color(.systemBackground).opacity(0.9), Color(.systemBackground)]),
+//                startPoint: .top,
+//                endPoint: .bottom
+//            )
+//            .frame(height: 20)
+//            
+//            // Delete button
+//            Button(action: {
+//                deleteSelectedDuplicates()
+//            }) {
+//                VStack(spacing: 4) {
+//                    Text("Delete \(storageState.selectedDuplicates.count) Duplicate\(storageState.selectedDuplicates.count > 1 ? "s" : "")")
+//                        .font(.headline)
+//                    Text("Save \(formatBytes(calculateSelectedSavings()))")
+//                        .font(.caption)
+//                }
+//                .foregroundColor(.white)
+//                .frame(maxWidth: .infinity)
+//                .padding(.vertical, 15)
+//                .background(Color.red)
+//                .cornerRadius(12)
+//            }
+//            .padding(.horizontal, 16)
+//            .padding(.bottom, 20)
+//            .background(Color(.systemBackground))
+//        }
+//        .transition(.move(edge: .bottom).combined(with: .opacity))
+//        .animation(.easeInOut(duration: 0.3), value: !storageState.selectedDuplicates.isEmpty)
+//    }
+
     // Add this method to update storage info
     private func updateStorageInfo() {
-        let storageInfo = FileManager.default.deviceStorageInfo()
-        self.totalStorage = storageInfo.total
-        self.usedStorage = storageInfo.used
-        self.freeStorage = storageInfo.free
-    }
+           let storageInfo = FileManager.default.deviceStorageInfo()
+           storageState.totalStorage = storageInfo.total
+           storageState.usedStorage = storageInfo.used
+           storageState.freeStorage = storageInfo.free
+       }
     
     // Helper method to format bytes into human-readable format
     private func formatBytes(_ bytes: Int64) -> String {
@@ -1505,228 +697,41 @@ struct StorageOptimizationView: View {
     }
     
     // MARK: - Photo Library Access
-    
     private func requestPhotoAccess() {
-        isLoading = true
-        
-        PHPhotoLibrary.requestAuthorization { status in
-            DispatchQueue.main.async {
-                if status == .authorized || status == .limited {
-                    self.photoAccessGranted = true
-                    self.fetchMedia() // Changed from fetchPhotos
-                } else {
-                    self.photoAccessGranted = false
-                    self.isLoading = false
-                }
-            }
-        }
-    }
+         storageState.isLoading = true
+         
+         PHPhotoLibrary.requestAuthorization { status in
+             DispatchQueue.main.async {
+                 if status == .authorized || status == .limited {
+                     storageState.photoAccessGranted = true
+                     fetchMedia()
+                 } else {
+                     storageState.photoAccessGranted = false
+                     storageState.isLoading = false
+                 }
+             }
+         }
+     }
     
-    private func fetchMedia() {
-        let options = PHFetchOptions()
-        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        
-        DispatchQueue.global(qos: .userInitiated).async {
-            let mediaType: PHAssetMediaType
-            
-            switch self.selectedMediaCategory {
-            case "Photos":
-                mediaType = .image
-            case "Videos":
-                mediaType = .video
-            case "Audio":
-                // For audio, we can try to fetch using .audio type, but note that
-                // this typically won't return many results from Photos library
-                mediaType = .audio
-            default:
-                mediaType = .image
-            }
-            
-            // Fetch assets of the specific type
-            let assets = PHAsset.fetchAssets(with: mediaType, options: options)
-            
-            DispatchQueue.main.async {
-                self.photoAssets = assets
-                self.isLoading = false
-            }
-        }
-    }
+   
+    
+//
     
     // Delete selected photos
     private func deleteSelectedPhotos() {
-        guard !selectedMediaItems.isEmpty, photoAccessGranted else { return }
-        
-        // In a real app, you would delete the actual photos
-        // This is just simulating the deletion
-        selectedMediaItems.removeAll()
-    }
+          guard !storageState.selectedMediaItems.isEmpty, storageState.photoAccessGranted else { return }
+          storageState.selectedMediaItems.removeAll()
+      }
     
     // MARK: - Duplicates Content View
-    private var duplicatesContentView: some View {
-        VStack {
-            if isAnalyzingDuplicates {
-                // Analyzing progress view
-                VStack(spacing: 20) {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                    
-                    Text("Analyzing photos for duplicates...")
-                        .font(.headline)
-                    
-                    Text("\(analyzedPhotosCount) of \(totalPhotosCount) photos analyzed")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    
-                    // Progress bar
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 4)
-                                .cornerRadius(2)
-                            
-                            Rectangle()
-                                .fill(Color.blue)
-                                .frame(width: geometry.size.width * CGFloat(analyzedPhotosCount) / CGFloat(max(totalPhotosCount, 1)), height: 4)
-                                .cornerRadius(2)
-                        }
-                    }
-                    .frame(height: 4)
-                    .padding(.horizontal, 40)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
-            } else if !duplicatesAccessGranted && !hasCheckedDuplicatesAccess {
-                // Permission view
-                VStack(spacing: 20) {
-                    Image(systemName: "photo.stack")
-                        .font(.system(size: 48))
-                        .foregroundColor(.gray)
-                    
-                    Text("Photo Access Required")
-                        .font(.headline)
-                    
-                    Text("Please allow access to analyze your photos for duplicates.")
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    Button("Grant Access") {
-                        requestPhotoAccessForDuplicates()
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .cornerRadius(8)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
-            } else if duplicateGroups.isEmpty && !hasAnalyzedDuplicates {
-                // Initial state - show analyze button
-                VStack(spacing: 20) {
-                    Image(systemName: "photo.stack")
-                        .font(.system(size: 48))
-                        .foregroundColor(.blue)
-                    
-                    Text("Find Duplicate Photos")
-                        .font(.headline)
-                    
-                    Text("Scan your photo library to find and remove duplicate images to free up storage space.")
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                        .foregroundColor(.gray)
-                    
-                    Button("Start Scanning") {
-                        analyzeDuplicates()
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .cornerRadius(8)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
-            } else if duplicateGroups.isEmpty && hasAnalyzedDuplicates {
-                // No duplicates found
-                VStack(spacing: 20) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(.green)
-                    
-                    Text("No Duplicates Found")
-                        .font(.headline)
-                    
-                    Text("Great! Your photo library doesn't have any duplicate images.")
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                        .foregroundColor(.gray)
-                    
-                    Button("Scan Again") {
-                        analyzeDuplicates()
-                    }
-                    .foregroundColor(.blue)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
-            } else {
-                // Show duplicate groups
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        // Summary
-                        HStack {
-                            Text("\(duplicateGroups.count) duplicate groups found")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            
-                            Spacer()
-                            
-                            if !selectedDuplicates.isEmpty {
-                                Button("Deselect All") {
-                                    selectedDuplicates.removeAll()
-                                }
-                                .font(.subheadline)
-                                .foregroundColor(.blue)
-                            }
-                        }
-                        .padding()
-                        
-                        // Potential savings
-                        if !selectedDuplicates.isEmpty {
-                            let savings = calculateSelectedSavings()
-                            Text("Potential savings: \(formatBytes(savings))")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                                .padding(.horizontal)
-                                .padding(.bottom, 10)
-                        }
-                        
-                        // Duplicate groups
-                        ForEach(duplicateGroups) { group in
-                            DuplicateGroupView(
-                                group: group,
-                                selectedDuplicates: $selectedDuplicates
-                            )
-                            
-                            Divider()
-                                .padding(.horizontal)
-                        }
-                        
-                        // Bottom padding for delete button
-                        Color.clear.frame(height: 100)
-                    }
-                }
-            }
-        }
-    }
+//
     
-    // MARK: - Delete Button for Duplicates
     private var deleteSelectedDuplicatesButton: some View {
         Button(action: {
             deleteSelectedDuplicates()
         }) {
             VStack(spacing: 4) {
-                Text("Delete \(selectedDuplicates.count) Duplicates")
+                Text("Delete \(storageState.selectedDuplicates.count) Duplicates")
                     .font(.headline)
                 Text("Save \(formatBytes(calculateSelectedSavings()))")
                     .font(.caption)
@@ -1740,31 +745,73 @@ struct StorageOptimizationView: View {
         .padding(.horizontal)
         .padding(.bottom, 20)
         .transition(.opacity)
-        .animation(.easeInOut(duration: 0.2), value: !selectedDuplicates.isEmpty)
+        .animation(.easeInOut(duration: 0.2), value: !storageState.selectedDuplicates.isEmpty)
     }
-    
-    // MARK: - Photo Access for Duplicates
     private func requestPhotoAccessForDuplicates() {
-        hasCheckedDuplicatesAccess = true
-        
-        PHPhotoLibrary.requestAuthorization { status in
-            DispatchQueue.main.async {
-                if status == .authorized || status == .limited {
-                    self.duplicatesAccessGranted = true
-                    // Don't automatically analyze, let user click the button
-                } else {
-                    self.duplicatesAccessGranted = false
+            // Only proceed if we haven't already checked
+            guard !storageState.hasCheckedDuplicatesAccess else { return }
+            
+            storageState.hasCheckedDuplicatesAccess = true
+            
+            PHPhotoLibrary.requestAuthorization { status in
+                DispatchQueue.main.async {
+                    if status == .authorized || status == .limited {
+                        storageState.duplicatesAccessGranted = true
+                    } else {
+                        storageState.duplicatesAccessGranted = false
+                    }
                 }
             }
         }
+    
+   
+    private func calculatePerceptualHash(image: UIImage) -> [Int] {
+        // Resize to 8x8 and convert to grayscale
+        let size = CGSize(width: 8, height: 8)
+        UIGraphicsBeginImageContextWithOptions(size, false, 1.0)
+        
+        // Draw image in grayscale
+        image.draw(in: CGRect(origin: .zero, size: size))
+        guard let resizedImage = UIGraphicsGetImageFromCurrentImageContext() else {
+            UIGraphicsEndImageContext()
+            return []
+        }
+        UIGraphicsEndImageContext()
+        
+        // Get pixel data
+        guard let cgImage = resizedImage.cgImage,
+              let data = cgImage.dataProvider?.data,
+              let pixelData = CFDataGetBytePtr(data) else {
+            return []
+        }
+        
+        // Calculate average brightness
+        var totalBrightness: Int = 0
+        var pixels: [Int] = []
+        
+        for y in 0..<8 {
+            for x in 0..<8 {
+                let pixelIndex = (y * cgImage.bytesPerRow) + (x * 4)
+                let r = Int(pixelData[pixelIndex])
+                let g = Int(pixelData[pixelIndex + 1])
+                let b = Int(pixelData[pixelIndex + 2])
+                let brightness = (r + g + b) / 3
+                pixels.append(brightness)
+                totalBrightness += brightness
+            }
+        }
+        
+        let averageBrightness = totalBrightness / 64
+        
+        // Generate hash based on whether each pixel is above or below average
+        return pixels.map { $0 > averageBrightness ? 1 : 0 }
     }
     
-    // MARK: - Analyze Duplicates
     private func analyzeDuplicates() {
-        isAnalyzingDuplicates = true
-        duplicateGroups.removeAll()
-        selectedDuplicates.removeAll()
-        analyzedPhotosCount = 0
+        storageState.isAnalyzingDuplicates = true
+        storageState.duplicateGroups.removeAll()
+        storageState.selectedDuplicates.removeAll()
+        storageState.analyzedPhotosCount = 0
         
         DispatchQueue.global(qos: .userInitiated).async {
             let fetchOptions = PHFetchOptions()
@@ -1772,7 +819,7 @@ struct StorageOptimizationView: View {
             let allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
             
             DispatchQueue.main.async {
-                self.totalPhotosCount = allPhotos.count
+                storageState.totalPhotosCount = allPhotos.count
             }
             
             // Store perceptual hashes with assets
@@ -1807,7 +854,7 @@ struct StorageOptimizationView: View {
                     }
                     
                     DispatchQueue.main.async {
-                        self.analyzedPhotosCount = endIndex
+                        storageState.analyzedPhotosCount = endIndex
                     }
                 }
             }
@@ -1881,55 +928,14 @@ struct StorageOptimizationView: View {
             }
             
             DispatchQueue.main.async {
-                self.duplicateGroups = duplicateGroupsArray.sorted { $0.potentialSavings > $1.potentialSavings }
-                self.isAnalyzingDuplicates = false
-                self.hasAnalyzedDuplicates = true
+                storageState.duplicateGroups = duplicateGroupsArray.sorted { $0.potentialSavings > $1.potentialSavings }
+                storageState.isAnalyzingDuplicates = false
+                storageState.hasAnalyzedDuplicates = true
             }
         }
     }
-    
     // MARK: - Perceptual Hash Calculation
-    private func calculatePerceptualHash(image: UIImage) -> [Int] {
-        // Resize to 8x8 and convert to grayscale
-        let size = CGSize(width: 8, height: 8)
-        UIGraphicsBeginImageContextWithOptions(size, false, 1.0)
-        
-        // Draw image in grayscale
-        image.draw(in: CGRect(origin: .zero, size: size))
-        guard let resizedImage = UIGraphicsGetImageFromCurrentImageContext() else {
-            UIGraphicsEndImageContext()
-            return []
-        }
-        UIGraphicsEndImageContext()
-        
-        // Get pixel data
-        guard let cgImage = resizedImage.cgImage,
-              let data = cgImage.dataProvider?.data,
-              let pixelData = CFDataGetBytePtr(data) else {
-            return []
-        }
-        
-        // Calculate average brightness
-        var totalBrightness: Int = 0
-        var pixels: [Int] = []
-        
-        for y in 0..<8 {
-            for x in 0..<8 {
-                let pixelIndex = (y * cgImage.bytesPerRow) + (x * 4)
-                let r = Int(pixelData[pixelIndex])
-                let g = Int(pixelData[pixelIndex + 1])
-                let b = Int(pixelData[pixelIndex + 2])
-                let brightness = (r + g + b) / 3
-                pixels.append(brightness)
-                totalBrightness += brightness
-            }
-        }
-        
-        let averageBrightness = totalBrightness / 64
-        
-        // Generate hash based on whether each pixel is above or below average
-        return pixels.map { $0 > averageBrightness ? 1 : 0 }
-    }
+   
     
     // MARK: - Hamming Distance
     private func hammingDistance(hash1: [Int], hash2: [Int]) -> Int {
@@ -1948,9 +954,9 @@ struct StorageOptimizationView: View {
     private func calculateSelectedSavings() -> Int64 {
         var totalSavings: Int64 = 0
         
-        for group in duplicateGroups {
+        for group in storageState.duplicateGroups {
             for asset in group.assets {
-                if selectedDuplicates.contains(asset.localIdentifier) {
+                if storageState.selectedDuplicates.contains(asset.localIdentifier) {
                     let resources = PHAssetResource.assetResources(for: asset)
                     if let resource = resources.first {
                         // Estimate size
@@ -1966,19 +972,19 @@ struct StorageOptimizationView: View {
     
     // MARK: - Delete Selected Duplicates
     private func deleteSelectedDuplicates() {
-        guard !selectedDuplicates.isEmpty else { return }
+        guard !storageState.selectedDuplicates.isEmpty else { return }
         
         PHPhotoLibrary.shared().performChanges({
-            let assetsToDelete = self.duplicateGroups.flatMap { group in
-                group.assets.filter { self.selectedDuplicates.contains($0.localIdentifier) }
+            let assetsToDelete = storageState.duplicateGroups.flatMap { group in
+                group.assets.filter { storageState.selectedDuplicates.contains($0.localIdentifier) }
             }
             PHAssetChangeRequest.deleteAssets(assetsToDelete as NSArray)
         }) { success, error in
             DispatchQueue.main.async {
                 if success {
                     // Remove deleted items from groups
-                    self.duplicateGroups = self.duplicateGroups.compactMap { group in
-                        let remainingAssets = group.assets.filter { !self.selectedDuplicates.contains($0.localIdentifier) }
+                    storageState.duplicateGroups = storageState.duplicateGroups.compactMap { group in
+                        let remainingAssets = group.assets.filter { !storageState.selectedDuplicates.contains($0.localIdentifier) }
                         if remainingAssets.count > 1 {
                             var updatedGroup = group
                             updatedGroup.assets = remainingAssets
@@ -1986,7 +992,7 @@ struct StorageOptimizationView: View {
                         }
                         return nil
                     }
-                    self.selectedDuplicates.removeAll()
+                    storageState.selectedDuplicates.removeAll()
                 } else if let error = error {
                     print("Error deleting duplicates: \(error)")
                 }
@@ -1995,117 +1001,453 @@ struct StorageOptimizationView: View {
     }
     
     // MARK: - Clean Media View
-    
-    private var cleanMediaView: some View {
-        VStack(spacing: 0) {
-            // Media category selection
-            HStack(spacing: 20) {
-                ForEach(mediaCategories, id: \.self) { category in
-                    mediaCategoryButton(category: category)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 15)
-            .padding(.bottom, 5)
-            
-            if isLoading {
-                // Loading view
-                ProgressView("Loading photos...")
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if !photoAccessGranted {
-                // Permission denied view
+    private var duplicatesContentView: some View {
+        VStack {
+            if storageState.isAnalyzingDuplicates {
+                // Analyzing progress view
                 VStack(spacing: 20) {
-                    Image(systemName: "photo.on.rectangle.angled")
+                    ProgressView()
+                        .scaleEffect(1.5)
+                    
+                    Text("Analyzing photos for duplicates...")
+                        .font(.headline)
+                    
+                    Text("\(storageState.analyzedPhotosCount) of \(storageState.totalPhotosCount) photos analyzed")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    
+                    // Progress bar
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 4)
+                                .cornerRadius(2)
+                            
+                            Rectangle()
+                                .fill(Color.blue)
+                                .frame(width: geometry.size.width * CGFloat(storageState.analyzedPhotosCount) / CGFloat(max(storageState.totalPhotosCount, 1)), height: 4)
+                                .cornerRadius(2)
+                        }
+                    }
+                    .frame(height: 4)
+                    .padding(.horizontal, 40)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+            }
+            else if !storageState.duplicatesAccessGranted {
+                // Permission view
+                VStack(spacing: 20) {
+                    Image(systemName: "photo.stack")
                         .font(.system(size: 48))
                         .foregroundColor(.gray)
+                    
                     Text("Photo Access Required")
                         .font(.headline)
-                    Text("Please allow access to your photos in Settings.")
+                    
+                    Text("Please allow access to analyze your photos for duplicates.")
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
-                    Button("Open Settings") {
-                        if let url = URL(string: UIApplication.openSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
+                    
+                    Button("Grant Access") {
+                        // Reset the check state to allow re-requesting
+                        storageState.hasCheckedDuplicatesAccess = false
+                        requestPhotoAccessForDuplicates()
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .cornerRadius(8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+            }
+            else if storageState.duplicateGroups.isEmpty && !storageState.hasAnalyzedDuplicates {
+                // Initial state - show analyze button
+                VStack(spacing: 20) {
+                    Image(systemName: "photo.stack")
+                        .font(.system(size: 48))
+                        .foregroundColor(.blue)
+                    
+                    Text("Find Duplicate Photos")
+                        .font(.headline)
+                    
+                    Text("Scan your photo library to find and remove duplicate images to free up storage space.")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .foregroundColor(.gray)
+                    
+                    Button("Start Scanning") {
+                        analyzeDuplicates()
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .cornerRadius(8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+            }
+            else if storageState.duplicateGroups.isEmpty && storageState.hasAnalyzedDuplicates {
+                // No duplicates found
+                VStack(spacing: 20) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.green)
+                    
+                    Text("No Duplicates Found")
+                        .font(.headline)
+                    
+                    Text("Great! Your photo library doesn't have any duplicate images.")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .foregroundColor(.gray)
+                    
+                    Button("Scan Again") {
+                        analyzeDuplicates()
                     }
                     .foregroundColor(.blue)
                 }
-                .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let assets = photoAssets, assets.count > 0 {
-                // Selected count and media list
-                HStack {
-                    let selectedCount = selectedMediaItems.count
-                    Text("\(selectedCount) Photo selected")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    Spacer()
-                    if selectedCount > 0 {
-                        Button("Deselect All") {
-                            selectedMediaItems.removeAll()
-                        }
-                        .font(.subheadline)
-                        .foregroundColor(.blue)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 10)
-                
-                // Media items list
+                .padding()
+            }
+            else {
+                // Show duplicate groups
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(0..<assets.count, id: \.self) { index in
-                            let asset = assets[index]
-                            AssetRow(
-                                asset: asset,
-                                isSelected: selectedMediaItems.contains(asset.localIdentifier),
-                                onTap: {
-                                    toggleSelection(id: asset.localIdentifier)
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Summary
+                        HStack {
+                            Text("\(storageState.duplicateGroups.count) duplicate groups found")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            Spacer()
+                            
+                            if !storageState.selectedDuplicates.isEmpty {
+                                Button("Deselect All") {
+                                    storageState.selectedDuplicates.removeAll()
                                 }
-                            )
-                            Divider()
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                            }
                         }
+                        .padding()
+                        
+                        // Potential savings
+                        if !storageState.selectedDuplicates.isEmpty {
+                            let savings = calculateSelectedSavings()
+                            Text("Potential savings: \(formatBytes(savings))")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                                .padding(.horizontal)
+                                .padding(.bottom, 10)
+                        }
+                        
+                        // Duplicate groups
+                        ForEach(storageState.duplicateGroups) { group in
+                            DuplicateGroupView(
+                                group: group,
+                                selectedDuplicates: $storageState.selectedDuplicates
+                            )
+                            
+                            Divider()
+                                .padding(.horizontal)
+                        }
+                        
+                        // Bottom padding for delete button
+                        Color.clear.frame(height: 100)
                     }
-                    .padding(.bottom, 120)
                 }
-            } else {
-                // No photos found
-                Text("No \(selectedMediaCategory.lowercased()) found")
-                    .font(.headline)
-                    .foregroundColor(.gray)
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
+//    private var cleanMediaViewFixed: some View {
+//        VStack(spacing: 0) {
+//            // Media category selection
+//            HStack(spacing: 20) {
+//                ForEach(mediaCategories, id: \.self) { category in
+//                    mediaCategoryButton(category: category)
+//                }
+//            }
+//            .padding(.horizontal)
+//            .padding(.top, 15)
+//            .padding(.bottom, 5)
+//            
+//            if storageState.isLoading {
+//                // Loading view with category-specific message
+//                VStack(spacing: 10) {
+//                    ProgressView()
+//                    Text("Loading \(storageState.selectedMediaCategory.lowercased())...")
+//                        .foregroundColor(.gray)
+//                }
+//                .padding()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            } else if !storageState.photoAccessGranted {
+//                // Permission denied view
+//                VStack(spacing: 20) {
+//                    Image(systemName: "photo.on.rectangle.angled")
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.gray)
+//                    Text("Photo Access Required")
+//                        .font(.headline)
+//                    Text("Please allow access to your photos in Settings.")
+//                        .multilineTextAlignment(.center)
+//                        .padding(.horizontal)
+//                    Button("Open Settings") {
+//                        if let url = URL(string: UIApplication.openSettingsURLString) {
+//                            UIApplication.shared.open(url)
+//                        }
+//                    }
+//                    .foregroundColor(.blue)
+//                }
+//                .padding()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            } else if let assets = storageState.photoAssets, assets.count > 0 {
+//                // Selected count and media list
+//                HStack {
+//                    let selectedCount = storageState.selectedMediaItems.count
+//                    let categoryName = storageState.selectedMediaCategory == "Photos" ? "Photo" :
+//                                     storageState.selectedMediaCategory == "Videos" ? "Video" : "Audio file"
+//                    let pluralName = selectedCount == 1 ? categoryName : "\(categoryName)s"
+//                    
+//                    Text("\(selectedCount) \(pluralName) selected")
+//                        .font(.subheadline)
+//                        .foregroundColor(.gray)
+//                    Spacer()
+//                    if selectedCount > 0 {
+//                        Button("Deselect All") {
+//                            storageState.selectedMediaItems.removeAll()
+//                        }
+//                        .font(.subheadline)
+//                        .foregroundColor(.blue)
+//                    }
+//                }
+//                .padding(.horizontal)
+//                .padding(.vertical, 10)
+//                
+//                // Media items list
+//                ScrollView {
+//                    LazyVStack(spacing: 0) {
+//                        ForEach(0..<assets.count, id: \.self) { index in
+//                            let asset = assets[index]
+//                            AssetRow(
+//                                asset: asset,
+//                                isSelected: storageState.selectedMediaItems.contains(asset.localIdentifier),
+//                                onTap: {
+//                                    toggleSelection(id: asset.localIdentifier)
+//                                }
+//                            )
+//                            Divider()
+//                        }
+//                        
+//                        // Bottom padding to prevent overlap with delete button
+//                        if !storageState.selectedMediaItems.isEmpty {
+//                            Color.clear.frame(height: 90)
+//                        } else {
+//                            Color.clear.frame(height: 20)
+//                        }
+//                    }
+//                }
+//            } else {
+//                // No media found with better messaging
+//                VStack(spacing: 20) {
+//                    Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.gray)
+//                    
+//                    Text("No \(storageState.selectedMediaCategory) Found")
+//                        .font(.headline)
+//                    
+//                    Text("Your photo library doesn't contain any \(storageState.selectedMediaCategory.lowercased()).")
+//                        .multilineTextAlignment(.center)
+//                        .foregroundColor(.gray)
+//                        .padding(.horizontal)
+//                }
+//                .padding()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            }
+//            
+//            // Delete button for clean media
+//            if !storageState.selectedMediaItems.isEmpty {
+//                cleanMediaDeleteButtonFixed
+//            }
+//        }
+//    }
     
+    private func getLocalizedCategoryName(_ category: String, singular: Bool = false) -> String {
+           let key = category.lowercased()
+           let localizedName = LocalizedStrings.string(for: key, language: languageManager.currentLanguage)
+           return singular ? localizedName.singularForm(language: languageManager.currentLanguage) : localizedName
+       }
+    
+    private var cleanMediaViewFixed: some View {
+            VStack(spacing: 0) {
+                // Media category selection with localized names
+                HStack(spacing: 20) {
+                    ForEach(mediaCategories, id: \.self) { category in
+                        mediaCategoryButton(category: category)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 15)
+                .padding(.bottom, 5)
+                
+                if storageState.isLoading {
+                    VStack(spacing: 10) {
+                        ProgressView()
+                        Text("\(LocalizedStrings.string(for: "loading", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory).lowercased())...")
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if !storageState.photoAccessGranted {
+                    VStack(spacing: 20) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 48))
+                            .foregroundColor(.gray)
+                        LocalizedText("photo_access_required")
+                            .font(.headline)
+                        LocalizedText("allow_access_photos_settings")
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        Button(action: {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            LocalizedText("open_settings")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let assets = storageState.photoAssets, assets.count > 0 {
+                    // Selected count and media list
+                    HStack {
+                        let selectedCount = storageState.selectedMediaItems.count
+                        let categoryName = getLocalizedCategoryName(storageState.selectedMediaCategory, singular: true)
+                        let pluralName = selectedCount == 1 ? categoryName : getLocalizedCategoryName(storageState.selectedMediaCategory)
+                        
+                        Text("\(selectedCount) \(pluralName) \(LocalizedStrings.string(for: "selected", language: languageManager.currentLanguage))")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        Spacer()
+                        if selectedCount > 0 {
+                            Button(action: {
+                                storageState.selectedMediaItems.removeAll()
+                            }) {
+                                LocalizedText("deselect_all")
+                                    .font(.subheadline)
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                    
+                    // Media items list
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(0..<assets.count, id: \.self) { index in
+                                let asset = assets[index]
+                                AssetRow(
+                                    asset: asset,
+                                    isSelected: storageState.selectedMediaItems.contains(asset.localIdentifier),
+                                    onTap: {
+                                        toggleSelection(id: asset.localIdentifier)
+                                    }
+                                )
+                                .environmentObject(languageManager)
+                                Divider()
+                            }
+                            
+                            if !storageState.selectedMediaItems.isEmpty {
+                                Color.clear.frame(height: 90)
+                            } else {
+                                Color.clear.frame(height: 20)
+                            }
+                        }
+                    }
+                } else {
+                    VStack(spacing: 20) {
+                        Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
+                            .font(.system(size: 48))
+                            .foregroundColor(.gray)
+                        
+                        Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory)) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
+                            .font(.headline)
+                        
+                        Text(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                
+                // Delete button for clean media
+                if !storageState.selectedMediaItems.isEmpty {
+                    cleanMediaDeleteButtonFixed
+                }
+            }
+        }
+        
+    private var cleanMediaDeleteButtonFixed: some View {
+            VStack(spacing: 0) {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.clear, Color(.systemBackground).opacity(0.9), Color(.systemBackground)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 20)
+                
+                Button(action: {
+                    deleteSelectedPhotos()
+                }) {
+                    LocalizedText("delete_selected_photos")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 20)
+                .background(Color(.systemBackground))
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .animation(.easeInOut(duration: 0.3), value: !storageState.selectedMediaItems.isEmpty)
+        }
+
+    // Helper method for media selection
+    private func toggleSelection(id: String) {
+        if storageState.selectedMediaItems.contains(id) {
+            storageState.selectedMediaItems.remove(id)
+        } else {
+            storageState.selectedMediaItems.insert(id)
+        }
+    }
+   
     // Media category button
     private func mediaCategoryButton(category: String) -> some View {
         VStack {
             Button(action: {
-                if selectedMediaCategory != category {
-                    selectedMediaCategory = category
-                    isLoading = true
-                    selectedMediaItems.removeAll() // Clear selections when changing categories
+                print("Switching to category: \(category)")
+                if storageState.selectedMediaCategory != category {
+                    storageState.selectedMediaCategory = category
+                    storageState.isLoading = true
+                    storageState.selectedMediaItems.removeAll() // Clear selections when changing categories
                     
-                    if category == "Audio" {
-                        // For audio files, still use fetchMedia but be aware that
-                        // it might not return many results from Photos library
-                        fetchMedia()
-                        
-                        // Optional: If you wanted to show a message about limited audio support
-                        /*
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            if self.photoAssets?.count == 0 {
-                                // Could show some UI message about limited audio support
-                            }
-                        }
-                        */
-                    } else {
-                        // For photos and videos
-                        fetchMedia()
-                    }
+                    // Reset photo assets to trigger reload
+                    storageState.photoAssets = nil
+                    
+                    // Fetch new media type
+                    fetchMedia()
                 }
             }) {
                 VStack(spacing: 8) {
@@ -2117,22 +1459,23 @@ struct StorageOptimizationView: View {
                         
                         Image(systemName: categoryIcon(for: category))
                             .font(.system(size: 24))
-                            .foregroundColor(.blue)
+                            .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .gray)
                     }
                     
                     Text(category)
                         .font(.subheadline)
-                        .foregroundColor(selectedMediaCategory == category ? .blue : .primary)
+                        .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .primary)
                 }
             }
             
             // Indicator for selected category
             Rectangle()
-                .fill(selectedMediaCategory == category ? Color.blue : Color.clear)
+                .fill(storageState.selectedMediaCategory == category ? Color.blue : Color.clear)
                 .frame(height: 2)
                 .cornerRadius(1)
         }
     }
+
     // Helper function to get icon for category
     private func categoryIcon(for category: String) -> String {
         switch category {
@@ -2147,49 +1490,130 @@ struct StorageOptimizationView: View {
         }
     }
     
-    // Toggle selection
-    private func toggleSelection(id: String) {
-        if selectedMediaItems.contains(id) {
-            selectedMediaItems.remove(id)
-        } else {
-            selectedMediaItems.insert(id)
-        }
-    }
+ 
     
     // MARK: - Storage Analysis Section
-    
-    private var storageAnalysisSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Storage analysis")
-                .font(.headline)
-                .padding(.horizontal)
+    private func fetchMedia() {
+        storageState.isLoading = true
+        
+        if storageState.selectedMediaCategory == "Audio" {
+            // For audio, we'll look for audio files in the device
+            fetchAudioFiles()
+        } else {
+            // For photos and videos, use the Photos framework
+            let options = PHFetchOptions()
+            options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             
-            HStack(spacing: 20) {
-                // Total Storage - using real values
-                storageItem(
-                    color: .blue,
-                    title: "Total Storage",
-                    value: formatBytes(totalStorage)
-                )
+            DispatchQueue.global(qos: .userInitiated).async {
+                let mediaType: PHAssetMediaType = storageState.selectedMediaCategory == "Photos" ? .image : .video
                 
-                // Used Storage - using real values
-                storageItem(
-                    color: .red,
-                    title: "Used Storage",
-                    value: formatBytes(usedStorage)
-                )
+                print("Fetching media type: \(mediaType.rawValue) for category: \(storageState.selectedMediaCategory)")
                 
-                // Free Storage - using real values
-                storageItem(
-                    color: .green,
-                    title: "Free Storage",
-                    value: formatBytes(freeStorage)
-                )
+                let assets = PHAsset.fetchAssets(with: mediaType, options: options)
+                
+                print("Found \(assets.count) \(storageState.selectedMediaCategory.lowercased())")
+                
+                DispatchQueue.main.async {
+                    storageState.photoAssets = assets
+                    storageState.isLoading = false
+                    
+                    if assets.count == 0 {
+                        print("No \(storageState.selectedMediaCategory.lowercased()) found in photo library")
+                    }
+                }
             }
-            .padding(.horizontal)
         }
     }
     
+    private func scanForAudioFiles() -> [URL] {
+        var audioFiles: [URL] = []
+        
+        // Common audio file extensions
+        let audioExtensions = ["mp3", "m4a", "wav", "aac", "flac", "ogg"]
+        
+        // Scan Documents directory
+        if let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            audioFiles.append(contentsOf: findAudioFiles(in: documentsPath, extensions: audioExtensions))
+        }
+        
+        // Scan Downloads directory (if accessible)
+        if let downloadsPath = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first {
+            audioFiles.append(contentsOf: findAudioFiles(in: downloadsPath, extensions: audioExtensions))
+        }
+        
+        return audioFiles
+    }
+    
+    private func findAudioFiles(in directory: URL, extensions: [String]) -> [URL] {
+        var audioFiles: [URL] = []
+        
+        do {
+            let fileURLs = try FileManager.default.contentsOfDirectory(
+                at: directory,
+                includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey, .creationDateKey],
+                options: .skipsHiddenFiles
+            )
+            
+            for fileURL in fileURLs {
+                let fileExtension = fileURL.pathExtension.lowercased()
+                if extensions.contains(fileExtension) {
+                    audioFiles.append(fileURL)
+                }
+            }
+        } catch {
+            print("Error scanning directory \(directory): \(error)")
+        }
+        
+        return audioFiles
+    }
+    private func fetchAudioFiles() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Create dummy PHFetchResult for audio files
+            // In a real implementation, you'd scan the file system for audio files
+            let audioFiles = self.scanForAudioFiles()
+            
+            DispatchQueue.main.async {
+                // For now, we'll create an empty result to show the "no audio found" message
+                // with helpful information about where audio files are typically stored
+                storageState.photoAssets = PHAsset.fetchAssets(with: .audio, options: PHFetchOptions())
+                storageState.isLoading = false
+                
+                print("Audio scanning complete. Found \(audioFiles.count) audio files")
+            }
+        }
+    }
+    
+//
+    
+//    private var storageAnalysisSection: some View {
+//            VStack(alignment: .leading, spacing: 10) {
+//                LocalizedText("storage_analysis")
+//                    .font(.headline)
+//                    .padding(.horizontal)
+//                
+//                HStack(spacing: 20) {
+//                    storageItem(
+//                        color: .blue,
+//                        title: LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage),
+//                        value: formatBytes(totalStorage)
+//                    )
+//                    
+//                    storageItem(
+//                        color: .red,
+//                        title: LocalizedStrings.string(for: "used_storage", language: languageManager.currentLanguage),
+//                        value: formatBytes(usedStorage)
+//                    )
+//                    
+//                    storageItem(
+//                        color: .green,
+//                        title: LocalizedStrings.string(for: "free_storage", language: languageManager.currentLanguage),
+//                        value: formatBytes(freeStorage)
+//                    )
+//                }
+//                .padding(.horizontal)
+//            }
+//        }
+//    
     private func storageItem(color: Color, title: String, value: String) -> some View {
         HStack(spacing: 6) {
             Circle()
@@ -2216,22 +1640,206 @@ struct StorageOptimizationView: View {
     }
 }
 
-// MARK: - Asset Row Component
+
+//struct AssetRow: View {
+//    let asset: PHAsset
+//    let isSelected: Bool
+//    let onTap: () -> Void
+//    
+//    @State private var thumbnail: UIImage?
+//    @State private var fileName: String = ""
+//    @State private var fileSize: String = ""
+//    @State private var isLoadingThumbnail = true
+//    
+//    var body: some View {
+//        Button(action: onTap) {
+//            HStack(spacing: 12) {
+//                // Thumbnail - different display for each media type
+//                if asset.mediaType == .audio {
+//                    // Specialized audio thumbnail
+//                    ZStack {
+//                        Rectangle()
+//                            .fill(Color.blue.opacity(0.1))
+//                            .frame(width: 60, height: 60)
+//                            .cornerRadius(4)
+//                        
+//                        Image(systemName: "music.note")
+//                            .font(.system(size: 24))
+//                            .foregroundColor(.blue)
+//                    }
+//                } else if asset.mediaType == .video {
+//                    // Video thumbnail with duration indicator
+//                    ZStack(alignment: .bottomTrailing) {
+//                        if isLoadingThumbnail && thumbnail == nil {
+//                            Rectangle()
+//                                .fill(Color.gray.opacity(0.2))
+//                                .frame(width: 60, height: 60)
+//                                .cornerRadius(4)
+//                                .overlay(
+//                                    ProgressView()
+//                                        .scaleEffect(0.8)
+//                                )
+//                        } else if let image = thumbnail {
+//                            Image(uiImage: image)
+//                                .resizable()
+//                                .aspectRatio(contentMode: .fill)
+//                                .frame(width: 60, height: 60)
+//                                .cornerRadius(4)
+//                                .clipped()
+//                        } else {
+//                            Rectangle()
+//                                .fill(Color.gray.opacity(0.3))
+//                                .frame(width: 60, height: 60)
+//                                .cornerRadius(4)
+//                                .overlay(
+//                                    Image(systemName: "video")
+//                                        .foregroundColor(.gray)
+//                                )
+//                        }
+//                        
+//                        // Video duration label and play icon
+//                        HStack(spacing: 2) {
+//                            Image(systemName: "play.fill")
+//                                .font(.system(size: 8))
+//                                .foregroundColor(.white)
+//                            
+//                            Text(formatDuration(asset.duration))
+//                                .font(.system(size: 10, weight: .medium))
+//                                .foregroundColor(.white)
+//                        }
+//                        .padding(.horizontal, 4)
+//                        .padding(.vertical, 2)
+//                        .background(Color.black.opacity(0.7))
+//                        .cornerRadius(3)
+//                        .padding(4)
+//                    }
+//                } else {
+//                    // Standard photo thumbnail
+//                    if isLoadingThumbnail && thumbnail == nil {
+//                        Rectangle()
+//                            .fill(Color.gray.opacity(0.2))
+//                            .frame(width: 60, height: 60)
+//                            .cornerRadius(4)
+//                            .overlay(
+//                                ProgressView()
+//                                    .scaleEffect(0.8)
+//                            )
+//                    } else if let image = thumbnail {
+//                        Image(uiImage: image)
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fill)
+//                            .frame(width: 60, height: 60)
+//                            .cornerRadius(4)
+//                            .clipped()
+//                    } else {
+//                        Rectangle()
+//                            .fill(Color.gray.opacity(0.3))
+//                            .frame(width: 60, height: 60)
+//                            .cornerRadius(4)
+//                            .overlay(
+//                                Image(systemName: "photo")
+//                                    .foregroundColor(.gray)
+//                            )
+//                    }
+//                }
+//                
+//                // Details
+//                VStack(alignment: .leading, spacing: 2) {
+//                    Text(fileName)
+//                        .font(.system(size: 16))
+//                        .foregroundColor(.primary)
+//                        .lineLimit(1)
+//                    
+//                    HStack {
+//                        if asset.mediaType == .audio {
+//                            Text("Duration")
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                            
+//                            Text(formatDuration(asset.duration))
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                        } else if asset.mediaType == .video {
+//                            Text("Duration")
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                            
+//                            Text(formatDuration(asset.duration))
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                            
+//                            Text("•")
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                            
+//                            Text("\(asset.pixelWidth)×\(asset.pixelHeight)")
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                        } else {
+//                            Text("Taken")
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                            
+//                            Text(formattedDate)
+//                                .foregroundColor(.gray)
+//                                .font(.system(size: 14))
+//                        }
+//                    }
+//                    
+//                    Text(fileSize)
+//                        .foregroundColor(.gray)
+//                        .font(.system(size: 14))
+//                }
+//                
+//                Spacer()
+//                
+//                // Selection indicator
+//                ZStack {
+//                    Circle()
+//                        .fill(isSelected ? Color.blue : Color.clear)
+//                        .frame(width: 24, height: 24)
+//                    
+//                    if isSelected {
+//                        Image(systemName: "checkmark")
+//                            .foregroundColor(.white)
+//                            .font(.system(size: 12, weight: .bold))
+//                    } else {
+//                        Circle()
+//                            .strokeBorder(Color.gray, lineWidth: 1)
+//                            .frame(width: 24, height: 24)
+//                    }
+//                }
+//            }
+//            .padding(.vertical, 10)
+//            .padding(.horizontal, 16)
+//        }
+//        .buttonStyle(PlainButtonStyle())
+//        .onAppear {
+//            loadAssetInfo()
+//            // Load thumbnail for both photos and videos
+//            if asset.mediaType != .audio {
+//                loadThumbnail()
+//            } else {
+//                isLoadingThumbnail = false
+//            }
+//        }
+//    }
 struct AssetRow: View {
     let asset: PHAsset
     let isSelected: Bool
     let onTap: () -> Void
+    @EnvironmentObject var languageManager: LanguageManager
     
     @State private var thumbnail: UIImage?
     @State private var fileName: String = ""
     @State private var fileSize: String = ""
+    @State private var isLoadingThumbnail = true
     
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
-                // Thumbnail - different display for each media type
+                // Thumbnail display (keep existing code)
                 if asset.mediaType == .audio {
-                    // Specialized audio thumbnail
                     ZStack {
                         Rectangle()
                             .fill(Color.blue.opacity(0.1))
@@ -2243,9 +1851,14 @@ struct AssetRow: View {
                             .foregroundColor(.blue)
                     }
                 } else if asset.mediaType == .video {
-                    // Video thumbnail with duration indicator
                     ZStack(alignment: .bottomTrailing) {
-                        if let image = thumbnail {
+                        if isLoadingThumbnail && thumbnail == nil {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 60, height: 60)
+                                .cornerRadius(4)
+                                .overlay(ProgressView().scaleEffect(0.8))
+                        } else if let image = thumbnail {
                             Image(uiImage: image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -2254,27 +1867,35 @@ struct AssetRow: View {
                                 .clipped()
                         } else {
                             Rectangle()
-                                .fill(Color.gray.opacity(0.2))
+                                .fill(Color.gray.opacity(0.3))
                                 .frame(width: 60, height: 60)
                                 .cornerRadius(4)
-                                .overlay(
-                                    ProgressView()
-                                )
+                                .overlay(Image(systemName: "video").foregroundColor(.gray))
                         }
                         
-                        // Video duration label
-                        Text(formatDuration(asset.duration))
-                            .font(.system(size: 10))
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
-                            .background(Color.black.opacity(0.6))
-                            .foregroundColor(.white)
-                            .cornerRadius(2)
-                            .padding(4)
+                        HStack(spacing: 2) {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(.white)
+                            
+                            Text(formatDuration(asset.duration))
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(3)
+                        .padding(4)
                     }
                 } else {
-                    // Standard photo thumbnail
-                    if let image = thumbnail {
+                    if isLoadingThumbnail && thumbnail == nil {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 60, height: 60)
+                            .cornerRadius(4)
+                            .overlay(ProgressView().scaleEffect(0.8))
+                    } else if let image = thumbnail {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -2283,32 +1904,47 @@ struct AssetRow: View {
                             .clipped()
                     } else {
                         Rectangle()
-                            .fill(Color.gray.opacity(0.2))
+                            .fill(Color.gray.opacity(0.3))
                             .frame(width: 60, height: 60)
                             .cornerRadius(4)
-                            .overlay(
-                                ProgressView()
-                            )
+                            .overlay(Image(systemName: "photo").foregroundColor(.gray))
                     }
                 }
                 
-                // Details
+                // Details with translations
                 VStack(alignment: .leading, spacing: 2) {
                     Text(fileName)
                         .font(.system(size: 16))
                         .foregroundColor(.primary)
+                        .lineLimit(1)
                     
                     HStack {
                         if asset.mediaType == .audio {
-                            Text("Duration")
+                            Text(LocalizedStrings.string(for: "duration", language: languageManager.currentLanguage))
                                 .foregroundColor(.gray)
                                 .font(.system(size: 14))
                             
                             Text(formatDuration(asset.duration))
                                 .foregroundColor(.gray)
                                 .font(.system(size: 14))
+                        } else if asset.mediaType == .video {
+                            Text(LocalizedStrings.string(for: "duration", language: languageManager.currentLanguage))
+                                .foregroundColor(.gray)
+                                .font(.system(size: 14))
+                            
+                            Text(formatDuration(asset.duration))
+                                .foregroundColor(.gray)
+                                .font(.system(size: 14))
+                            
+                            Text("•")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 14))
+                            
+                            Text("\(asset.pixelWidth)×\(asset.pixelHeight)")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 14))
                         } else {
-                            Text("Taken")
+                            Text(LocalizedStrings.string(for: "taken", language: languageManager.currentLanguage))
                                 .foregroundColor(.gray)
                                 .font(.system(size: 14))
                             
@@ -2325,7 +1961,7 @@ struct AssetRow: View {
                 
                 Spacer()
                 
-                // Selection indicator
+                // Selection indicator (keep existing)
                 ZStack {
                     Circle()
                         .fill(isSelected ? Color.blue : Color.clear)
@@ -2347,28 +1983,45 @@ struct AssetRow: View {
         }
         .buttonStyle(PlainButtonStyle())
         .onAppear {
-            // Don't try to load thumbnail for audio files
+            loadAssetInfo()
             if asset.mediaType != .audio {
                 loadThumbnail()
+            } else {
+                isLoadingThumbnail = false
             }
-            loadAssetInfo()
         }
     }
+     
     
-    private func formatDuration(_ duration: TimeInterval) -> String {
-          let minutes = Int(duration) / 60
-          let seconds = Int(duration) % 60
-          return String(format: "%d:%02d", minutes, seconds)
-      }
+//    private var formattedDate: String {
+//          let formatter = DateFormatter()
+//          formatter.dateFormat = "MM/dd/yyyy"
+//          if let date = asset.creationDate {
+//              return formatter.string(from: date)
+//          }
+//          return "Unknown"
+//      }
     
     private var formattedDate: String {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MM/dd/yyyy"
-            if let date = asset.creationDate {
-                return formatter.string(from: date)
-            }
-            return "Unknown"
-        }
+           let formatter = DateFormatter()
+           formatter.dateFormat = "MM/dd/yyyy"
+           if let date = asset.creationDate {
+               return formatter.string(from: date)
+           }
+           return LocalizedStrings.string(for: "unknown", language: languageManager.currentLanguage)
+       }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+           let hours = Int(duration) / 3600
+           let minutes = (Int(duration) % 3600) / 60
+           let seconds = Int(duration) % 60
+           
+           if hours > 0 {
+               return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+           } else {
+               return String(format: "%d:%02d", minutes, seconds)
+           }
+       }
     
     private func loadThumbnail() {
             let manager = PHImageManager.default()
@@ -2376,16 +2029,51 @@ struct AssetRow: View {
             options.deliveryMode = .opportunistic
             options.resizeMode = .exact
             options.isNetworkAccessAllowed = true
+            options.isSynchronous = false
             
-            manager.requestImage(
-                for: asset,
-                targetSize: CGSize(width: 120, height: 120),
-                contentMode: .aspectFill,
-                options: options
-            ) { image, _ in
-                if let image = image {
+            // For videos, we need to specifically request video thumbnails
+            if asset.mediaType == .video {
+                let videoOptions = PHVideoRequestOptions()
+                videoOptions.isNetworkAccessAllowed = true
+                
+                manager.requestAVAsset(forVideo: asset, options: videoOptions) { avAsset, audioMix, info in
+                    guard let avAsset = avAsset else {
+                        DispatchQueue.main.async {
+                            self.isLoadingThumbnail = false
+                        }
+                        return
+                    }
+                    
+                    let imageGenerator = AVAssetImageGenerator(asset: avAsset)
+                    imageGenerator.appliesPreferredTrackTransform = true
+                    imageGenerator.maximumSize = CGSize(width: 120, height: 120)
+                    
+                    do {
+                        let cgImage = try imageGenerator.copyCGImage(at: CMTime.zero, actualTime: nil)
+                        let thumbnail = UIImage(cgImage: cgImage)
+                        
+                        DispatchQueue.main.async {
+                            self.thumbnail = thumbnail
+                            self.isLoadingThumbnail = false
+                        }
+                    } catch {
+                        print("Error generating video thumbnail: \(error)")
+                        DispatchQueue.main.async {
+                            self.isLoadingThumbnail = false
+                        }
+                    }
+                }
+            } else {
+                // For photos, use the regular image request
+                manager.requestImage(
+                    for: asset,
+                    targetSize: CGSize(width: 120, height: 120),
+                    contentMode: .aspectFill,
+                    options: options
+                ) { image, _ in
                     DispatchQueue.main.async {
                         self.thumbnail = image
+                        self.isLoadingThumbnail = false
                     }
                 }
             }
@@ -2393,41 +2081,47 @@ struct AssetRow: View {
     
     // Load asset metadata
     private func loadAssetInfo() {
-        let resources = PHAssetResource.assetResources(for: asset)
-        if let resource = resources.first {
-            self.fileName = resource.originalFilename
-            
-            // Estimate file size based on dimensions
-            let sizeInBytes: Int64
-            if asset.mediaType == .image {
-                sizeInBytes = Int64(Double(asset.pixelWidth * asset.pixelHeight) * 0.1)
+            let resources = PHAssetResource.assetResources(for: asset)
+            if let resource = resources.first {
+                self.fileName = resource.originalFilename
+                
+                // Better size estimation for different media types
+                let sizeInBytes: Int64
+                if asset.mediaType == .image {
+                    sizeInBytes = Int64(Double(asset.pixelWidth * asset.pixelHeight) * 0.1)
+                } else if asset.mediaType == .video {
+                    // More accurate video size estimation based on duration and resolution
+                    let pixelCount = asset.pixelWidth * asset.pixelHeight
+                    let bitrate = Double(pixelCount) * 0.5 // Estimated bitrate per pixel
+                    sizeInBytes = Int64(asset.duration * bitrate)
+                } else {
+                    sizeInBytes = Int64(asset.duration * 500000) // Audio estimation
+                }
+                
+                let formatter = ByteCountFormatter()
+                formatter.allowedUnits = [.useKB, .useMB, .useGB]
+                formatter.countStyle = .file
+                self.fileSize = formatter.string(fromByteCount: sizeInBytes)
             } else {
-                sizeInBytes = Int64(asset.duration * 500000)
+                self.fileName = "\(asset.mediaType == .video ? "Video" : "Photo") \(asset.localIdentifier.suffix(8))"
+                self.fileSize = "Unknown"
             }
-            
-            let formatter = ByteCountFormatter()
-            formatter.allowedUnits = [.useKB, .useMB]
-            formatter.countStyle = .file
-            self.fileSize = formatter.string(fromByteCount: sizeInBytes)
-        } else {
-            self.fileName = "Photo \(asset.localIdentifier.suffix(8))"
-            self.fileSize = "Unknown"
         }
     }
-}
 
 // MARK: - Duplicate Group View
 struct DuplicateGroupView: View {
     let group: DuplicatePhotoGroup
     @Binding var selectedDuplicates: Set<String>
+    @EnvironmentObject var languageManager: LanguageManager
     @State private var isExpanded = false
-    @State private var thumbnails: [String: UIImage] = [:] // localIdentifier -> thumbnail
+    @State private var thumbnails: [String: UIImage] = [:]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header with best photo
             HStack(spacing: 12) {
-                // Best photo thumbnail
+                // Best photo thumbnail (keep existing code)
                 if let bestAsset = group.bestAsset {
                     ZStack(alignment: .topLeading) {
                         if let thumbnail = thumbnails[bestAsset.localIdentifier] {
@@ -2442,13 +2136,11 @@ struct DuplicateGroupView: View {
                                 .fill(Color.gray.opacity(0.2))
                                 .frame(width: 80, height: 80)
                                 .cornerRadius(8)
-                                .overlay(
-                                    ProgressView()
-                                )
+                                .overlay(ProgressView())
                         }
                         
-                        // Best badge
-                        Text("BEST")
+                        // Best badge with translation
+                        Text(LocalizedStrings.string(for: "best", language: languageManager.currentLanguage))
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 6)
@@ -2459,12 +2151,12 @@ struct DuplicateGroupView: View {
                     }
                 }
                 
-                // Info
+                // Info with translations
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(group.assets.count) photos")
+                    Text("\(group.assets.count) \(LocalizedStrings.string(for: "photos", language: languageManager.currentLanguage))")
                         .font(.headline)
                     
-                    Text("Potential savings: \(formatBytes(group.potentialSavings))")
+                    Text("\(LocalizedStrings.string(for: "potential_savings", language: languageManager.currentLanguage)): \(formatBytes(group.potentialSavings))")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     
@@ -2520,27 +2212,27 @@ struct DuplicateGroupView: View {
     }
     
     private func loadThumbnails() {
-        let manager = PHImageManager.default()
-        let options = PHImageRequestOptions()
-        options.deliveryMode = .opportunistic
-        options.resizeMode = .exact
-        options.isNetworkAccessAllowed = true
-        
-        for asset in group.assets {
-            manager.requestImage(
-                for: asset,
-                targetSize: CGSize(width: 160, height: 160),
-                contentMode: .aspectFill,
-                options: options
-            ) { image, _ in
-                if let image = image {
-                    DispatchQueue.main.async {
-                        self.thumbnails[asset.localIdentifier] = image
+            let manager = PHImageManager.default()
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .opportunistic
+            options.resizeMode = .exact
+            options.isNetworkAccessAllowed = true
+            
+            for asset in group.assets {
+                manager.requestImage(
+                    for: asset,
+                    targetSize: CGSize(width: 160, height: 160),
+                    contentMode: .aspectFill,
+                    options: options
+                ) { image, _ in
+                    if let image = image {
+                        DispatchQueue.main.async {
+                            self.thumbnails[asset.localIdentifier] = image
+                        }
                     }
                 }
             }
         }
-    }
     
     private func toggleDuplicateSelection(_ id: String) {
         if selectedDuplicates.contains(id) {

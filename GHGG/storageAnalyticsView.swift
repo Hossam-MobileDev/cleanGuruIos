@@ -8,11 +8,11 @@
 import Foundation
 import SwiftUI
 
-
 struct StorageAnalyticsView: View {
-    
+    @State private var showSubscription = false
     @StateObject private var deviceInfo = DeviceInfoManager()
-    
+    @EnvironmentObject var languageManager: LanguageManager // Changed from @StateObject to @EnvironmentObject
+
     // Calculate storage usage percentage
     var storagePercentage: Int {
         let total = deviceInfo.totalStorage.0
@@ -30,6 +30,10 @@ struct StorageAnalyticsView: View {
                     deviceInfo.refreshData()
                 }
         }
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+        .onReceive(NotificationCenter.default.publisher(for: .languageChanged)) { _ in
+            // Force view refresh when language changes
+        }
     }
     
     // Breaking down the view into smaller components
@@ -41,10 +45,11 @@ struct StorageAnalyticsView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                 Spacer()
-//                Button("Upgrade") {
-//                    // Upgrade action
-//                }
-                .foregroundColor(.orange)
+                // Upgrade button commented out but can be uncommented if needed
+                // Button(LocalizedStrings.string(for: "upgrade", language: languageManager.currentLanguage)) {
+                //     showSubscription = true
+                // }
+                // .foregroundColor(.orange)
             }
             .padding(.horizontal)
             
@@ -55,11 +60,14 @@ struct StorageAnalyticsView: View {
         }
         .padding(.top)
         .background(Color(.systemGroupedBackground))
+        .sheet(isPresented: $showSubscription) {
+            SubscriptionView()
+        }
     }
     
     private var storageAnalyticsHeader: some View {
         VStack {
-            Text("Storage Analytics")
+            LocalizedText("storage_analytics")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding(.top)
@@ -85,31 +93,75 @@ struct StorageAnalyticsView: View {
     private var infoCardsSection: some View {
         VStack(spacing: 16) {
             // Total Storage
-            InfoCard(icon: "doc.fill", title: "Total Storage", value: "\(deviceInfo.totalStorage.0)\(deviceInfo.totalStorage.1)") {
-                VStack(alignment: .leading, spacing: 4) {
-                    InfoRow(title: "Available Space", value: "\(deviceInfo.availableStorage.0)\(deviceInfo.availableStorage.1)")
-                    InfoRow(title: "Used Space", value: "\(deviceInfo.usedStorage.0)\(deviceInfo.usedStorage.1)")
+            InfoCard(
+                icon: "doc.fill",
+                title: LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage),
+                value: "\(deviceInfo.totalStorage.0)\(deviceInfo.totalStorage.1)",
+                languageManager: languageManager
+            ) {
+                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 4) {
+                    InfoRow(
+                        title: LocalizedStrings.string(for: "available_space", language: languageManager.currentLanguage),
+                        value: "\(deviceInfo.availableStorage.0)\(deviceInfo.availableStorage.1)",
+                        languageManager: languageManager
+                    )
+                    InfoRow(
+                        title: LocalizedStrings.string(for: "used_space", language: languageManager.currentLanguage),
+                        value: "\(deviceInfo.usedStorage.0)\(deviceInfo.usedStorage.1)",
+                        languageManager: languageManager
+                    )
                 }
             }
             
             // Total RAM
-            InfoCard(icon: "memorychip", title: "Total RAM", value: "\(deviceInfo.totalRAM.0)\(deviceInfo.totalRAM.1)") {
+            InfoCard(
+                icon: "memorychip",
+                title: LocalizedStrings.string(for: "total_ram", language: languageManager.currentLanguage),
+                value: "\(deviceInfo.totalRAM.0)\(deviceInfo.totalRAM.1)",
+                languageManager: languageManager
+            ) {
                 EmptyView()
             }
             
             // CPU Information
-            InfoCard(icon: "cpu", title: "CPU Information", value: "") {
-                VStack(alignment: .leading, spacing: 4) {
-                    InfoRow(title: "Core Count", value: "\(deviceInfo.cpuCores) cores")
-                    InfoRow(title: "Architecture", value: deviceInfo.architecture)
+            InfoCard(
+                icon: "cpu",
+                title: LocalizedStrings.string(for: "cpu_information", language: languageManager.currentLanguage),
+                value: "",
+                languageManager: languageManager
+            ) {
+                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 4) {
+                    InfoRow(
+                        title: LocalizedStrings.string(for: "core_count", language: languageManager.currentLanguage),
+                        value: "\(deviceInfo.cpuCores) \(LocalizedStrings.string(for: "cores", language: languageManager.currentLanguage))",
+                        languageManager: languageManager
+                    )
+                    InfoRow(
+                        title: LocalizedStrings.string(for: "architecture", language: languageManager.currentLanguage),
+                        value: deviceInfo.architecture,
+                        languageManager: languageManager
+                    )
                 }
             }
             
             // Battery Information
-            InfoCard(icon: "battery.75", title: "Battery Information", value: "") {
-                VStack(alignment: .leading, spacing: 4) {
-                    InfoRow(title: "Battery Percentage", value: "\(deviceInfo.batteryPercentage)%")
-                    InfoRow(title: "Charging State", value: deviceInfo.chargingState)
+            InfoCard(
+                icon: "battery.75",
+                title: LocalizedStrings.string(for: "battery_information", language: languageManager.currentLanguage),
+                value: "",
+                languageManager: languageManager
+            ) {
+                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 4) {
+                    InfoRow(
+                        title: LocalizedStrings.string(for: "battery_percentage", language: languageManager.currentLanguage),
+                        value: "\(deviceInfo.batteryPercentage)%",
+                        languageManager: languageManager
+                    )
+                    InfoRow(
+                        title: LocalizedStrings.string(for: "charging_state", language: languageManager.currentLanguage),
+                        value: getLocalizedChargingState(deviceInfo.chargingState),
+                        languageManager: languageManager
+                    )
                 }
             }
         }
@@ -118,16 +170,28 @@ struct StorageAnalyticsView: View {
     
     private var deviceInfoSection: some View {
         VStack {
-            Text("Device Info")
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
+            HStack {
+                LocalizedText("device_info")
+                    .font(.headline)
+                if languageManager.isArabic {
+                    Spacer()
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: languageManager.isArabic ? .trailing : .leading)
+            .padding(.horizontal)
             
             VStack(spacing: 12) {
-                InfoRow(title: "Model", value: deviceInfo.deviceModel)
-                InfoRow(title: "OS Version", value: deviceInfo.osVersion)
+                InfoRow(
+                    title: LocalizedStrings.string(for: "model", language: languageManager.currentLanguage),
+                    value: deviceInfo.deviceModel,
+                    languageManager: languageManager
+                )
+                InfoRow(
+                    title: LocalizedStrings.string(for: "os_version", language: languageManager.currentLanguage),
+                    value: deviceInfo.osVersion,
+                    languageManager: languageManager
+                )
             }
-            
             .padding()
             .background(Color(.systemBackground))
             .cornerRadius(16)
@@ -136,74 +200,24 @@ struct StorageAnalyticsView: View {
         }
     }
     
+    // Helper function to localize charging state
+    private func getLocalizedChargingState(_ state: String) -> String {
+        switch state.lowercased() {
+        case "charging":
+            return LocalizedStrings.string(for: "charging", language: languageManager.currentLanguage)
+        case "fully charged":
+            return LocalizedStrings.string(for: "fully_charged", language: languageManager.currentLanguage)
+        case "not charging":
+            return LocalizedStrings.string(for: "not_charging", language: languageManager.currentLanguage)
+        case "unknown":
+            return LocalizedStrings.string(for: "unknown", language: languageManager.currentLanguage)
+        default:
+            return state
+        }
+    }
 }
 
-// Custom Gauge View
-//struct GaugeView: View {
-//    let percentage: CGFloat
-//    
-//    var body: some View {
-//        ZStack {
-//            backgroundTrack
-//            progressArc
-//            tickMarks
-//            needle
-//            centerCircle
-//        }
-//    }
-//    
-//    // MARK: - Component Views
-//    
-//    private var backgroundTrack: some View {
-//        Circle()
-//            .stroke(Color.gray.opacity(0.2), style: StrokeStyle(lineWidth: 15, lineCap: .round))
-//    }
-//    
-//    private var progressArc: some View {
-//        Circle()
-//            .trim(from: 0, to: percentage / 100)
-//            .stroke(progressGradient, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-//            .rotationEffect(.degrees(-90))
-//    }
-//    
-//    private var progressGradient: AngularGradient {
-//        AngularGradient(
-//            gradient: Gradient(colors: [.green, .yellow, .orange, .red]),
-//            center: .center,
-//            startAngle: .degrees(0),
-//            endAngle: .degrees(360)
-//        )
-//    }
-//    
-//    private var tickMarks: some View {
-//        ForEach(0..<12, id: \.self) { i in
-//            tickMark(at: i)
-//        }
-//    }
-//    
-//    private func tickMark(at index: Int) -> some View {
-//        Rectangle()
-//            .fill(Color.gray.opacity(0.5))
-//            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-//            .offset(y: -80)
-//            .rotationEffect(.degrees(Double(index) * 30))
-//    }
-//    
-//    private var needle: some View {
-//        Rectangle()
-//            .fill(Color.black)
-//            .frame(width: 2, height: 70)
-//            .offset(y: -35)
-//            .rotationEffect(.degrees(Double(percentage) * 3.6 - 90.0))
-//    }
-//    
-//    private var centerCircle: some View {
-//        Circle()
-//            .fill(Color.black)
-//            .frame(width: 15, height: 15)
-//    }
-//}
-
+// Custom Gauge View - Updated with RTL support
 struct GaugeView: View {
     let percentage: CGFloat
     
@@ -212,7 +226,6 @@ struct GaugeView: View {
             backgroundTrack
             progressArc
             tickMarks
-            // needle and centerCircle removed
         }
     }
     
@@ -252,39 +265,57 @@ struct GaugeView: View {
             .offset(y: -80)
             .rotationEffect(.degrees(Double(index) * 30))
     }
-    
-    // needle property removed
-    // centerCircle property removed
 }
-// Reusable Info Card Component
+
+// Updated Info Card Component with Language Support
 struct InfoCard<Content: View>: View {
     let icon: String
     let title: String
     let value: String
+    let languageManager: LanguageManager
     let content: Content
     
-    init(icon: String, title: String, value: String, @ViewBuilder content: () -> Content) {
+    init(icon: String, title: String, value: String, languageManager: LanguageManager, @ViewBuilder content: () -> Content) {
         self.icon = icon
         self.title = title
         self.value = value
+        self.languageManager = languageManager
         self.content = content()
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 12) {
             HStack {
-                Image(systemName: icon)
-                    .foregroundColor(.blue)
-                    .frame(width: 24, height: 24)
-                
-                Text(title)
-                    .fontWeight(.medium)
-                
-                Spacer()
-                
-                if !value.isEmpty {
-                    Text(value)
-                        .fontWeight(.semibold)
+                if languageManager.isArabic {
+                    // RTL layout
+                    if !value.isEmpty {
+                        Text(value)
+                            .fontWeight(.semibold)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(title)
+                        .fontWeight(.medium)
+                    
+                    Image(systemName: icon)
+                        .foregroundColor(.blue)
+                        .frame(width: 24, height: 24)
+                } else {
+                    // LTR layout
+                    Image(systemName: icon)
+                        .foregroundColor(.blue)
+                        .frame(width: 24, height: 24)
+                    
+                    Text(title)
+                        .fontWeight(.medium)
+                    
+                    Spacer()
+                    
+                    if !value.isEmpty {
+                        Text(value)
+                            .fontWeight(.semibold)
+                    }
                 }
             }
             
@@ -297,21 +328,34 @@ struct InfoCard<Content: View>: View {
     }
 }
 
-// Reusable Info Row Component
+// Updated Info Row Component with Language Support
 struct InfoRow: View {
     let title: String
     let value: String
+    let languageManager: LanguageManager
     
     var body: some View {
         HStack {
-            Text(title)
-                .foregroundColor(.gray)
-            Spacer()
-            Text(value)
-                .fontWeight(.medium)
+            if languageManager.isArabic {
+                // RTL layout
+                Text(value)
+                    .fontWeight(.medium)
+                Spacer()
+                Text(title)
+                    .foregroundColor(.gray)
+            } else {
+                // LTR layout
+                Text(title)
+                    .foregroundColor(.gray)
+                Spacer()
+                Text(value)
+                    .fontWeight(.medium)
+            }
         }
     }
 }
+
+
 
 struct StorageAnalyticsView_Previews: PreviewProvider {
     static var previews: some View {

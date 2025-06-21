@@ -5,10 +5,39 @@
 //  Created by test on 11/05/2025.
 //
 import SwiftUI
+import Photos
 
-
+class StorageOptimizationState: ObservableObject {
+    // Duplicate detection states
+    @Published var duplicateGroups: [DuplicatePhotoGroup] = []
+    @Published var selectedDuplicates: Set<String> = []
+    @Published var isAnalyzingDuplicates = false
+    @Published var duplicatesAccessGranted = false
+    @Published var hasCheckedDuplicatesAccess = false
+    @Published var hasAnalyzedDuplicates = false
+    @Published var analyzedPhotosCount = 0
+    @Published var totalPhotosCount = 0
+    
+    // Clean Media states
+    @Published var photoAssets: PHFetchResult<PHAsset>?
+    @Published var photoAccessGranted = false
+    @Published var isLoading = true
+    @Published var selectedMediaItems: Set<String> = []
+    @Published var selectedMediaCategory = "Photos"
+    
+    // Other states
+    @Published var selectedTab = "Duplicates"
+    @Published var selectedContacts: Set<String> = []
+    @Published var totalStorage: Int64 = 0
+    @Published var usedStorage: Int64 = 0
+    @Published var freeStorage: Int64 = 0
+}
 
 struct ContentView: View {
+    // Use @EnvironmentObject instead of creating a new instance
+    @EnvironmentObject var languageManager: LanguageManager
+    @StateObject private var storageState = StorageOptimizationState() // Create once and persist
+
     // Explicitly set dashboard as the default selected tab
     @State private var selectedTab: Tab = .dashboard
     @State private var showSettings: Bool = false
@@ -27,21 +56,80 @@ struct ContentView: View {
                 switch selectedTab {
                 case .dashboard:
                     StorageAnalyticsView()
+                        .environmentObject(languageManager)
+
                 case .storage:
                     StorageOptimizationView()
+                        .environmentObject(languageManager)
+                        .environmentObject(storageState) // Pass the persistent state
+
+
                 case .settings:
                     SettinappView(togglefullscreen: $showSettings)
+                        .environmentObject(languageManager)
+
                 }
             }
             
             // Custom tab bar at the bottom
-            CustomTabBar(selectedTab: $selectedTab)
+            LocalizedCustomTabBar(selectedTab: $selectedTab)
+                .environmentObject(languageManager)
+
+            BannerAdView()
+        }
+        .edgesIgnoringSafeArea(.bottom) // Extend to bottom edge for the ad
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+        .id(languageManager.currentLanguage) // Force complete view refresh when language changes
+    }
+}
+
+struct BannerAdView: View {
+    @State private var isAdLoaded = false
+    
+    let adUnitID = "ca-app-pub-1439642083038769/4773340793" // Replace with your actual AdMob banner ID
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Divider line
+            Rectangle()
+                .frame(height: 0.5)
+                .foregroundColor(Color.gray.opacity(0.3))
+            
+            // Banner ad container
+            ZStack {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.1))
+                
+                if isAdLoaded {
+                    // Placeholder for actual ad content
+                    HStack {
+                        Image(systemName: "megaphone.fill")
+                            .foregroundColor(.gray)
+                        Text("Advertisement")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                } else {
+                    // Loading state
+                    ProgressView()
+                        .scaleEffect(0.8)
+                }
+            }
+            .frame(height: 50) // Standard banner height
+            .background(Color.white)
+        }
+        .onAppear {
+            // Simulate ad loading
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                isAdLoaded = true
+            }
         }
     }
 }
 
-struct CustomTabBar: View {
+struct LocalizedCustomTabBar: View {
     @Binding var selectedTab: ContentView.Tab
+    @EnvironmentObject var languageManager: LanguageManager // Use shared instance
     
     var body: some View {
         VStack(spacing: 0) {
@@ -52,42 +140,66 @@ struct CustomTabBar: View {
             
             // Tab bar items
             HStack(spacing: 0) {
-                tabButton(tab: .dashboard, name: "Dashboard", icon: "house")
-                tabButton(tab: .storage, name: "Storage", icon: "doc")
-                tabButton(tab: .settings, name: "Settings", icon: "gearshape")
+                tabButton(
+                    tab: .dashboard,
+                    name: LocalizedStrings.string(for: "dashboard", language: languageManager.currentLanguage),
+                    icon: "house"
+                )
+                tabButton(
+                    tab: .storage,
+                    name: LocalizedStrings.string(for: "storage", language: languageManager.currentLanguage),
+                    icon: "doc"
+                )
+                tabButton(
+                    tab: .settings,
+                    name: LocalizedStrings.string(for: "settings", language: languageManager.currentLanguage),
+                    icon: "gearshape"
+                )
             }
             .frame(height: 50)
             .background(Color.white)
             
-            // Selection indicator
-            HStack {
-                // Position the indicator based on selected tab
-                if selectedTab == .dashboard {
-                    selectionIndicator
-                        .frame(width: UIScreen.main.bounds.width / 3)
-                    Spacer()
-                    Spacer()
-                } else if selectedTab == .storage {
-                    Spacer()
-                    selectionIndicator
-                        .frame(width: UIScreen.main.bounds.width / 3)
-                    Spacer()
-                } else {
-                    Spacer()
-                    Spacer()
-                    selectionIndicator
-                        .frame(width: UIScreen.main.bounds.width / 3)
+            // Selection indicator with RTL support
+            GeometryReader { geometry in
+                HStack(spacing: 0) {
+                    Rectangle()
+                        .foregroundColor(.black)
+                        .frame(width: geometry.size.width / 3, height: 2)
+                        .offset(x: getIndicatorOffset(for: geometry.size.width))
+                        .animation(.easeInOut(duration: 0.2), value: selectedTab)
+                        .animation(.easeInOut(duration: 0.2), value: languageManager.isArabic)
                 }
             }
             .frame(height: 2)
             .padding(.bottom, 2)
         }
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
     }
     
-    private var selectionIndicator: some View {
-        Rectangle()
-            .foregroundColor(.black)
-            .frame(height: 2)
+    private func getIndicatorOffset(for totalWidth: CGFloat) -> CGFloat {
+        let tabWidth = totalWidth / 3
+        
+        // In RTL mode, the visual order is reversed
+        if languageManager.isArabic {
+            switch selectedTab {
+            case .dashboard:
+                return tabWidth * 2  // Dashboard is on the right in RTL
+            case .storage:
+                return tabWidth      // Storage is in the middle
+            case .settings:
+                return 0            // Settings is on the left in RTL
+            }
+        } else {
+            // LTR mode (normal)
+            switch selectedTab {
+            case .dashboard:
+                return 0            // Dashboard is on the left
+            case .storage:
+                return tabWidth     // Storage is in the middle
+            case .settings:
+                return tabWidth * 2 // Settings is on the right
+            }
+        }
     }
     
     private func tabButton(tab: ContentView.Tab, name: String, icon: String) -> some View {
@@ -108,26 +220,111 @@ struct CustomTabBar: View {
     }
 }
 
+// Alternative implementation with animation
+struct LocalizedCustomTabBarAnimated: View {
+    @Binding var selectedTab: ContentView.Tab
+    @EnvironmentObject var languageManager: LanguageManager // Use shared instance
+    @Namespace private var animation
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Thin divider line at the top
+            Rectangle()
+                .frame(height: 0.5)
+                .foregroundColor(Color.gray.opacity(0.3))
+            
+            // Tab bar items with animated indicator
+            HStack(spacing: 0) {
+                ForEach([ContentView.Tab.dashboard, .storage, .settings], id: \.self) { tab in
+                    tabButtonWithIndicator(
+                        tab: tab,
+                        name: getLocalizedName(for: tab),
+                        icon: getIcon(for: tab)
+                    )
+                }
+            }
+            .frame(height: 52)
+            .background(Color.white)
+        }
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+    }
+    
+    private func getLocalizedName(for tab: ContentView.Tab) -> String {
+        switch tab {
+        case .dashboard:
+            return LocalizedStrings.string(for: "dashboard", language: languageManager.currentLanguage)
+        case .storage:
+            return LocalizedStrings.string(for: "storage", language: languageManager.currentLanguage)
+        case .settings:
+            return LocalizedStrings.string(for: "settings", language: languageManager.currentLanguage)
+        }
+    }
+    
+    private func getIcon(for tab: ContentView.Tab) -> String {
+        switch tab {
+        case .dashboard:
+            return "house"
+        case .storage:
+            return "doc"
+        case .settings:
+            return "gearshape"
+        }
+    }
+    
+    private func tabButtonWithIndicator(tab: ContentView.Tab, name: String, icon: String) -> some View {
+        VStack(spacing: 0) {
+            Button(action: {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    selectedTab = tab
+                }
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 20, height: 20)
+                    Text(name)
+                        .font(.caption)
+                }
+                .foregroundColor(selectedTab == tab ? .blue : .gray)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+            }
+            
+            // Indicator
+            if selectedTab == tab {
+                Rectangle()
+                    .foregroundColor(.black)
+                    .frame(height: 2)
+                    .matchedGeometryEffect(id: "indicator", in: animation)
+            } else {
+                Rectangle()
+                    .foregroundColor(.clear)
+                    .frame(height: 2)
+            }
+        }
+    }
+}
+
 // Settings placeholder view
 struct SettingsPlaceholderView: View {
+    @EnvironmentObject var languageManager: LanguageManager
+    
     var body: some View {
         VStack {
-            Text("Settings")
+            Text(LocalizedStrings.string(for: "settings", language: languageManager.currentLanguage))
                 .font(.largeTitle)
                 .padding()
             
             Text("Settings screen would go here")
                 .foregroundColor(.gray)
         }
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
     }
 }
 
 // Preview
-struct MainContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+
 
 // Extension for rounded specific corners
 extension View {

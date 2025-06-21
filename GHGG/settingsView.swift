@@ -8,12 +8,18 @@
 import Foundation
 import SwiftUI
 
+
+
 struct SettinappView: View {
     @Binding var togglefullscreen: Bool
-    @Environment(\.openURL) var openURL
+        @Environment(\.openURL) var openURL
+        @EnvironmentObject var languageManager: LanguageManager // Changed from @StateObject to @EnvironmentObject
+        @State private var selectedLanguage = "English"
     
     private let supportEmail = "support@3rabapp.com"
     
+    private let currentAppId = "6743487109" // Replace with your app's actual ID
+
     private let colors = SettingsColors(
         background: .white,
         cardBackground: Color(hex: "F5F5F5"),
@@ -32,18 +38,30 @@ struct SettinappView: View {
                 }
                 
                 // Title
-                Text("Main Settings")
+                LocalizedText("main_settings")
                     .font(.custom("System", size: 24))
                     .foregroundColor(colors.text)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 8)
                 
+                // In App Section
+                SectionView(title: LocalizedStrings.string(for: "in_app", language: languageManager.currentLanguage)) {
+                    VStack(spacing: 0) {
+                        LanguageButton(
+                            selectedLanguage: $selectedLanguage,
+                            colors: colors,
+                            languageManager: languageManager
+                        )
+                    }
+                    .padding(.vertical, 8)
+                }
+                
                 // Feedback Section
-                SectionView(title: "Help Us Improve") {
+                SectionView(title: LocalizedStrings.string(for: "help_us_improve", language: languageManager.currentLanguage)) {
                     VStack(spacing: 12) {
                         FeedbackButton(
                             icon: "star.fill",
-                            text: "Rate Our App",
+                            text: LocalizedStrings.string(for: "rate_our_app", language: languageManager.currentLanguage),
                             iconColor: Color(hex: "FFD700"),
                             action: rateApp
                         )
@@ -51,7 +69,7 @@ struct SettinappView: View {
                         
                         FeedbackButton(
                             icon: "envelope.fill",
-                            text: "Share Your Feedback",
+                            text: LocalizedStrings.string(for: "share_your_feedback", language: languageManager.currentLanguage),
                             iconColor: Color(hex: "4CD964"),
                             action: sendEmail
                         )
@@ -59,7 +77,7 @@ struct SettinappView: View {
                         
                         FeedbackButton(
                             icon: "exclamationmark.triangle.fill",
-                            text: "Having Issues?",
+                            text: LocalizedStrings.string(for: "having_issues", language: languageManager.currentLanguage),
                             iconColor: Color(hex: "FF9500"),
                             action: sendEmail
                         )
@@ -67,7 +85,7 @@ struct SettinappView: View {
                         
                         FeedbackButton(
                             icon: "heart.slash.fill",
-                            text: "Not Enjoying the App?",
+                            text: LocalizedStrings.string(for: "not_enjoying_app", language: languageManager.currentLanguage),
                             iconColor: Color(hex: "FF3B30"),
                             action: sendEmail
                         )
@@ -75,7 +93,7 @@ struct SettinappView: View {
                         
                         FeedbackButton(
                             icon: "square.and.arrow.up",
-                            text: "Share App with Friends",
+                            text: LocalizedStrings.string(for: "share_app_with_friends", language: languageManager.currentLanguage),
                             iconColor: Color(hex: "007AFF"),
                             action: shareApp
                         )
@@ -84,7 +102,7 @@ struct SettinappView: View {
                 }
                 
                 // Our Apps Section
-                SectionView(title: "Check Our Apps") {
+                SectionView(title: LocalizedStrings.string(for: "check_our_apps", language: languageManager.currentLanguage)) {
                     VStack(spacing: 16) {
                         AppListItem(
                             title: "Muslim Qibla",
@@ -141,12 +159,12 @@ struct SettinappView: View {
                 // Footer Links
                 HStack(spacing: 16) {
                     FooterLink(
-                        title: "Terms of Use",
+                        title: LocalizedStrings.string(for: "terms_of_use", language: languageManager.currentLanguage),
                         url: "https://3rabapp.com/legal/term_of_use.html"
                     )
                     Text("|").foregroundColor(colors.secondaryText)
                     FooterLink(
-                        title: "Privacy Policy",
+                        title: LocalizedStrings.string(for: "privacy_policy", language: languageManager.currentLanguage),
                         url: "https://3rabapp.com/legal/privacy_policy.html"
                     )
                 }
@@ -156,12 +174,18 @@ struct SettinappView: View {
             .padding(.horizontal)
         }
         .background(colors.background.ignoresSafeArea())
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+        .onAppear {
+            selectedLanguage = languageManager.currentLanguage
+        }
     }
     
     private func rateApp() {
-        guard let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/1635139320?action=write-review") else { return }
-        openURL(writeReviewURL)
-    }
+           // Option 1: Direct App Store review URL (Recommended)
+           if let writeReviewURL = URL(string: "itms-apps://itunes.apple.com/app/\(currentAppId)?action=write-review") {
+               openURL(writeReviewURL)
+           }
+       }
     
     private func sendEmail() {
         guard let emailURL = URL(string: "mailto:\(supportEmail)") else { return }
@@ -180,6 +204,110 @@ struct SettinappView: View {
         }
     }
 }
+
+// Updated Language Button Component
+struct LanguageButton: View {
+    @Binding var selectedLanguage: String
+    @State private var showLanguageSheet = false
+    let colors: SettingsColors
+    let languageManager: LanguageManager
+    
+    private let availableLanguages = ["English", "العربية"]
+    
+    var body: some View {
+        Button(action: {
+            showLanguageSheet = true
+        }) {
+            HStack(spacing: 12) {
+                Image(systemName: "globe")
+                    .foregroundColor(Color(hex: "007AFF"))
+                    .font(.system(size: 20))
+                
+                Text(LocalizedStrings.string(for: "language", language: languageManager.currentLanguage))
+                    .font(.custom("AlmaraiBold", size: 15))
+                
+                Spacer()
+                
+                Text(selectedLanguage)
+                    .font(.custom("Almarai", size: 14))
+                    .foregroundColor(colors.secondaryText)
+                
+                // RTL-aware chevron direction
+                Image(systemName: languageManager.isArabic ? "chevron.left" : "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Color(hex: "787880"))
+            }
+            .foregroundColor(.black)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(hex: "F5F5F5"))
+            .cornerRadius(10)
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .padding(.horizontal)
+        .sheet(isPresented: $showLanguageSheet) {
+            LanguageSelectionSheet(
+                selectedLanguage: $selectedLanguage,
+                availableLanguages: availableLanguages,
+                colors: colors,
+                languageManager: languageManager
+            )
+        }
+    }
+}
+
+
+// Updated Language Selection Sheet
+struct LanguageSelectionSheet: View {
+    @Binding var selectedLanguage: String
+    @Environment(\.dismiss) var dismiss
+    let availableLanguages: [String]
+    let colors: SettingsColors
+    let languageManager: LanguageManager
+    
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(availableLanguages, id: \.self) { language in
+                    HStack {
+                        Text(language)
+                            .font(.custom("Almarai", size: 16))
+                            .foregroundColor(colors.text)
+                        
+                        Spacer()
+                        
+                        if selectedLanguage == language {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(colors.accent)
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedLanguage = language
+                        languageManager.setLanguage(language)
+                        dismiss()
+                    }
+                    .listRowBackground(colors.background)
+                }
+            }
+            .listStyle(PlainListStyle())
+            .navigationTitle(LocalizedStrings.string(for: "language", language: languageManager.currentLanguage))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                trailing: Button(LocalizedStrings.string(for: "done", language: languageManager.currentLanguage)) {
+                    dismiss()
+                }
+                .foregroundColor(colors.accent)
+            )
+        }
+        .presentationDetents([.medium])
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+    }
+}
+
+// Keep all other existing components (SettingsColors, SectionView, FeedbackButton, etc.)
+// but add language support where needed...
 
 struct SettingsColors {
     let background: Color
@@ -218,6 +346,7 @@ struct FeedbackButton: View {
     let text: String
     let iconColor: Color
     let action: () -> Void
+    @EnvironmentObject var languageManager: LanguageManager // Add this line
     
     var body: some View {
         Button(action: action) {
@@ -231,7 +360,8 @@ struct FeedbackButton: View {
                 
                 Spacer()
                 
-                Image(systemName: "chevron.right")
+                // RTL-aware chevron direction
+                Image(systemName: languageManager.isArabic ? "chevron.left" : "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(Color(hex: "787880"))
             }
@@ -293,7 +423,7 @@ struct AppListItem: View {
                    openURL(url)
                }
            } label: {
-               Text("Get")
+               LocalizedText("get")
                    .fontWeight(.medium)
                    .font(.system(size: 14))
                    .foregroundColor(.white)
@@ -308,7 +438,6 @@ struct AppListItem: View {
        .cornerRadius(12)
    }
 }
-
 
 struct FooterLink: View {
     let title: String
