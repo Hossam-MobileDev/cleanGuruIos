@@ -491,6 +491,7 @@
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app requires access to your music library to help you manage audio files.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to help you clean up old events and free up space.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "This app needs access to your contacts to help you identify and manage duplicate contacts. It allows you to find contacts with the same name but different phone numbers, merge similar contacts, and clean up your contact list for better organization.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to delete and clean up media.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photos to help you identify and clean up unnecessary media files to free up storage space.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -534,6 +535,7 @@
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app requires access to your music library to help you manage audio files.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to help you clean up old events and free up space.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "This app needs access to your contacts to help you identify and manage duplicate contacts. It allows you to find contacts with the same name but different phone numbers, merge similar contacts, and clean up your contact list for better organization.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to delete and clean up media.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photos to help you identify and clean up unnecessary media files to free up storage space.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

@@ -28,7 +28,8 @@ struct CalendarCleanerView: View {
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
     @State private var isDeleting = false
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     // Computed properties
     var selectedCount: Int {
         return selectedEventIds.count
@@ -38,13 +39,14 @@ struct CalendarCleanerView: View {
         VStack(spacing: 0) {
             // Selected count and deselect button
             HStack {
-                Text("\(selectedCount) Old events selected")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+//                Text("\(selectedCount) Old events selected")
+//                    .font(.subheadline)
+//                    .foregroundColor(.gray)
                 Spacer()
-                Button("Deselect All") {
+                Button(LocalizedStrings.string(for: "Deselect All", language: languageManager.currentLanguage)) {
                     selectedEventIds.removeAll()
                 }
+               
                 .font(.subheadline)
                 .foregroundColor(.blue)
             }
@@ -89,7 +91,11 @@ struct CalendarCleanerView: View {
                             .background(Color.blue)
                             .cornerRadius(8)
                     } else {
-                        Text("Remove \(selectedCount) Events")
+                        let removeFormat = LocalizedStrings.string(
+                            for: "Remove Events Count",
+                            language: languageManager.currentLanguage
+                        )
+                        Text(String(format: removeFormat, "\(selectedCount)"))
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -98,6 +104,7 @@ struct CalendarCleanerView: View {
                             .cornerRadius(8)
                     }
                 }
+
                 .disabled(selectedCount == 0 || isDeleting)
                 .opacity(selectedCount == 0 ? 0.6 : 1.0)
                 .padding(.horizontal)

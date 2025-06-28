@@ -226,9 +226,7 @@ import UIKit
 //}
 
 class DeviceInfoManager: ObservableObject {
-    @Published var totalStorage: (Int, String) = (0, "")
-    @Published var availableStorage: (Int, String) = (0, "")
-    @Published var usedStorage: (Int, String) = (0, "")
+    
     @Published var totalRAM: (Int, String) = (0, "")
     @Published var cpuCores: Int = 0
     @Published var architecture: String = ""
@@ -236,7 +234,9 @@ class DeviceInfoManager: ObservableObject {
     @Published var chargingState: String = ""
     @Published var deviceModel: String = ""
     @Published var osVersion: String = ""
-    
+    @Published var totalStorage: (String, String) = ("0", "GB")
+        @Published var usedStorage: (String, String) = ("0", "GB")
+        @Published var availableStorage: (String, String) = ("0", "GB")
     init() {
         fetchStorageInfo()
         fetchRAMInfo()
@@ -246,41 +246,45 @@ class DeviceInfoManager: ObservableObject {
     }
     
     // Get storage information
-    private func fetchStorageInfo() {
-        let fileManager = FileManager.default
-        do {
-            if let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
-                let attributes = try fileManager.attributesOfFileSystem(forPath: documentDirectory.path)
-                
-                if let totalSize = attributes[.systemSize] as? NSNumber,
-                   let freeSize = attributes[.systemFreeSize] as? NSNumber {
-                    
-                    let total = totalSize.int64Value
-                    let free = freeSize.int64Value
-                    let used = total - free
-                    
-                    totalStorage = formatByteSize(total)
-                    availableStorage = formatByteSize(free)
-                    usedStorage = formatByteSize(used)
+    func fetchStorageInfo() {
+            if let homeDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                do {
+                    let values = try homeDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey, .volumeTotalCapacityKey])
+
+                    if let total = values.volumeTotalCapacity,
+                       let free = values.volumeAvailableCapacityForImportantUsage {
+                        
+                        let used = Int64(total) - free
+
+                        
+                        totalStorage = formatByteSize(Int64(total))
+                        availableStorage = formatByteSize(Int64(free))
+                        usedStorage = formatByteSize(Int64(used))
+                    }
+                } catch {
+                    print("Error fetching storage info: \(error.localizedDescription)")
                 }
             }
-        } catch {
-            print("Error getting storage info: \(error)")
         }
-    }
-    
     // Format byte size to human-readable format using decimal calculation to match manufacturer specs
-    private func formatByteSize(_ bytes: Int64) -> (Int, String) {
-        // Use decimal calculation (1000^3) to match manufacturer specifications (64GB, 128GB, etc.)
-        let gigabyte = Int64(1000 * 1000 * 1000) // Decimal calculation (1000^3)
-        let gigabyteValue = Double(bytes) / Double(gigabyte)
-        
-        // Round to nearest integer for display
-        let roundedGB = Int(round(gigabyteValue))
-        let unit = "GB"
-        
-        return (roundedGB, unit)
-    }
+//    private func formatByteSize(_ bytes: Int64) -> (Int, String) {
+//        // Use decimal calculation (1000^3) to match manufacturer specifications (64GB, 128GB, etc.)
+//        let gigabyte = Int64(1000 * 1000 * 1000) // Decimal calculation (1000^3)
+//        let gigabyteValue = Double(bytes) / Double(gigabyte)
+//        
+//        // Round to nearest integer for display
+//        let roundedGB = Int(round(gigabyteValue))
+//        let unit = "GB"
+//        
+//        return (roundedGB, unit)
+//    }
+    
+    private func formatByteSize(_ bytes: Int64) -> (String, String) {
+           let gb = 1_000_000_000.0
+           let value = Double(bytes) / gb
+           let formatted = String(format: "%.1f", value)
+           return (formatted, "GB")
+       }
     
     // Alternative method that shows more precise storage calculation
     private func formatByteSizePrecise(_ bytes: Int64) -> (Int, String) {
@@ -301,7 +305,11 @@ class DeviceInfoManager: ObservableObject {
     private func fetchRAMInfo() {
         let totalMemory = ProcessInfo.processInfo.physicalMemory
         // Use binary calculation for RAM as well
-        totalRAM = (Int(totalMemory / UInt64(1024 * 1024 * 1024)), "GB")
+        let gb = Double(totalMemory) / Double(1024 * 1024 * 1024)
+        let rounded = Int(round(gb))
+        totalRAM = (rounded, "GB")
+        
+        //totalRAM = (Int(totalMemory / UInt64(1024 * 1024 * 1024)), "GB")
     }
     
     // Get CPU information with proper chip names

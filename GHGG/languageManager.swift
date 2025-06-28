@@ -11,48 +11,75 @@ import Photos
 
 
 class LanguageManager: ObservableObject {
-    @Published var currentLanguage: String = "English" {
-        didSet {
-            UserDefaults.standard.set(currentLanguage, forKey: "selectedLanguage")
-            NotificationCenter.default.post(name: .languageChanged, object: nil)
-        }
-    }
+    @Published var currentLanguage: String
+
+//    @Published var currentLanguage: String = "English" {
+//        didSet {
+//            UserDefaults.standard.set(currentLanguage, forKey: "selectedLanguage")
+//            NotificationCenter.default.post(name: .languageChanged, object: nil)
+//        }
+//    }
     
     init() {
         if let savedLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") {
-            currentLanguage = savedLanguage
-        } else {
-            currentLanguage = detectDeviceLanguage()
-            UserDefaults.standard.set(currentLanguage, forKey: "selectedLanguage")
-        }
+                    currentLanguage = savedLanguage
+                } else {
+                    let detectedLanguage = LanguageManager.detectDeviceLanguage() // ✅ call as static
+                    currentLanguage = detectedLanguage
+                    UserDefaults.standard.set(detectedLanguage, forKey: "selectedLanguage")
+                }
+//        if let savedLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") {
+//            currentLanguage = savedLanguage
+//        } else {
+//            currentLanguage = detectDeviceLanguage()
+//            UserDefaults.standard.set(currentLanguage, forKey: "selectedLanguage")
+//        }
     }
-    
-    private func detectDeviceLanguage() -> String {
+    static func detectDeviceLanguage() -> String {
         let preferredLanguages = Locale.preferredLanguages
         
-        for languageCode in preferredLanguages {
-            let locale = Locale(identifier: languageCode)
-            
-            if languageCode.hasPrefix("ar") {
-                return "العربية"
-            }
-            
-            if let languageDisplayName = locale.localizedString(forLanguageCode: languageCode) {
-                if languageDisplayName.contains("العربية") || languageDisplayName.contains("Arabic") {
-                    return "العربية"
-                }
-            }
+        // Check primary language only
+        guard let primaryLanguage = preferredLanguages.first else {
+            return "English"
         }
         
-        let currentRegion = Locale.current.regionCode
-        let arabicRegions = ["SA", "AE", "EG", "JO", "LB", "SY", "IQ", "KW", "BH", "QA", "OM", "YE", "MA", "TN", "DZ", "LY", "SD", "PS"]
+        let languageCode = String(primaryLanguage.prefix(2))
         
-        if let region = currentRegion, arabicRegions.contains(region) {
+        switch languageCode {
+        case "ar":
             return "العربية"
+        case "en":
+            return "English"
+        default:
+            return "English" // Default fallback
         }
-        
-        return "English"
     }
+//    static func detectDeviceLanguage() -> String {
+//        let preferredLanguages = Locale.preferredLanguages
+//        
+//        for languageCode in preferredLanguages {
+//            let locale = Locale(identifier: languageCode)
+//            
+//            if languageCode.hasPrefix("ar") {
+//                return "العربية"
+//            }
+//            
+//            if let languageDisplayName = locale.localizedString(forLanguageCode: languageCode) {
+//                if languageDisplayName.contains("العربية") || languageDisplayName.contains("Arabic") {
+//                    return "العربية"
+//                }
+//            }
+//        }
+//        
+//        let currentRegion = Locale.current.region?.identifier
+//        let arabicRegions = ["SA", "AE", "EG", "JO", "LB", "SY", "IQ", "KW", "BH", "QA", "OM", "YE", "MA", "TN", "DZ", "LY", "SD", "PS"]
+//        
+//        if let region = currentRegion, arabicRegions.contains(region) {
+//            return "العربية"
+//        }
+//        
+//        return "English"
+//    }
     
     func setLanguage(_ language: String) {
         currentLanguage = language
@@ -65,7 +92,7 @@ class LanguageManager: ObservableObject {
     }
     
     func resetToDeviceLanguage() {
-        let detectedLanguage = detectDeviceLanguage()
+        let detectedLanguage = LanguageManager.detectDeviceLanguage()
         setLanguage(detectedLanguage)
     }
     
@@ -78,7 +105,7 @@ class LanguageManager: ObservableObject {
         Preferred Languages: \(preferredLanguages.joined(separator: ", "))
         Current Region: \(currentRegion)
         Current Language Code: \(currentLanguageCode)
-        Detected Language: \(detectDeviceLanguage())
+        Detected Language: \(LanguageManager.detectDeviceLanguage())
         """
     }
 }
@@ -104,14 +131,38 @@ struct LocalizedStrings {
         "dashboard": "Dashboard",
         "storage": "Storage",
         "settings": "Settings",
-        
+        "compress": "Compress",
+
+        "Photos": "Photos",
+            "Videos": "Videos",
+            "Audio": "Audio",
+        "muslim_qibla": "Muslim Qibla",
+            "muslim_qibla_desc": "Accurate Qibla Direction",
+            
+            "speedtest": "Speedtest",
+            "speedtest_desc": "Internet Speed Test",
+            
+            "product_finder": "Product Finder",
+            "product_finder_desc": "Price Comparison",
+            
+            "kitaba": "Kitaba",
+            "kitaba_desc": "Design Photos & Arabic Fonts",
+            
+            "currency_converter": "Currency Converter",
+            "currency_converter_desc": "Global Currency Exchange",
+            
+            "zakhrafa": "Zakhrafa",
+            "zakhrafa_desc": "Arabic Text Decoration",
+            
+            "steps": "Steps",
+            "steps_desc": "Daily Step Counter",
         // Settings View
         "main_settings": "Main Settings",
         "in_app": "In app",
         "language": "Language",
         "help_us_improve": "Help Us Improve",
         "rate_our_app": "Rate Our App",
-        "share_your_feedback": "Share Your Feedback",
+        "have a problem? contact us": "Have a problem? contact us",
         "having_issues": "Having Issues?",
         "not_enjoying_app": "Not Enjoying the App?",
         "share_app_with_friends": "Share App with Friends",
@@ -166,7 +217,7 @@ struct LocalizedStrings {
         "photos": "Photos",
         "videos": "Videos",
         "audio": "Audio",
-        "delete_selected_photos": "Delete Selected Photos",
+       
         "photo_access_required": "Photo Access Required",
         "please_allow_access_analyze": "Please allow access to analyze your photos for duplicates.",
         "grant_access": "Grant Access",
@@ -213,6 +264,8 @@ struct LocalizedStrings {
         
         // Media Compression
         "quality": "Quality",
+        "Compressed":"Compressed",
+        "Original":"Original",
         "low": "Low",
         "medium": "Medium",
         "high": "High",
@@ -237,15 +290,49 @@ struct LocalizedStrings {
         "done": "Done",
         "get": "Get",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        
+        "Backup Contacts": "Backup Contacts",
+        
+        "Restore Contacts": "Restore Contacts",
+
+        "Duplicates Contacts selected": "Duplicates Contacts selected",
+        "Merge Contacts": "Merge Contacts",
+        "Delete Contacts": "Delete Contacts",
+        "Deselect All": "Deselect All",
+        "Remove Events Count": "Remove %@ Events",
+        "delete_selected_photos" : "Delete selected photos",
+        "delete_selected_videos" :"Delete selected videos",
+        "delete_selected_audio" :"Delete selected audio files"
+
+
     ]
     
     // MARK: - Arabic Strings Dictionary (Complete)
     private static let arabicStrings: [String: String] = [
         // Tab bar items
-        "dashboard": "لوحة القيادة",
+        "dashboard": "الرئيسية",
+        "Remove Events Count": "حذف %@ من الأحداث",
+
         "storage": "التخزين",
         "settings": "الإعدادات",
+        "Restore Contacts": "استعادة جهات الاتصال",
+        "Merge Contacts": "دمج جهات الاتصال",
+        "Delete Contacts": "حذف جهات الاتصال",
+        "Deselect All": "إلغاء تحديد الكل",
+
+        "Backup Contacts": "نسخ جهات الاتصال احتياطيًا",
+        "Duplicates Contacts selected": "جهات اتصال مكررة محددة",
+
+        "compress": "ضغط",
+        
+        "have a problem? contact us": "هل تواجه مشكلة؟ تواصل معنا",
+
+
+
+        "Photos": "الصور",
+           "Videos": "الفيديوهات",
+           "Audio": "الصوتيات",
         
         // Settings View
         "main_settings": "الإعدادات الرئيسية",
@@ -355,9 +442,9 @@ struct LocalizedStrings {
         
         // Media Compression
         "quality": "الجودة",
-        "low": "منخفضة",
-        "medium": "متوسطة",
-        "high": "عالية",
+        "Low": "منخفضة",
+        "Medium": "متوسطة",
+        "High": "عالية",
         "original_size": "الحجم الأصلي",
         "after_compression": "بعد الضغط",
         "compress_all_media": "ضغط جميع الوسائط",
@@ -379,7 +466,32 @@ struct LocalizedStrings {
         "done": "تم",
         "get": "تحميل",
         "yes": "نعم",
-        "no": "لا"
+        "no": "لا",
+        
+        "Original":"اصلي",
+        "Compressed":"مضغوط",
+        
+        "muslim_qibla": "القبلة الإسلامية",
+            "muslim_qibla_desc": "اتجاه القبلة بدقة",
+            
+            "speedtest": "اختبار سرعة الإنترنت",
+            "speedtest_desc": "قياس سرعة الاتصال",
+            
+            "product_finder": "البحث عن المنتجات",
+            "product_finder_desc": "مقارنة الأسعار",
+            
+            "kitaba": "كتابة",
+            "kitaba_desc": "تصميم صور وخطوط عربية",
+            
+            "currency_converter": "محوّل العملات",
+            "currency_converter_desc": "أسعار الصرف العالمية",
+            
+            "zakhrafa": "زخرفة",
+            "zakhrafa_desc": "زخرفة النصوص العربية",
+            
+            "steps": "خطواتي",
+            "steps_desc": "عداد الخطوات اليومي"
+
     ]
 }
 

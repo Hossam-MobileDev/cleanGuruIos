@@ -6,6 +6,8 @@
 //
 import SwiftUI
 import Photos
+import GoogleMobileAds
+import UIKit
 
 class StorageOptimizationState: ObservableObject {
     // Duplicate detection states
@@ -18,6 +20,10 @@ class StorageOptimizationState: ObservableObject {
     @Published var analyzedPhotosCount = 0
     @Published var totalPhotosCount = 0
     
+    @Published var audioFiles: [URL] = []
+
+    @Published var mediaAssetsArray: [PHAsset] = []
+
     // Clean Media states
     @Published var photoAssets: PHFetchResult<PHAsset>?
     @Published var photoAccessGranted = false
@@ -76,6 +82,8 @@ struct ContentView: View {
                 .environmentObject(languageManager)
 
             BannerAdView()
+                .frame(height: 50) // <-- Standard banner height
+                                .background(Color.white)
         }
         .edgesIgnoringSafeArea(.bottom) // Extend to bottom edge for the ad
         .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
@@ -83,48 +91,32 @@ struct ContentView: View {
     }
 }
 
-struct BannerAdView: View {
-    @State private var isAdLoaded = false
-    
-    let adUnitID = "ca-app-pub-1439642083038769/4773340793" // Replace with your actual AdMob banner ID
 
-    var body: some View {
-        VStack(spacing: 0) {
-            // Divider line
-            Rectangle()
-                .frame(height: 0.5)
-                .foregroundColor(Color.gray.opacity(0.3))
-            
-            // Banner ad container
-            ZStack {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.1))
-                
-                if isAdLoaded {
-                    // Placeholder for actual ad content
-                    HStack {
-                        Image(systemName: "megaphone.fill")
-                            .foregroundColor(.gray)
-                        Text("Advertisement")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                } else {
-                    // Loading state
-                    ProgressView()
-                        .scaleEffect(0.8)
-                }
-            }
-            .frame(height: 50) // Standard banner height
-            .background(Color.white)
-        }
-        .onAppear {
-            // Simulate ad loading
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                isAdLoaded = true
-            }
-        }
+
+
+
+struct BannerAdView: UIViewRepresentable {
+    let adUnitID: String
+    
+    init(adUnitID: String = "ca-app-pub-3940256099942544/2934735716") { // Test ad unit ID
+        self.adUnitID = adUnitID
     }
+    
+    func makeUIView(context: Context) -> GADBannerView {
+        let bannerView = GADBannerView(adSize: GADAdSizeBanner)
+        bannerView.adUnitID = adUnitID
+        
+        // Find root view controller to set as banner's root view controller
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            bannerView.rootViewController = rootViewController
+        }
+        
+        bannerView.load(GADRequest())
+        return bannerView
+    }
+    
+    func updateUIView(_ uiView: GADBannerView, context: Context) {}
 }
 
 struct LocalizedCustomTabBar: View {

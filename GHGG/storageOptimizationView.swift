@@ -102,86 +102,14 @@ struct StorageOptimizationView: View {
     
     let mediaCategories = ["Photos", "Videos", "Audio"]
     
+    
+   
+    
     // Photo and video data
     let photoItems = [0, 1, 2, 3]
     let videoItems = [0, 1, 2, 3]
     
-//
-//    var body: some View {
-//        VStack(spacing: 0) {
-//            // Navigation bar
-//            VStack(spacing: 20) {
-//                HStack {
-//                    Spacer()
-//                    Text("Storage Optimization")
-//                        .font(.headline)
-//                    Spacer()
-//                    Spacer().frame(width: 20)
-//                }
-//                .padding(.horizontal)
-//                .padding(.top)
-//                
-//                // Storage analysis section
-//                storageAnalysisSection
-//                
-//                // Tab selection
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    HStack(spacing: 15) {
-//                        ForEach(tabs, id: \.self) { tab in
-//                            Text(tab)
-//                                .padding(.vertical, 8)
-//                                .padding(.horizontal, 10)
-//                                .font(.subheadline)
-//                                .foregroundColor(storageState.selectedTab == tab ? .black : .gray)
-//                                .background(
-//                                    storageState.selectedTab == tab ?
-//                                    Rectangle()
-//                                        .fill(Color.white)
-//                                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-//                                    : nil
-//                                )
-//                                .cornerRadius(4)
-//                                .onTapGesture {
-//                                    storageState.selectedTab = tab
-//                                    
-//                                    if tab == "Duplicates" {
-//                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
-//                                            requestPhotoAccessForDuplicates()
-//                                        }
-//                                    }
-//                                    else if tab == "Clean Media" && storageState.photoAssets == nil {
-//                                        requestPhotoAccess()
-//                                    }
-//                                }
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                }
-//                .background(Color.gray.opacity(0.1))
-//            }
-//            
-//            // Content area with proper layout
-//            if storageState.selectedTab == "Duplicates" {
-//                duplicatesContentViewFixed
-//            }
-//            else if storageState.selectedTab == "media_compression" {
-//                MediaCompressionView()
-//            }
-//            else if storageState.selectedTab == "Clean Media" {
-//                cleanMediaViewFixed
-//            } else if storageState.selectedTab == "Contacts Cleanup" {
-//                ContactsCleanupView()
-//            }
-//            else if storageState.selectedTab == "Calendar Cleaner" {
-//                CalendarCleanerView()
-//            }
-//        }
-//        .background(Color(.systemBackground))
-//        .onAppear {
-//            updateStorageInfo()
-//        }
-//    }
-//    
+
     var body: some View {
             VStack(spacing: 0) {
                 // Navigation bar
@@ -441,177 +369,7 @@ struct StorageOptimizationView: View {
             }
         }
         
-//    private var duplicatesContentViewFixed: some View {
-//        VStack(spacing: 0) {
-//            if storageState.isAnalyzingDuplicates {
-//                // Analyzing progress view
-//                VStack(spacing: 20) {
-//                    ProgressView()
-//                        .scaleEffect(1.5)
-//                    
-//                    Text("Analyzing photos for duplicates...")
-//                        .font(.headline)
-//                    
-//                    Text("\(storageState.analyzedPhotosCount) of \(storageState.totalPhotosCount) photos analyzed")
-//                        .font(.subheadline)
-//                        .foregroundColor(.gray)
-//                    
-//                    // Progress bar
-//                    GeometryReader { geometry in
-//                        ZStack(alignment: .leading) {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.3))
-//                                .frame(height: 4)
-//                                .cornerRadius(2)
-//                            
-//                            Rectangle()
-//                                .fill(Color.blue)
-//                                .frame(width: geometry.size.width * CGFloat(storageState.analyzedPhotosCount) / CGFloat(max(storageState.totalPhotosCount, 1)), height: 4)
-//                                .cornerRadius(2)
-//                        }
-//                    }
-//                    .frame(height: 4)
-//                    .padding(.horizontal, 40)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else if !storageState.duplicatesAccessGranted {
-//                // Permission view
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.stack")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.gray)
-//                    
-//                    Text("Photo Access Required")
-//                        .font(.headline)
-//                    
-//                    Text("Please allow access to analyze your photos for duplicates.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                    
-//                    Button("Grant Access") {
-//                        storageState.hasCheckedDuplicatesAccess = false
-//                        requestPhotoAccessForDuplicates()
-//                    }
-//                    .foregroundColor(.white)
-//                    .padding(.horizontal, 30)
-//                    .padding(.vertical, 12)
-//                    .background(Color.blue)
-//                    .cornerRadius(8)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else if storageState.duplicateGroups.isEmpty && !storageState.hasAnalyzedDuplicates {
-//                // Initial state - show analyze button
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.stack")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.blue)
-//                    
-//                    Text("Find Duplicate Photos")
-//                        .font(.headline)
-//                    
-//                    Text("Scan your photo library to find and remove duplicate images to free up storage space.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                        .foregroundColor(.gray)
-//                    
-//                    Button("Start Scanning") {
-//                        analyzeDuplicates()
-//                    }
-//                    .foregroundColor(.white)
-//                    .padding(.horizontal, 30)
-//                    .padding(.vertical, 12)
-//                    .background(Color.blue)
-//                    .cornerRadius(8)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else if storageState.duplicateGroups.isEmpty && storageState.hasAnalyzedDuplicates {
-//                // No duplicates found
-//                VStack(spacing: 20) {
-//                    Image(systemName: "checkmark.circle.fill")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.green)
-//                    
-//                    Text("No Duplicates Found")
-//                        .font(.headline)
-//                    
-//                    Text("Great! Your photo library doesn't have any duplicate images.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                        .foregroundColor(.gray)
-//                    
-//                    Button("Scan Again") {
-//                        analyzeDuplicates()
-//                    }
-//                    .foregroundColor(.blue)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else {
-//                // Show duplicate groups with proper spacing for delete button
-//                ScrollView {
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        // Summary
-//                        HStack {
-//                            Text("\(storageState.duplicateGroups.count) duplicate groups found")
-//                                .font(.subheadline)
-//                                .foregroundColor(.gray)
-//                            
-//                            Spacer()
-//                            
-//                            if !storageState.selectedDuplicates.isEmpty {
-//                                Button("Deselect All") {
-//                                    storageState.selectedDuplicates.removeAll()
-//                                }
-//                                .font(.subheadline)
-//                                .foregroundColor(.blue)
-//                            }
-//                        }
-//                        .padding()
-//                        
-//                        // Potential savings
-//                        if !storageState.selectedDuplicates.isEmpty {
-//                            let savings = calculateSelectedSavings()
-//                            Text("Potential savings: \(formatBytes(savings))")
-//                                .font(.caption)
-//                                .foregroundColor(.green)
-//                                .padding(.horizontal)
-//                                .padding(.bottom, 10)
-//                        }
-//                        
-//                        // Duplicate groups
-//                        ForEach(storageState.duplicateGroups) { group in
-//                            DuplicateGroupView(
-//                                group: group,
-//                                selectedDuplicates: $storageState.selectedDuplicates
-//                            )
-//                            
-//                            Divider()
-//                                .padding(.horizontal)
-//                        }
-//                        
-//                        // Bottom padding to prevent overlap with delete button
-//                        if !storageState.selectedDuplicates.isEmpty {
-//                            Color.clear.frame(height: 90) // Space for delete button
-//                        } else {
-//                            Color.clear.frame(height: 20) // Normal bottom padding
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            // Delete button positioned at bottom without overlapping
-//            if !storageState.selectedDuplicates.isEmpty && !storageState.isAnalyzingDuplicates {
-//                deleteSelectedDuplicatesButtonFixed
-//            }
-//        }
-//    }
+
     
     private var deleteSelectedDuplicatesButtonFixed: some View {
             VStack(spacing: 0) {
@@ -646,39 +404,6 @@ struct StorageOptimizationView: View {
         }
         
     
-//    private var deleteSelectedDuplicatesButtonFixed: some View {
-//        VStack(spacing: 0) {
-//            // Semi-transparent background overlay to separate from content
-//            LinearGradient(
-//                gradient: Gradient(colors: [Color.clear, Color(.systemBackground).opacity(0.9), Color(.systemBackground)]),
-//                startPoint: .top,
-//                endPoint: .bottom
-//            )
-//            .frame(height: 20)
-//            
-//            // Delete button
-//            Button(action: {
-//                deleteSelectedDuplicates()
-//            }) {
-//                VStack(spacing: 4) {
-//                    Text("Delete \(storageState.selectedDuplicates.count) Duplicate\(storageState.selectedDuplicates.count > 1 ? "s" : "")")
-//                        .font(.headline)
-//                    Text("Save \(formatBytes(calculateSelectedSavings()))")
-//                        .font(.caption)
-//                }
-//                .foregroundColor(.white)
-//                .frame(maxWidth: .infinity)
-//                .padding(.vertical, 15)
-//                .background(Color.red)
-//                .cornerRadius(12)
-//            }
-//            .padding(.horizontal, 16)
-//            .padding(.bottom, 20)
-//            .background(Color(.systemBackground))
-//        }
-//        .transition(.move(edge: .bottom).combined(with: .opacity))
-//        .animation(.easeInOut(duration: 0.3), value: !storageState.selectedDuplicates.isEmpty)
-//    }
 
     // Add this method to update storage info
     private func updateStorageInfo() {
@@ -718,11 +443,130 @@ struct StorageOptimizationView: View {
 //
     
     // Delete selected photos
-    private func deleteSelectedPhotos() {
-          guard !storageState.selectedMediaItems.isEmpty, storageState.photoAccessGranted else { return }
-          storageState.selectedMediaItems.removeAll()
-      }
+//    private func deleteSelectedPhotos() {
+//          guard !storageState.selectedMediaItems.isEmpty, storageState.photoAccessGranted else { return }
+//          storageState.selectedMediaItems.removeAll()
+//      }
     
+//    private func deleteSelectedPhotos() {
+//        guard !storageState.selectedMediaItems.isEmpty,
+//              storageState.photoAccessGranted,
+//              let photoAssets = storageState.photoAssets else {
+//            return
+//        }
+//
+//        // Convert selected IDs into PHAsset objects
+//        let assetsToDelete = photoAssets.objects(at: IndexSet(0..<photoAssets.count)).filter {
+//            storageState.selectedMediaItems.contains($0.localIdentifier)
+//        }
+//
+//        PHPhotoLibrary.shared().performChanges({
+//            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSFastEnumeration)
+//        }, completionHandler: { success, error in
+//            DispatchQueue.main.async {
+//                if success {
+//                    print("Photos deleted")
+//                    storageState.selectedMediaItems.removeAll()
+//                } else if let error = error {
+//                    print("Failed to delete photos: \(error.localizedDescription)")
+//                }
+//            }
+//        })
+//    }
+    
+//    private func deleteSelectedPhotos() {
+//        guard !storageState.selectedMediaItems.isEmpty,
+//              storageState.photoAccessGranted,
+//              let oldPhotoAssets = storageState.photoAssets else {
+//            return
+//        }
+//
+//        // Convert selected IDs into PHAsset objects
+//        let assetsToDelete = oldPhotoAssets.objects(at: IndexSet(0..<oldPhotoAssets.count)).filter {
+//            storageState.selectedMediaItems.contains($0.localIdentifier)
+//        }
+//
+//        PHPhotoLibrary.shared().performChanges({
+//            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSFastEnumeration)
+//        }, completionHandler: { success, error in
+//            DispatchQueue.main.async {
+//                if success {
+//                    print("Photos deleted")
+//                    storageState.selectedMediaItems.removeAll()
+//
+//                    // ✅ Refresh photoAssets
+//                    let allPhotosOptions = PHFetchOptions()
+//                    allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+//                    let updatedAssets = PHAsset.fetchAssets(with: .image, options: allPhotosOptions)
+//                    storageState.photoAssets = updatedAssets
+//                } else if let error = error {
+//                    print("Failed to delete photos: \(error.localizedDescription)")
+//                }
+//            }
+//        })
+    
+//    private func deleteSelectedPhotos() {
+//        guard !storageState.selectedMediaItems.isEmpty,
+//              storageState.photoAccessGranted,
+//              let result = storageState.photoAssets else { return }
+//
+//        let assetsToDelete = result.objects(at: IndexSet(0..<result.count)).filter {
+//            storageState.selectedMediaItems.contains($0.localIdentifier)
+//        }
+//
+//        PHPhotoLibrary.shared().performChanges({
+//            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSFastEnumeration)
+//        }, completionHandler: { success, error in
+//            DispatchQueue.main.async {
+//                if success {
+//                    storageState.selectedMediaItems.removeAll()
+//
+//                    // Refresh both photoAssets and mediaAssetsArray
+//                    let fetchOptions = PHFetchOptions()
+//                    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+//                    let updatedResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+//
+//                    storageState.photoAssets = updatedResult
+//                    storageState.mediaAssetsArray = updatedResult.objects(at: IndexSet(0..<updatedResult.count))
+//                } else {
+//                    print("Delete error: \(error?.localizedDescription ?? "Unknown error")")
+//                }
+//            }
+//        })
+//    }
+    
+    private func deleteSelectedPhotos() {
+        guard !storageState.selectedMediaItems.isEmpty,
+              storageState.photoAccessGranted,
+              let result = storageState.photoAssets else { return }
+
+        let assetsToDelete = result.objects(at: IndexSet(0..<result.count)).filter {
+            storageState.selectedMediaItems.contains($0.localIdentifier)
+        }
+
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSFastEnumeration)
+        }, completionHandler: { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    storageState.selectedMediaItems.removeAll()
+
+                    // ✅ Refresh using the correct media type based on selected category
+                    let fetchOptions = PHFetchOptions()
+                    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+
+                    let currentCategory = storageState.selectedMediaCategory
+                    let mediaType: PHAssetMediaType = currentCategory == "Photos" ? .image : .video
+                    let updatedResult = PHAsset.fetchAssets(with: mediaType, options: fetchOptions)
+
+                    storageState.photoAssets = updatedResult
+                    storageState.mediaAssetsArray = updatedResult.objects(at: IndexSet(0..<updatedResult.count))
+                } else {
+                    print("Delete error: \(error?.localizedDescription ?? "Unknown error")")
+                }
+            }
+        })
+    }
     // MARK: - Duplicates Content View
 //
     
@@ -1164,75 +1008,84 @@ struct StorageOptimizationView: View {
             }
         }
     }
+
+    private func getLocalizedCategoryName(_ category: String, singular: Bool = false) -> String {
+           let key = category.lowercased()
+           let localizedName = LocalizedStrings.string(for: key, language: languageManager.currentLanguage)
+           return singular ? localizedName.singularForm(language: languageManager.currentLanguage) : localizedName
+       }
+    
 //    private var cleanMediaViewFixed: some View {
-//        VStack(spacing: 0) {
-//            // Media category selection
-//            HStack(spacing: 20) {
-//                ForEach(mediaCategories, id: \.self) { category in
-//                    mediaCategoryButton(category: category)
+//       
+//        return VStack(spacing: 0) {
+//                // Media category selection with localized names
+//                HStack(spacing: 20) {
+//                    ForEach(mediaCategories, id: \.self) { category in
+//                                let localizedCategory = LocalizedStrings.string(for: category, language: languageManager.currentLanguage)
+//                                mediaCategoryButton(category: localizedCategory)
+//                            }
 //                }
-//            }
-//            .padding(.horizontal)
-//            .padding(.top, 15)
-//            .padding(.bottom, 5)
-//            
-//            if storageState.isLoading {
-//                // Loading view with category-specific message
-//                VStack(spacing: 10) {
-//                    ProgressView()
-//                    Text("Loading \(storageState.selectedMediaCategory.lowercased())...")
-//                        .foregroundColor(.gray)
-//                }
-//                .padding()
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            } else if !storageState.photoAccessGranted {
-//                // Permission denied view
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.on.rectangle.angled")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.gray)
-//                    Text("Photo Access Required")
-//                        .font(.headline)
-//                    Text("Please allow access to your photos in Settings.")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                    Button("Open Settings") {
-//                        if let url = URL(string: UIApplication.openSettingsURLString) {
-//                            UIApplication.shared.open(url)
+//                .padding(.horizontal)
+//                .padding(.top, 15)
+//                .padding(.bottom, 5)
+//                
+//                if storageState.isLoading {
+//                    VStack(spacing: 10) {
+//                        ProgressView()
+//                        Text("\(LocalizedStrings.string(for: "loading", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory).lowercased())...")
+//                            .foregroundColor(.gray)
+//                    }
+//                    .padding()
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                } else if !storageState.photoAccessGranted {
+//                    VStack(spacing: 20) {
+//                        Image(systemName: "photo.on.rectangle.angled")
+//                            .font(.system(size: 48))
+//                            .foregroundColor(.gray)
+//                        LocalizedText("photo_access_required")
+//                            .font(.headline)
+//                        LocalizedText("allow_access_photos_settings")
+//                            .multilineTextAlignment(.center)
+//                            .padding(.horizontal)
+//                        Button(action: {
+//                            if let url = URL(string: UIApplication.openSettingsURLString) {
+//                                UIApplication.shared.open(url)
+//                            }
+//                        }) {
+//                            LocalizedText("open_settings")
+//                                .foregroundColor(.blue)
 //                        }
 //                    }
-//                    .foregroundColor(.blue)
+//                    .padding()
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 //                }
-//                .padding()
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            } else if let assets = storageState.photoAssets, assets.count > 0 {
+//            else if !storageState.mediaAssetsArray.isEmpty {
 //                // Selected count and media list
 //                HStack {
 //                    let selectedCount = storageState.selectedMediaItems.count
-//                    let categoryName = storageState.selectedMediaCategory == "Photos" ? "Photo" :
-//                                     storageState.selectedMediaCategory == "Videos" ? "Video" : "Audio file"
-//                    let pluralName = selectedCount == 1 ? categoryName : "\(categoryName)s"
+//                    let categoryName = getLocalizedCategoryName(storageState.selectedMediaCategory, singular: true)
+//                    let pluralName = selectedCount == 1 ? categoryName : getLocalizedCategoryName(storageState.selectedMediaCategory)
 //                    
-//                    Text("\(selectedCount) \(pluralName) selected")
+//                    Text("\(selectedCount) \(pluralName) \(LocalizedStrings.string(for: "selected", language: languageManager.currentLanguage))")
 //                        .font(.subheadline)
 //                        .foregroundColor(.gray)
 //                    Spacer()
 //                    if selectedCount > 0 {
-//                        Button("Deselect All") {
+//                        Button(action: {
 //                            storageState.selectedMediaItems.removeAll()
+//                        }) {
+//                            LocalizedText("deselect_all")
+//                                .font(.subheadline)
+//                                .foregroundColor(.blue)
 //                        }
-//                        .font(.subheadline)
-//                        .foregroundColor(.blue)
 //                    }
 //                }
+//              
 //                .padding(.horizontal)
 //                .padding(.vertical, 10)
-//                
-//                // Media items list
 //                ScrollView {
 //                    LazyVStack(spacing: 0) {
-//                        ForEach(0..<assets.count, id: \.self) { index in
-//                            let asset = assets[index]
+//                        ForEach(storageState.mediaAssetsArray, id: \.localIdentifier) { asset in
 //                            AssetRow(
 //                                asset: asset,
 //                                isSelected: storageState.selectedMediaItems.contains(asset.localIdentifier),
@@ -1243,143 +1096,98 @@ struct StorageOptimizationView: View {
 //                            Divider()
 //                        }
 //                        
-//                        // Bottom padding to prevent overlap with delete button
 //                        if !storageState.selectedMediaItems.isEmpty {
 //                            Color.clear.frame(height: 90)
 //                        } else {
 //                            Color.clear.frame(height: 20)
 //                        }
 //                    }
+//                  
 //                }
 //            } else {
-//                // No media found with better messaging
-//                VStack(spacing: 20) {
-//                    Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.gray)
-//                    
-//                    Text("No \(storageState.selectedMediaCategory) Found")
-//                        .font(.headline)
-//                    
-//                    Text("Your photo library doesn't contain any \(storageState.selectedMediaCategory.lowercased()).")
-//                        .multilineTextAlignment(.center)
-//                        .foregroundColor(.gray)
-//                        .padding(.horizontal)
+//                    VStack(spacing: 20) {
+//                        Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
+//                            .font(.system(size: 48))
+//                            .foregroundColor(.gray)
+//                        
+//                        Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory)) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
+//                            .font(.headline)
+//                        
+//                        Text(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))
+//                            .multilineTextAlignment(.center)
+//                            .foregroundColor(.gray)
+//                            .padding(.horizontal)
+//                    }
+//                    .padding()
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 //                }
-//                .padding()
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            }
-//            
-//            // Delete button for clean media
-//            if !storageState.selectedMediaItems.isEmpty {
-//                cleanMediaDeleteButtonFixed
+//                
+//                // Delete button for clean media
+//                if !storageState.selectedMediaItems.isEmpty {
+//                    cleanMediaDeleteButtonFixed
+//                }
 //            }
 //        }
-//    }
-    
-    private func getLocalizedCategoryName(_ category: String, singular: Bool = false) -> String {
-           let key = category.lowercased()
-           let localizedName = LocalizedStrings.string(for: key, language: languageManager.currentLanguage)
-           return singular ? localizedName.singularForm(language: languageManager.currentLanguage) : localizedName
-       }
-    
+        
     private var cleanMediaViewFixed: some View {
-            VStack(spacing: 0) {
-                // Media category selection with localized names
-                HStack(spacing: 20) {
-                    ForEach(mediaCategories, id: \.self) { category in
-                        mediaCategoryButton(category: category)
+        VStack(spacing: 0) {
+            // Media category selection
+            HStack(spacing: 20) {
+                ForEach(mediaCategories, id: \.self) { category in
+                    let localizedCategory = LocalizedStrings.string(for: category, language: languageManager.currentLanguage)
+                    mediaCategoryButton(category: localizedCategory)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 15)
+            .padding(.bottom, 5)
+            
+            // Loading indicator
+            if storageState.isLoading {
+                VStack(spacing: 10) {
+                    ProgressView()
+                    Text("\(LocalizedStrings.string(for: "loading", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory).lowercased())...")
+                        .foregroundColor(.gray)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            
+            // If photo permission is denied
+            else if !storageState.photoAccessGranted && storageState.selectedMediaCategory != "Audio" {
+                VStack(spacing: 20) {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    LocalizedText("photo_access_required")
+                        .font(.headline)
+                    LocalizedText("allow_access_photos_settings")
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    Button(action: {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        LocalizedText("open_settings")
+                            .foregroundColor(.blue)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.top, 15)
-                .padding(.bottom, 5)
-                
-                if storageState.isLoading {
-                    VStack(spacing: 10) {
-                        ProgressView()
-                        Text("\(LocalizedStrings.string(for: "loading", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory).lowercased())...")
-                            .foregroundColor(.gray)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if !storageState.photoAccessGranted {
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            
+            // AUDIO tab content
+            else if storageState.selectedMediaCategory == "Audio" {
+                if storageState.audioFiles.isEmpty {
                     VStack(spacing: 20) {
-                        Image(systemName: "photo.on.rectangle.angled")
+                        Image(systemName: categoryIcon(for: "Audio"))
                             .font(.system(size: 48))
                             .foregroundColor(.gray)
-                        LocalizedText("photo_access_required")
+
+                        Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName("Audio")) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
                             .font(.headline)
-                        LocalizedText("allow_access_photos_settings")
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                        Button(action: {
-                            if let url = URL(string: UIApplication.openSettingsURLString) {
-                                UIApplication.shared.open(url)
-                            }
-                        }) {
-                            LocalizedText("open_settings")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let assets = storageState.photoAssets, assets.count > 0 {
-                    // Selected count and media list
-                    HStack {
-                        let selectedCount = storageState.selectedMediaItems.count
-                        let categoryName = getLocalizedCategoryName(storageState.selectedMediaCategory, singular: true)
-                        let pluralName = selectedCount == 1 ? categoryName : getLocalizedCategoryName(storageState.selectedMediaCategory)
-                        
-                        Text("\(selectedCount) \(pluralName) \(LocalizedStrings.string(for: "selected", language: languageManager.currentLanguage))")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                        Spacer()
-                        if selectedCount > 0 {
-                            Button(action: {
-                                storageState.selectedMediaItems.removeAll()
-                            }) {
-                                LocalizedText("deselect_all")
-                                    .font(.subheadline)
-                                    .foregroundColor(.blue)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 10)
-                    
-                    // Media items list
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(0..<assets.count, id: \.self) { index in
-                                let asset = assets[index]
-                                AssetRow(
-                                    asset: asset,
-                                    isSelected: storageState.selectedMediaItems.contains(asset.localIdentifier),
-                                    onTap: {
-                                        toggleSelection(id: asset.localIdentifier)
-                                    }
-                                )
-                                .environmentObject(languageManager)
-                                Divider()
-                            }
-                            
-                            if !storageState.selectedMediaItems.isEmpty {
-                                Color.clear.frame(height: 90)
-                            } else {
-                                Color.clear.frame(height: 20)
-                            }
-                        }
-                    }
-                } else {
-                    VStack(spacing: 20) {
-                        Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray)
-                        
-                        Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory)) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
-                            .font(.headline)
-                        
+
                         Text(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))
                             .multilineTextAlignment(.center)
                             .foregroundColor(.gray)
@@ -1387,15 +1195,103 @@ struct StorageOptimizationView: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                
-                // Delete button for clean media
-                if !storageState.selectedMediaItems.isEmpty {
-                    cleanMediaDeleteButtonFixed
+                } else {
+                    List {
+                        ForEach(storageState.audioFiles, id: \.self) { audioURL in
+                            Text(audioURL.lastPathComponent)
+                                .font(.body)
+                        }
+                    }
                 }
             }
+            
+            // PHOTO/VIDEO tab content
+            else if !storageState.mediaAssetsArray.isEmpty {
+                // Selected count and deselect
+                HStack {
+                    let selectedCount = storageState.selectedMediaItems.count
+                    let categoryName = getLocalizedCategoryName(storageState.selectedMediaCategory, singular: true)
+                    let pluralName = selectedCount == 1 ? categoryName : getLocalizedCategoryName(storageState.selectedMediaCategory)
+
+                    Text("\(selectedCount) \(pluralName) \(LocalizedStrings.string(for: "selected", language: languageManager.currentLanguage))")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    Spacer()
+                    if selectedCount > 0 {
+                        Button(action: {
+                            storageState.selectedMediaItems.removeAll()
+                        }) {
+                            LocalizedText("deselect_all")
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+
+                // Media list
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(storageState.mediaAssetsArray, id: \.localIdentifier) { asset in
+                            AssetRow(
+                                asset: asset,
+                                isSelected: storageState.selectedMediaItems.contains(asset.localIdentifier),
+                                onTap: {
+                                    toggleSelection(id: asset.localIdentifier)
+                                }
+                            )
+                            Divider()
+                        }
+
+                        if !storageState.selectedMediaItems.isEmpty {
+                            Color.clear.frame(height: 90)
+                        } else {
+                            Color.clear.frame(height: 20)
+                        }
+                    }
+                }
+            }
+
+            // Empty state for photos/videos
+            else {
+                VStack(spacing: 20) {
+                    Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+
+                    Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory)) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
+                        .font(.headline)
+
+                    Text(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+
+            // Delete button (only for photo/video)
+            if storageState.selectedMediaCategory != "Audio",
+               !storageState.selectedMediaItems.isEmpty {
+                cleanMediaDeleteButtonFixed
+            }
         }
-        
+    }
+    private func deleteButtonTitleKey(for category: String) -> String {
+        switch category {
+        case "Photos":
+            return "delete_selected_photos"
+        case "Videos":
+            return "delete_selected_videos"
+        case "Audio":
+            return "delete_selected_audio"
+        default:
+            return "delete_selected_photos"
+        }
+    }
+    
     private var cleanMediaDeleteButtonFixed: some View {
             VStack(spacing: 0) {
                 LinearGradient(
@@ -1408,7 +1304,8 @@ struct StorageOptimizationView: View {
                 Button(action: {
                     deleteSelectedPhotos()
                 }) {
-                    LocalizedText("delete_selected_photos")
+                    Text(LocalizedStrings.string(for: deleteButtonTitleKey(for: storageState.selectedMediaCategory),
+                                                  language: languageManager.currentLanguage))
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -1493,9 +1390,42 @@ struct StorageOptimizationView: View {
  
     
     // MARK: - Storage Analysis Section
+//    private func fetchMedia() {
+//        storageState.isLoading = true
+//        
+//        if storageState.selectedMediaCategory == "Audio" {
+//            // For audio, we'll look for audio files in the device
+//            fetchAudioFiles()
+//        } else {
+//            // For photos and videos, use the Photos framework
+//            let options = PHFetchOptions()
+//            options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+//            
+//            DispatchQueue.global(qos: .userInitiated).async {
+//                let mediaType: PHAssetMediaType = storageState.selectedMediaCategory == "Photos" ? .image : .video
+//                
+//                print("Fetching media type: \(mediaType.rawValue) for category: \(storageState.selectedMediaCategory)")
+//                
+//                let assets = PHAsset.fetchAssets(with: mediaType, options: options)
+//                
+//                print("Found \(assets.count) \(storageState.selectedMediaCategory.lowercased())")
+//                
+//                DispatchQueue.main.async {
+//                    storageState.photoAssets = assets
+//                    storageState.isLoading = false
+//                    
+//                    if assets.count == 0 {
+//                        print("No \(storageState.selectedMediaCategory.lowercased()) found in photo library")
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    
+    
     private func fetchMedia() {
         storageState.isLoading = true
-        
+
         if storageState.selectedMediaCategory == "Audio" {
             // For audio, we'll look for audio files in the device
             fetchAudioFiles()
@@ -1513,8 +1443,12 @@ struct StorageOptimizationView: View {
                 
                 print("Found \(assets.count) \(storageState.selectedMediaCategory.lowercased())")
                 
+                // ✅ Convert fetch result to an array SwiftUI can observe
+                let assetArray = assets.objects(at: IndexSet(0..<assets.count))
+
                 DispatchQueue.main.async {
                     storageState.photoAssets = assets
+                    storageState.mediaAssetsArray = assetArray // <-- this enables live UI update
                     storageState.isLoading = false
                     
                     if assets.count == 0 {
@@ -1566,270 +1500,253 @@ struct StorageOptimizationView: View {
         
         return audioFiles
     }
+//    private func fetchAudioFiles() {
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            // Create dummy PHFetchResult for audio files
+//            // In a real implementation, you'd scan the file system for audio files
+//            let audioFiles = self.scanForAudioFiles()
+//            
+//            DispatchQueue.main.async {
+//                // For now, we'll create an empty result to show the "no audio found" message
+//                // with helpful information about where audio files are typically stored
+//                storageState.photoAssets = PHAsset.fetchAssets(with: .audio, options: PHFetchOptions())
+//                storageState.isLoading = false
+//                
+//                print("Audio scanning complete. Found \(audioFiles.count) audio files")
+//            }
+//        }
+//    }
+    
     private func fetchAudioFiles() {
         DispatchQueue.global(qos: .userInitiated).async {
-            // Create dummy PHFetchResult for audio files
-            // In a real implementation, you'd scan the file system for audio files
             let audioFiles = self.scanForAudioFiles()
             
             DispatchQueue.main.async {
-                // For now, we'll create an empty result to show the "no audio found" message
-                // with helpful information about where audio files are typically stored
-                storageState.photoAssets = PHAsset.fetchAssets(with: .audio, options: PHFetchOptions())
+                storageState.audioFiles = audioFiles
                 storageState.isLoading = false
+                storageState.photoAssets = nil // Clear old data
                 
                 print("Audio scanning complete. Found \(audioFiles.count) audio files")
             }
         }
     }
-    
-//
-    
-//    private var storageAnalysisSection: some View {
-//            VStack(alignment: .leading, spacing: 10) {
-//                LocalizedText("storage_analysis")
-//                    .font(.headline)
-//                    .padding(.horizontal)
-//                
-//                HStack(spacing: 20) {
-//                    storageItem(
-//                        color: .blue,
-//                        title: LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage),
-//                        value: formatBytes(totalStorage)
-//                    )
-//                    
-//                    storageItem(
-//                        color: .red,
-//                        title: LocalizedStrings.string(for: "used_storage", language: languageManager.currentLanguage),
-//                        value: formatBytes(usedStorage)
-//                    )
-//                    
-//                    storageItem(
-//                        color: .green,
-//                        title: LocalizedStrings.string(for: "free_storage", language: languageManager.currentLanguage),
-//                        value: formatBytes(freeStorage)
-//                    )
-//                }
-//                .padding(.horizontal)
-//            }
-//        }
-//    
-    private func storageItem(color: Color, title: String, value: String) -> some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Text(value)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+   
+        private func storageItem(color: Color, title: String, value: String) -> some View {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(color)
+                    .frame(width: 8, height: 8)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Text(value)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+            }
+        }
+        
+        private func toggleContactSelection(id: String) {
+            if selectedContacts.contains(id) {
+                selectedContacts.remove(id)
+            } else {
+                selectedContacts.insert(id)
             }
         }
     }
-    
-    private func toggleContactSelection(id: String) {
-        if selectedContacts.contains(id) {
-            selectedContacts.remove(id)
-        } else {
-            selectedContacts.insert(id)
-        }
-    }
-}
 
 
-//struct AssetRow: View {
-//    let asset: PHAsset
-//    let isSelected: Bool
-//    let onTap: () -> Void
-//    
-//    @State private var thumbnail: UIImage?
-//    @State private var fileName: String = ""
-//    @State private var fileSize: String = ""
-//    @State private var isLoadingThumbnail = true
-//    
-//    var body: some View {
-//        Button(action: onTap) {
-//            HStack(spacing: 12) {
-//                // Thumbnail - different display for each media type
-//                if asset.mediaType == .audio {
-//                    // Specialized audio thumbnail
-//                    ZStack {
-//                        Rectangle()
-//                            .fill(Color.blue.opacity(0.1))
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                        
-//                        Image(systemName: "music.note")
-//                            .font(.system(size: 24))
-//                            .foregroundColor(.blue)
-//                    }
-//                } else if asset.mediaType == .video {
-//                    // Video thumbnail with duration indicator
-//                    ZStack(alignment: .bottomTrailing) {
-//                        if isLoadingThumbnail && thumbnail == nil {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.2))
-//                                .frame(width: 60, height: 60)
-//                                .cornerRadius(4)
-//                                .overlay(
-//                                    ProgressView()
-//                                        .scaleEffect(0.8)
-//                                )
-//                        } else if let image = thumbnail {
-//                            Image(uiImage: image)
-//                                .resizable()
-//                                .aspectRatio(contentMode: .fill)
-//                                .frame(width: 60, height: 60)
-//                                .cornerRadius(4)
-//                                .clipped()
-//                        } else {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.3))
-//                                .frame(width: 60, height: 60)
-//                                .cornerRadius(4)
-//                                .overlay(
-//                                    Image(systemName: "video")
-//                                        .foregroundColor(.gray)
-//                                )
-//                        }
-//                        
-//                        // Video duration label and play icon
-//                        HStack(spacing: 2) {
-//                            Image(systemName: "play.fill")
-//                                .font(.system(size: 8))
-//                                .foregroundColor(.white)
-//                            
-//                            Text(formatDuration(asset.duration))
-//                                .font(.system(size: 10, weight: .medium))
-//                                .foregroundColor(.white)
-//                        }
-//                        .padding(.horizontal, 4)
-//                        .padding(.vertical, 2)
-//                        .background(Color.black.opacity(0.7))
-//                        .cornerRadius(3)
-//                        .padding(4)
-//                    }
-//                } else {
-//                    // Standard photo thumbnail
-//                    if isLoadingThumbnail && thumbnail == nil {
-//                        Rectangle()
-//                            .fill(Color.gray.opacity(0.2))
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                            .overlay(
-//                                ProgressView()
-//                                    .scaleEffect(0.8)
-//                            )
-//                    } else if let image = thumbnail {
-//                        Image(uiImage: image)
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fill)
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                            .clipped()
-//                    } else {
-//                        Rectangle()
-//                            .fill(Color.gray.opacity(0.3))
-//                            .frame(width: 60, height: 60)
-//                            .cornerRadius(4)
-//                            .overlay(
-//                                Image(systemName: "photo")
-//                                    .foregroundColor(.gray)
-//                            )
-//                    }
-//                }
-//                
-//                // Details
-//                VStack(alignment: .leading, spacing: 2) {
-//                    Text(fileName)
-//                        .font(.system(size: 16))
-//                        .foregroundColor(.primary)
-//                        .lineLimit(1)
-//                    
-//                    HStack {
-//                        if asset.mediaType == .audio {
-//                            Text("Duration")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text(formatDuration(asset.duration))
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                        } else if asset.mediaType == .video {
-//                            Text("Duration")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text(formatDuration(asset.duration))
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text("•")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text("\(asset.pixelWidth)×\(asset.pixelHeight)")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                        } else {
-//                            Text("Taken")
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                            
-//                            Text(formattedDate)
-//                                .foregroundColor(.gray)
-//                                .font(.system(size: 14))
-//                        }
-//                    }
-//                    
-//                    Text(fileSize)
-//                        .foregroundColor(.gray)
-//                        .font(.system(size: 14))
-//                }
-//                
-//                Spacer()
-//                
-//                // Selection indicator
-//                ZStack {
-//                    Circle()
-//                        .fill(isSelected ? Color.blue : Color.clear)
-//                        .frame(width: 24, height: 24)
-//                    
-//                    if isSelected {
-//                        Image(systemName: "checkmark")
-//                            .foregroundColor(.white)
-//                            .font(.system(size: 12, weight: .bold))
-//                    } else {
-//                        Circle()
-//                            .strokeBorder(Color.gray, lineWidth: 1)
-//                            .frame(width: 24, height: 24)
-//                    }
-//                }
-//            }
-//            .padding(.vertical, 10)
-//            .padding(.horizontal, 16)
-//        }
-//        .buttonStyle(PlainButtonStyle())
-//        .onAppear {
-//            loadAssetInfo()
-//            // Load thumbnail for both photos and videos
-//            if asset.mediaType != .audio {
-//                loadThumbnail()
-//            } else {
-//                isLoadingThumbnail = false
-//            }
-//        }
-//    }
+    //struct AssetRow: View {
+    //    let asset: PHAsset
+    //    let isSelected: Bool
+    //    let onTap: () -> Void
+    //
+    //    @State private var thumbnail: UIImage?
+    //    @State private var fileName: String = ""
+    //    @State private var fileSize: String = ""
+    //    @State private var isLoadingThumbnail = true
+    //
+    //    var body: some View {
+    //        Button(action: onTap) {
+    //            HStack(spacing: 12) {
+    //                // Thumbnail - different display for each media type
+    //                if asset.mediaType == .audio {
+    //                    // Specialized audio thumbnail
+    //                    ZStack {
+    //                        Rectangle()
+    //                            .fill(Color.blue.opacity(0.1))
+    //                            .frame(width: 60, height: 60)
+    //                            .cornerRadius(4)
+    //
+    //                        Image(systemName: "music.note")
+    //                            .font(.system(size: 24))
+    //                            .foregroundColor(.blue)
+    //                    }
+    //                } else if asset.mediaType == .video {
+    //                    // Video thumbnail with duration indicator
+    //                    ZStack(alignment: .bottomTrailing) {
+    //                        if isLoadingThumbnail && thumbnail == nil {
+    //                            Rectangle()
+    //                                .fill(Color.gray.opacity(0.2))
+    //                                .frame(width: 60, height: 60)
+    //                                .cornerRadius(4)
+    //                                .overlay(
+    //                                    ProgressView()
+    //                                        .scaleEffect(0.8)
+    //                                )
+    //                        } else if let image = thumbnail {
+    //                            Image(uiImage: image)
+    //                                .resizable()
+    //                                .aspectRatio(contentMode: .fill)
+    //                                .frame(width: 60, height: 60)
+    //                                .cornerRadius(4)
+    //                                .clipped()
+    //                        } else {
+    //                            Rectangle()
+    //                                .fill(Color.gray.opacity(0.3))
+    //                                .frame(width: 60, height: 60)
+    //                                .cornerRadius(4)
+    //                                .overlay(
+    //                                    Image(systemName: "video")
+    //                                        .foregroundColor(.gray)
+    //                                )
+    //                        }
+    //
+    //                        // Video duration label and play icon
+    //                        HStack(spacing: 2) {
+    //                            Image(systemName: "play.fill")
+    //                                .font(.system(size: 8))
+    //                                .foregroundColor(.white)
+    //
+    //                            Text(formatDuration(asset.duration))
+    //                                .font(.system(size: 10, weight: .medium))
+    //                                .foregroundColor(.white)
+    //                        }
+    //                        .padding(.horizontal, 4)
+    //                        .padding(.vertical, 2)
+    //                        .background(Color.black.opacity(0.7))
+    //                        .cornerRadius(3)
+    //                        .padding(4)
+    //                    }
+    //                } else {
+    //                    // Standard photo thumbnail
+    //                    if isLoadingThumbnail && thumbnail == nil {
+    //                        Rectangle()
+    //                            .fill(Color.gray.opacity(0.2))
+    //                            .frame(width: 60, height: 60)
+    //                            .cornerRadius(4)
+    //                            .overlay(
+    //                                ProgressView()
+    //                                    .scaleEffect(0.8)
+    //                            )
+    //                    } else if let image = thumbnail {
+    //                        Image(uiImage: image)
+    //                            .resizable()
+    //                            .aspectRatio(contentMode: .fill)
+    //                            .frame(width: 60, height: 60)
+    //                            .cornerRadius(4)
+    //                            .clipped()
+    //                    } else {
+    //                        Rectangle()
+    //                            .fill(Color.gray.opacity(0.3))
+    //                            .frame(width: 60, height: 60)
+    //                            .cornerRadius(4)
+    //                            .overlay(
+    //                                Image(systemName: "photo")
+    //                                    .foregroundColor(.gray)
+    //                            )
+    //                    }
+    //                }
+    //
+    //                // Details
+    //                VStack(alignment: .leading, spacing: 2) {
+    //                    Text(fileName)
+    //                        .font(.system(size: 16))
+    //                        .foregroundColor(.primary)
+    //                        .lineLimit(1)
+    //
+    //                    HStack {
+    //                        if asset.mediaType == .audio {
+    //                            Text("Duration")
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //
+    //                            Text(formatDuration(asset.duration))
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //                        } else if asset.mediaType == .video {
+    //                            Text("Duration")
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //
+    //                            Text(formatDuration(asset.duration))
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //
+    //                            Text("•")
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //
+    //                            Text("\(asset.pixelWidth)×\(asset.pixelHeight)")
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //                        } else {
+    //                            Text("Taken")
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //
+    //                            Text(formattedDate)
+    //                                .foregroundColor(.gray)
+    //                                .font(.system(size: 14))
+    //                        }
+    //                    }
+    //
+    //                    Text(fileSize)
+    //                        .foregroundColor(.gray)
+    //                        .font(.system(size: 14))
+    //                }
+    //
+    //                Spacer()
+    //
+    //                // Selection indicator
+    //                ZStack {
+    //                    Circle()
+    //                        .fill(isSelected ? Color.blue : Color.clear)
+    //                        .frame(width: 24, height: 24)
+    //
+    //                    if isSelected {
+    //                        Image(systemName: "checkmark")
+    //                            .foregroundColor(.white)
+    //                            .font(.system(size: 12, weight: .bold))
+    //                    } else {
+    //                        Circle()
+    //                            .strokeBorder(Color.gray, lineWidth: 1)
+    //                            .frame(width: 24, height: 24)
+    //                    }
+    //                }
+    //            }
+    //            .padding(.vertical, 10)
+    //            .padding(.horizontal, 16)
+    //        }
+    //        .buttonStyle(PlainButtonStyle())
+    //        .onAppear {
+    //            loadAssetInfo()
+    //            // Load thumbnail for both photos and videos
+    //            if asset.mediaType != .audio {
+    //                loadThumbnail()
+    //            } else {
+    //                isLoadingThumbnail = false
+    //            }
+    //        }
+    //    }
 struct AssetRow: View {
     let asset: PHAsset
     let isSelected: Bool
     let onTap: () -> Void
     @EnvironmentObject var languageManager: LanguageManager
-    
+
     @State private var thumbnail: UIImage?
     @State private var fileName: String = ""
     @State private var fileSize: String = ""

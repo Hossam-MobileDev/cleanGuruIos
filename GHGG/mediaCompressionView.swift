@@ -27,6 +27,10 @@ class MediaCompressionManager: ObservableObject {
     
     private let imageManager = PHImageManager.default()
     
+
+
+    @EnvironmentObject var languageManager: LanguageManager // Add this line
+
     func requestPhotoLibraryAccess(completion: @escaping (Bool) -> Void) {
         PHPhotoLibrary.requestAuthorization { status in
             DispatchQueue.main.async {
@@ -156,13 +160,28 @@ enum CompressionQuality: String, CaseIterable {
     case medium = "Medium"
     case high = "High"
     
-    var compressionPercentage: String {
-        switch self {
-        case .low: return "20% Compress"
-        case .medium: return "50% Compress"
-        case .high: return "80% Compress"
-        }
+    
+    func localizedTitle(language: String) -> String {
+        return LocalizedStrings.string(for: self.rawValue, language: language)
     }
+    
+//    var compressionPercentage: String {
+//        switch self {
+//        case .low: return "20% Compress"
+//        case .medium: return "50% Compress"
+//        case .high: return "80% Compress"
+//        }
+//    }
+    func compressionPercentage(language: String) -> String {
+            switch self {
+            case .low:
+                return "20% " + LocalizedStrings.string(for: "compress", language: language)
+            case .medium:
+                return "50% " + LocalizedStrings.string(for: "compress", language: language)
+            case .high:
+                return "80% " + LocalizedStrings.string(for: "compress", language: language)
+            }
+        }
 }
 
 // MARK: - Main View
@@ -174,29 +193,77 @@ struct MediaCompressionView: View {
     @State private var selectedImage: UIImage?
     @State private var showingPermissionAlert = false
     @State private var isCompressing = false
+    @EnvironmentObject var languageManager: LanguageManager // Add this line
+
+    private func qualityButton(_ quality: CompressionQuality) -> some View {
+
+        return Button(action: {
+            selectedQuality = quality
+            compressionManager.selectedQuality = quality
+            compressionManager.calculateTotalSizes()
+            
+            switch quality {
+            case .low: sliderValue = 0.2
+            case .medium: sliderValue = 0.5
+            case .high: sliderValue = 0.8
+            }
+        }) {
+            VStack(spacing: 4) {
+                Text(quality.localizedTitle(language: languageManager.currentLanguage))
+                    .font(.headline)
+                    .foregroundColor(selectedQuality == quality ? .blue : .primary)
+                
+                Text(quality.compressionPercentage(language: languageManager.currentLanguage))
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(selectedQuality == quality ? Color.blue.opacity(0.1) : Color.clear)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(selectedQuality == quality ? Color.blue : Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
     
     var body: some View {
+        
+      
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 15) {
                     // Storage Info
-                    storageInfoView
+                  //  storageInfoView
                     
-                    // Quality section
-                    Text("Quality")
+//                    // Quality section
+//                    Text("Quality")
+//                        .font(.subheadline)
+//                        .foregroundColor(.gray)
+//                        .padding(.horizontal)
+//                        .padding(.top)
+                    LocalizedText("quality")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .padding(.horizontal)
                         .padding(.top)
                     
+                  
+
                     // Quality options
                     HStack(spacing: 15) {
                         ForEach(CompressionQuality.allCases, id: \.self) { quality in
                             qualityButton(quality)
+                           
                         }
+                        
                     }
                     .padding(.horizontal)
-                    
+                   
                     // Image comparison
                     imageComparisonView
                     
@@ -204,15 +271,16 @@ struct MediaCompressionView: View {
                     sizeComparisonView
                     
                     // Action buttons
-                    actionButtonsView
+                   // actionButtonsView
                     
                     // Media list
-                    if !compressionManager.mediaItems.isEmpty {
-                        mediaListView
-                    }
+//                    if !compressionManager.mediaItems.isEmpty {
+//                        mediaListView
+//                    }
                 }
             }
-            .navigationTitle("Media Compression")
+            //.navigationTitle("Media Compression")
+            
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 checkPhotoLibraryAccess()
@@ -237,49 +305,49 @@ struct MediaCompressionView: View {
     
     // MARK: - View Components
     
-    private var storageInfoView: some View {
-        VStack(spacing: 10) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Original Size")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Text(formatBytes(compressionManager.totalOriginalSize))
-                        .font(.headline)
-                        .foregroundColor(.orange)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "arrow.right")
-                    .foregroundColor(.gray)
-                
-                Spacer()
-                
-                VStack(alignment: .trailing) {
-                    Text("After Compression")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Text(formatBytes(compressionManager.totalCompressedSize))
-                        .font(.headline)
-                        .foregroundColor(.green)
-                }
-            }
-            
-            // Savings
-            Text("Save \(formatBytes(compressionManager.totalOriginalSize - compressionManager.totalCompressedSize))")
-                .font(.subheadline)
-                .foregroundColor(.blue)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 8)
-                .background(Color.blue.opacity(0.1))
-                .cornerRadius(20)
-        }
-        .padding()
-        .background(Color.gray.opacity(0.05))
-        .cornerRadius(12)
-        .padding(.horizontal)
-    }
+//    private var storageInfoView: some View {
+//        VStack(spacing: 10) {
+//            HStack {
+//                VStack(alignment: .leading) {
+//                    Text("Original Size")
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
+//                    Text(formatBytes(compressionManager.totalOriginalSize))
+//                        .font(.headline)
+//                        .foregroundColor(.orange)
+//                }
+//                
+//                Spacer()
+//                
+//                Image(systemName: "arrow.right")
+//                    .foregroundColor(.gray)
+//                
+//                Spacer()
+//                
+//                VStack(alignment: .trailing) {
+//                    Text("After Compression")
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
+//                    Text(formatBytes(compressionManager.totalCompressedSize))
+//                        .font(.headline)
+//                        .foregroundColor(.green)
+//                }
+//            }
+//            
+//            // Savings
+//            Text("Save \(formatBytes(compressionManager.totalOriginalSize - compressionManager.totalCompressedSize))")
+//                .font(.subheadline)
+//                .foregroundColor(.blue)
+//                .padding(.horizontal, 20)
+//                .padding(.vertical, 8)
+//                .background(Color.blue.opacity(0.1))
+//                .cornerRadius(20)
+//        }
+//        .padding()
+//        .background(Color.gray.opacity(0.05))
+//        .cornerRadius(12)
+//        .padding(.horizontal)
+//    }
     
     private var imageComparisonView: some View {
         ZStack(alignment: .center) {
@@ -346,7 +414,7 @@ struct MediaCompressionView: View {
     private var sizeComparisonView: some View {
         HStack {
             VStack {
-                Text("Original")
+                LocalizedText("Original")
                     .font(.subheadline)
                     .foregroundColor(.primary)
                 
@@ -371,7 +439,7 @@ struct MediaCompressionView: View {
             Spacer()
             
             VStack {
-                Text("Compressed")
+                LocalizedText("Compressed")
                     .font(.subheadline)
                     .foregroundColor(.primary)
                 
@@ -479,40 +547,41 @@ struct MediaCompressionView: View {
         }
     }
     
-    private func qualityButton(_ quality: CompressionQuality) -> some View {
-        Button(action: {
-            selectedQuality = quality
-            compressionManager.selectedQuality = quality
-            compressionManager.calculateTotalSizes()
-            
-            switch quality {
-            case .low: sliderValue = 0.2
-            case .medium: sliderValue = 0.5
-            case .high: sliderValue = 0.8
-            }
-        }) {
-            VStack(spacing: 4) {
-                Text(quality.rawValue)
-                    .font(.headline)
-                    .foregroundColor(selectedQuality == quality ? .blue : .primary)
-                
-                Text(quality.compressionPercentage)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white)
-                    .shadow(color: selectedQuality == quality ? Color.blue.opacity(0.2) : Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(selectedQuality == quality ? Color.blue.opacity(0.5) : Color.gray.opacity(0.1), lineWidth: 1)
-                    )
-            )
-        }
-    }
+//    private func qualityButton(_ quality: CompressionQuality) -> some View {
+//        Button(action: {
+//            selectedQuality = quality
+//            compressionManager.selectedQuality = quality
+//            compressionManager.calculateTotalSizes()
+//            
+//            switch quality {
+//            case .low: sliderValue = 0.2
+//            case .medium: sliderValue = 0.5
+//            case .high: sliderValue = 0.8
+//            }
+//        }) {
+//            VStack(spacing: 4) {
+//                Text(quality.rawValue)
+//                    .font(.headline)
+//                    .foregroundColor(selectedQuality == quality ? .blue : .primary)
+//                
+////                Text(quality.compressionPercentage)
+////                    .font(.caption)
+////                    .foregroundColor(.gray)
+//            }
+//            .frame(maxWidth: .infinity)
+//            .padding(.vertical, 10)
+//            .background(
+//                RoundedRectangle(cornerRadius: 8)
+//                    .fill(Color.white)
+//                    .shadow(color: selectedQuality == quality ? Color.blue.opacity(0.2) : Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 8)
+//                            .stroke(selectedQuality == quality ? Color.blue.opacity(0.5) : Color.gray.opacity(0.1), lineWidth: 1)
+//                    )
+//            )
+//        }
+//    }
+//    
     
     private func getCompressedSizeText(for image: UIImage) -> String {
         let compressionQuality: CGFloat = {

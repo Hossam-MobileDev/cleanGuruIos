@@ -20,6 +20,53 @@ struct SettinappView: View {
     
     private let currentAppId = "6743487109" // Replace with your app's actual ID
 
+//    private func sendEmail() {
+//        
+//        let subject = "I have a problem Clean Guru"
+//        let systemVersion = UIDevice.current.systemVersion
+//        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+//        
+//        let body = """
+//                             Hello There
+//                             Details of the problem:
+//                             
+//                             System version: \(systemVersion)
+//                             App version : \(appVersion)
+//                             
+//                             Sent from my iPhone
+//                             """
+//        // Encode the components
+//        let subjectEncoded = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+//        let bodyEncoded = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+//        
+//        let email = "support@3rabapp.com"
+//        if let emailURL = URL(string: "mailto:\(email)?subject=\(subjectEncoded)&body=\(bodyEncoded)") {
+//            UIApplication.shared.open(emailURL)
+//        }
+//    }
+    
+    private func sendEmail() {
+        let supportEmail = "support@3rabapp.com"
+        let subject = "I have a problem خطواتي"
+        let systemVersion = UIDevice.current.systemVersion
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+
+        let body = """
+        Hello There
+        Details of the problem:
+
+        System version: \(systemVersion)
+        App version : \(appVersion)
+        """
+
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        if let emailURL = URL(string: "mailto:\(supportEmail)?subject=\(encodedSubject)&body=\(encodedBody)") {
+            UIApplication.shared.open(emailURL)
+        }
+    }
+    
     private let colors = SettingsColors(
         background: .white,
         cardBackground: Color(hex: "F5F5F5"),
@@ -69,26 +116,26 @@ struct SettinappView: View {
                         
                         FeedbackButton(
                             icon: "envelope.fill",
-                            text: LocalizedStrings.string(for: "share_your_feedback", language: languageManager.currentLanguage),
+                            text: LocalizedStrings.string(for: "have a problem? contact us", language: languageManager.currentLanguage),
                             iconColor: Color(hex: "4CD964"),
                             action: sendEmail
                         )
                         DividerLine(color: colors.divider)
                         
-                        FeedbackButton(
-                            icon: "exclamationmark.triangle.fill",
-                            text: LocalizedStrings.string(for: "having_issues", language: languageManager.currentLanguage),
-                            iconColor: Color(hex: "FF9500"),
-                            action: sendEmail
-                        )
-                        DividerLine(color: colors.divider)
-                        
-                        FeedbackButton(
-                            icon: "heart.slash.fill",
-                            text: LocalizedStrings.string(for: "not_enjoying_app", language: languageManager.currentLanguage),
-                            iconColor: Color(hex: "FF3B30"),
-                            action: sendEmail
-                        )
+//                        FeedbackButton(
+//                            icon: "exclamationmark.triangle.fill",
+//                            text: LocalizedStrings.string(for: "having_issues", language: languageManager.currentLanguage),
+//                            iconColor: Color(hex: "FF9500"),
+//                            action: sendEmail
+//                        )
+//                        DividerLine(color: colors.divider)
+//                        
+//                        FeedbackButton(
+//                            icon: "heart.slash.fill",
+//                            text: LocalizedStrings.string(for: "not_enjoying_app", language: languageManager.currentLanguage),
+//                            iconColor: Color(hex: "FF3B30"),
+//                            action: sendEmail
+//                        )
                         DividerLine(color: colors.divider)
                         
                         FeedbackButton(
@@ -105,50 +152,61 @@ struct SettinappView: View {
                 SectionView(title: LocalizedStrings.string(for: "check_our_apps", language: languageManager.currentLanguage)) {
                     VStack(spacing: 16) {
                         AppListItem(
-                            title: "Muslim Qibla",
-                            subtitle: "Accurate Qibla Direction",
+                            title: LocalizedStrings.string(for: "muslim_qibla", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "muslim_qibla_desc", language: languageManager.currentLanguage),
                             iconName: "qibla",
                             appId: "id6736939515",
                             colors: colors
                         )
+//                        AppListItem(
+//                            title: "Muslim Qibla",
+//                            subtitle: "Accurate Qibla Direction",
+//                            iconName: "qibla",
+//                            appId: "id6736939515",
+//                            colors: colors
+//                        )
                         AppListItem(
-                            title: "Speedtest",
-                            subtitle: "Internet Speed Test",
+                            title: LocalizedStrings.string(for: "speedtest", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "speedtest_desc", language: languageManager.currentLanguage),
                             iconName: "speedtest",
                             appId: "id1635139320",
                             colors: colors
                         )
+                        
                         AppListItem(
-                            title: "Product Finder",
-                            subtitle: "Price Comparison",
+                            title: LocalizedStrings.string(for: "product_finder", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "product_finder_desc", language: languageManager.currentLanguage),
                             iconName: "finder",
                             appId: "id6737802621",
                             colors: colors
                         )
+                        
                         AppListItem(
-                            title: "Kitaba",
-                            subtitle: "Design Photos & Arabic Fonts",
+                            title: LocalizedStrings.string(for: "kitaba", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "kitaba_desc", language: languageManager.currentLanguage),
                             iconName: "kitaba",
                             appId: "id958075714",
                             colors: colors
                         )
                         AppListItem(
-                            title: "Currency Converter",
-                            subtitle: "Global Currency Exchange",
+                            title: LocalizedStrings.string(for: "currency_converter", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "currency_converter_desc", language: languageManager.currentLanguage),
                             iconName: "currency",
                             appId: "id1492580244",
                             colors: colors
                         )
+                        
                         AppListItem(
-                            title: "Zakhrafa",
-                            subtitle: "Arabic Text Decoration",
+                            title: LocalizedStrings.string(for: "zakhrafa", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "zakhrafa_desc", language: languageManager.currentLanguage),
                             iconName: "zaghrafalogo",
                             appId: "id6476085334",
                             colors: colors
                         )
+                        
                         AppListItem(
-                            title: "Steps",
-                            subtitle: "Daily Step Counter",
+                            title: LocalizedStrings.string(for: "steps", language: languageManager.currentLanguage),
+                            subtitle: LocalizedStrings.string(for: "steps_desc", language: languageManager.currentLanguage),
                             iconName: "zatawaty",
                             appId: "id6502876950",
                             colors: colors
@@ -187,10 +245,10 @@ struct SettinappView: View {
            }
        }
     
-    private func sendEmail() {
-        guard let emailURL = URL(string: "mailto:\(supportEmail)") else { return }
-        openURL(emailURL)
-    }
+//    private func sendEmail() {
+//        guard let emailURL = URL(string: "mailto:\(supportEmail)") else { return }
+//        openURL(emailURL)
+//    }
     
     private func shareApp() {
         let activityVC = UIActivityViewController(

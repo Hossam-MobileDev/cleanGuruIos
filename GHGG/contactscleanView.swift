@@ -17,7 +17,8 @@ struct ContactsCleanupView: View {
     @State private var showRestoreSuccessAlert = false
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     var body: some View {
         VStack(spacing: 0) {
             // Action buttons section
@@ -37,8 +38,11 @@ struct ContactsCleanupView: View {
                                 .font(.system(size: 24))
                                 .foregroundColor(.blue)
                         }
-                        
-                        Text("Backup Contacts")
+//                        
+//                        Text("Backup Contacts")
+//                            .font(.subheadline)
+//                            .foregroundColor(.primary)
+                        Text(LocalizedStrings.string(for: "Backup Contacts", language: languageManager.currentLanguage))
                             .font(.subheadline)
                             .foregroundColor(.primary)
                     }
@@ -60,7 +64,10 @@ struct ContactsCleanupView: View {
                                 .foregroundColor(.blue)
                         }
                         
-                        Text("Restore Contacts")
+//                        Text("Restore Contacts")
+//                            .font(.subheadline)
+//                            .foregroundColor(.primary)
+                        Text(LocalizedStrings.string(for: "Restore Contacts", language: languageManager.currentLanguage))
                             .font(.subheadline)
                             .foregroundColor(.primary)
                     }
@@ -103,12 +110,15 @@ struct ContactsCleanupView: View {
                 HStack {
                     let totalDuplicates = duplicateGroups.values.filter { $0.count > 1 }.count
                     
-                    Text("\(selectedContacts.count) Duplicates Contacts selected")
+//                    Text("\(selectedContacts.count) Duplicates Contacts selected")
+//                        .font(.subheadline)
+//                        .foregroundColor(.gray)
+                    Text("\(selectedContacts.count) \(LocalizedStrings.string(for: "Duplicates Contacts selected", language: languageManager.currentLanguage))")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     Spacer()
                     if !selectedContacts.isEmpty {
-                        Button("Deselect All") {
+                        Button(LocalizedStrings.string(for: "Deselect All", language: languageManager.currentLanguage)) {
                             selectedContacts.removeAll()
                         }
                         .font(.subheadline)
@@ -142,7 +152,7 @@ struct ContactsCleanupView: View {
                         Button(action: {
                             mergeSelectedContacts()
                         }) {
-                            Text("Merge Contacts")
+                            Text(LocalizedStrings.string(for: "Merge Contacts", language: languageManager.currentLanguage))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(.white)
                                 .padding(.vertical, 12)
@@ -155,7 +165,7 @@ struct ContactsCleanupView: View {
                         Button(action: {
                             deleteSelectedContacts()
                         }) {
-                            Text("Delete Contacts")
+                            Text(LocalizedStrings.string(for: "Delete Contacts", language: languageManager.currentLanguage))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(.blue)
                                 .padding(.vertical, 12)
@@ -578,64 +588,125 @@ struct ContactDuplicateGroup: View {
     }
 }
 
+//struct ContactRow: View {
+//    let contact: CNContact
+//    let isSelected: Bool
+//    let onTap: () -> Void
+//    
+//    var body: some View {
+//        Button(action: onTap) {
+//            HStack(spacing: 12) {
+//                // Contact avatar
+//                if let thumbnailData = contact.thumbnailImageData, let uiImage = UIImage(data: thumbnailData) {
+//                    Image(uiImage: uiImage)
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fill)
+//                        .frame(width: 40, height: 40)
+//                        .clipShape(Circle())
+//                } else {
+//                    // Default avatar
+//                    Circle()
+//                        .fill(Color.gray.opacity(0.2))
+//                        .frame(width: 40, height: 40)
+//                        .overlay(
+//                            Image(systemName: "person.fill")
+//                                .foregroundColor(.gray)
+//                        )
+//                }
+//                
+//                // Contact details
+//                VStack(alignment: .leading, spacing: 2) {
+//                    // Only showing the phone numbers
+//                    if let phoneNumber = contact.phoneNumbers.first?.value.stringValue {
+//                        Text(phoneNumber)
+//                            .font(.system(size: 16))
+//                            .foregroundColor(.primary)
+//                    }
+//                }
+//                
+//                Spacer()
+//                
+//                // Selection indicator
+//                ZStack {
+//                    RoundedRectangle(cornerRadius: 4)
+//                        .fill(isSelected ? Color.blue : Color.clear)
+//                        .frame(width: 20, height: 20)
+//                    
+//                    if isSelected {
+//                        Image(systemName: "checkmark")
+//                            .foregroundColor(.white)
+//                            .font(.system(size: 12, weight: .bold))
+//                    } else {
+//                        RoundedRectangle(cornerRadius: 4)
+//                            .strokeBorder(Color.gray, lineWidth: 1)
+//                            .frame(width: 20, height: 20)
+//                    }
+//                }
+//            }
+//            .padding(.vertical, 12)
+//            .padding(.horizontal, 16)
+//        }
+//        .buttonStyle(PlainButtonStyle())
+//    }
+//}
 struct ContactRow: View {
     let contact: CNContact
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                // Contact avatar
-                if let thumbnailData = contact.thumbnailImageData, let uiImage = UIImage(data: thumbnailData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                } else {
-                    // Default avatar
-                    Circle()
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .foregroundColor(.gray)
-                        )
-                }
-                
-                // Contact details
-                VStack(alignment: .leading, spacing: 2) {
-                    // Only showing the phone numbers
-                    if let phoneNumber = contact.phoneNumbers.first?.value.stringValue {
-                        Text(phoneNumber)
-                            .font(.system(size: 16))
-                            .foregroundColor(.primary)
-                    }
-                }
-                
-                Spacer()
-                
-                // Selection indicator
-                ZStack {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(isSelected ? Color.blue : Color.clear)
-                        .frame(width: 20, height: 20)
-                    
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(.white)
-                            .font(.system(size: 12, weight: .bold))
-                    } else {
-                        RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(Color.gray, lineWidth: 1)
-                            .frame(width: 20, height: 20)
-                    }
+        HStack(spacing: 12) {
+            // Contact avatar
+            if let thumbnailData = contact.thumbnailImageData,
+               let uiImage = UIImage(data: thumbnailData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.gray)
+                    )
+            }
+
+            // Contact details
+            VStack(alignment: .leading, spacing: 2) {
+                if let phoneNumber = contact.phoneNumbers.first?.value.stringValue {
+                    Text(phoneNumber)
+                        .font(.system(size: 16))
+                        .foregroundColor(.primary)
                 }
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
+
+            Spacer()
+
+            // Selection checkbox
+            ZStack {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(isSelected ? Color.blue : Color.clear)
+                    .frame(width: 20, height: 20)
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundColor(.white)
+                        .font(.system(size: 12, weight: .bold))
+                } else {
+                    RoundedRectangle(cornerRadius: 4)
+                        .strokeBorder(Color.gray, lineWidth: 1)
+                        .frame(width: 20, height: 20)
+                }
+            }
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .contentShape(Rectangle()) // 🔹 Makes the entire HStack tappable
+        .onTapGesture {
+            onTap()
+        }
     }
 }

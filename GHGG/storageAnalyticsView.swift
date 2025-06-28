@@ -17,8 +17,9 @@ struct StorageAnalyticsView: View {
     var storagePercentage: Int {
         let total = deviceInfo.totalStorage.0
         let used = deviceInfo.usedStorage.0
-        if total > 0 {
-            return Int(Double(used) / Double(total) * 100)
+        if let totalValue = Double(total), totalValue > 0,
+           let usedValue = Double(used) {
+            return Int((usedValue / totalValue) * 100)
         }
         return 0
     }
