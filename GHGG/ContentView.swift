@@ -63,16 +63,21 @@ struct ContentView: View {
                 case .dashboard:
                     StorageAnalyticsView()
                         .environmentObject(languageManager)
+                        .padding(.top, 15) // Add spacing from status bar
+
 
                 case .storage:
                     StorageOptimizationView()
                         .environmentObject(languageManager)
                         .environmentObject(storageState) // Pass the persistent state
+                        .padding(.top, 15) // Add spacing from status bar
 
 
                 case .settings:
                     SettinappView(togglefullscreen: $showSettings)
                         .environmentObject(languageManager)
+                        .padding(.top, 15) // Add spacing from status bar
+
 
                 }
             }
@@ -85,9 +90,14 @@ struct ContentView: View {
                 .frame(height: 50) // <-- Standard banner height
                                 .background(Color.white)
         }
-        .edgesIgnoringSafeArea(.bottom) // Extend to bottom edge for the ad
-        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
-        .id(languageManager.currentLanguage) // Force complete view refresh when language changes
+        .background(Color(hex: "F2F9FF"))
+                .edgesIgnoringSafeArea([.top, .bottom]) // Extend to cover status bar and bottom
+                .preferredColorScheme(.light) // Ensures dark status bar content
+                .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+                .id(languageManager.currentLanguage) // Force complete view refresh when language changes
+//        .edgesIgnoringSafeArea(.bottom) // Extend to bottom edge for the ad
+//        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+//        .id(languageManager.currentLanguage) // Force complete view refresh when language changes
     }
 }
 
@@ -98,7 +108,7 @@ struct ContentView: View {
 struct BannerAdView: UIViewRepresentable {
     let adUnitID: String
     
-    init(adUnitID: String = "ca-app-pub-3940256099942544/2934735716") { // Test ad unit ID
+    init(adUnitID: String = "ca-app-pub-1439642083038769/4773340793") { // Test ad unit ID
         self.adUnitID = adUnitID
     }
     

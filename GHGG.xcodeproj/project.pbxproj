@@ -15,6 +15,7 @@
 		5247F8082DD8C109000EBE00 /* emailCleanerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5247F8072DD8C109000EBE00 /* emailCleanerView.swift */; };
 		5247F80A2DD8C8D2000EBE00 /* calendarCleanerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5247F8092DD8C8D2000EBE00 /* calendarCleanerView.swift */; };
 		5247F80C2DD8CF2E000EBE00 /* mediaCompressionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5247F80B2DD8CF2E000EBE00 /* mediaCompressionView.swift */; };
+		526744572E21390100A1AF25 /* appOpenAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526744562E21390100A1AF25 /* appOpenAdManager.swift */; };
 		52682D582DDB5D9C002C8588 /* cleanMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52682D572DDB5D9C002C8588 /* cleanMediaView.swift */; };
 		528BEAED2DD37E570095088A /* contactscleanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528BEAEC2DD37E570095088A /* contactscleanView.swift */; };
 		52A06E532E0049E200C91F3E /* languageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A06E522E0049E200C91F3E /* languageManager.swift */; };
@@ -53,6 +54,7 @@
 		5247F8072DD8C109000EBE00 /* emailCleanerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = emailCleanerView.swift; sourceTree = "<group>"; };
 		5247F8092DD8C8D2000EBE00 /* calendarCleanerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = calendarCleanerView.swift; sourceTree = "<group>"; };
 		5247F80B2DD8CF2E000EBE00 /* mediaCompressionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mediaCompressionView.swift; sourceTree = "<group>"; };
+		526744562E21390100A1AF25 /* appOpenAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = appOpenAdManager.swift; sourceTree = "<group>"; };
 		52682D572DDB5D9C002C8588 /* cleanMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cleanMediaView.swift; sourceTree = "<group>"; };
 		528BEAEC2DD37E570095088A /* contactscleanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = contactscleanView.swift; sourceTree = "<group>"; };
 		52A06E522E0049E200C91F3E /* languageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = languageManager.swift; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				52682D572DDB5D9C002C8588 /* cleanMediaView.swift */,
 				52A3A0BC2DFD95E8009F11CC /* SubscribtionView.swift */,
 				52A06E522E0049E200C91F3E /* languageManager.swift */,
+				526744562E21390100A1AF25 /* appOpenAdManager.swift */,
 			);
 			path = GHGG;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 			files = (
 				523F4A432DD0B26E00DE745E /* settingsView.swift in Sources */,
 				528BEAED2DD37E570095088A /* contactscleanView.swift in Sources */,
+				526744572E21390100A1AF25 /* appOpenAdManager.swift in Sources */,
 				5247F80C2DD8CF2E000EBE00 /* mediaCompressionView.swift in Sources */,
 				52682D582DDB5D9C002C8588 /* cleanMediaView.swift in Sources */,
 				523F4A452DD0C68800DE745E /* deviceInfomanager.swift in Sources */,

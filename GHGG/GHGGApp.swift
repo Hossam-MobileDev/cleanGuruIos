@@ -15,6 +15,8 @@ import GoogleMobileAds
 struct GHGGApp: App {
     @StateObject private var languageManager = LanguageManager()
     //@UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var appOpenAdManager = AppOpenAdManager()
+
 
     init() {
             // Initialize Google Mobile Ads SDK
@@ -26,6 +28,8 @@ struct GHGGApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(languageManager)
+                .environmentObject(appOpenAdManager)
+
                 .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
 
 

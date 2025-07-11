@@ -47,7 +47,7 @@ struct SettinappView: View {
     
     private func sendEmail() {
         let supportEmail = "support@3rabapp.com"
-        let subject = "I have a problem خطواتي"
+        let subject = "I have a probleme Clean Guru"
         let systemVersion = UIDevice.current.systemVersion
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
 

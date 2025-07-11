@@ -79,35 +79,69 @@ class MediaCompressionManager: ObservableObject {
     
     @Published var selectedQuality: CompressionQuality = .medium
     
+//    func compressSelectedMedia(completion: @escaping (Bool) -> Void) {
+//        let selectedItems = mediaItems.filter { $0.isSelected }
+//        guard !selectedItems.isEmpty else {
+//            completion(false)
+//            return
+//        }
+//        
+//        isLoading = true
+//        compressionProgress = 0
+//        
+//        let group = DispatchGroup()
+//        var processedCount = 0
+//        let totalCount = selectedItems.count
+//        
+//        for item in selectedItems {
+//            group.enter()
+//            
+//            compressImage(asset: item.asset, quality: selectedQuality) { success in
+//                DispatchQueue.main.async {
+//                    processedCount += 1
+//                    self.compressionProgress = Double(processedCount) / Double(totalCount)
+//                }
+//                group.leave()
+//            }
+//        }
+//        
+//        group.notify(queue: .main) {
+//            self.isLoading = false
+//            completion(true)
+//        }
+//    }
+//    
+    
     func compressSelectedMedia(completion: @escaping (Bool) -> Void) {
         let selectedItems = mediaItems.filter { $0.isSelected }
         guard !selectedItems.isEmpty else {
             completion(false)
             return
         }
-        
+
         isLoading = true
         compressionProgress = 0
-        
-        let group = DispatchGroup()
-        var processedCount = 0
-        let totalCount = selectedItems.count
-        
-        for item in selectedItems {
-            group.enter()
-            
-            compressImage(asset: item.asset, quality: selectedQuality) { success in
-                DispatchQueue.main.async {
-                    processedCount += 1
-                    self.compressionProgress = Double(processedCount) / Double(totalCount)
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let totalCount = selectedItems.count
+
+            for (index, item) in selectedItems.enumerated() {
+                let semaphore = DispatchSemaphore(value: 0)
+
+                self.compressImage(asset: item.asset, quality: self.selectedQuality) { success in
+                    DispatchQueue.main.async {
+                        self.compressionProgress = Double(index + 1) / Double(totalCount)
+                    }
+                    semaphore.signal()
                 }
-                group.leave()
+
+                semaphore.wait()
             }
-        }
-        
-        group.notify(queue: .main) {
-            self.isLoading = false
-            completion(true)
+
+            DispatchQueue.main.async {
+                self.isLoading = false
+                completion(true)
+            }
         }
     }
     
@@ -231,56 +265,111 @@ struct MediaCompressionView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
-    var body: some View {
-        
-      
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 15) {
-                    // Storage Info
-                  //  storageInfoView
-                    
-//                    // Quality section
-//                    Text("Quality")
+//    var body: some View {
+//        
+//      
+//        NavigationView {
+//            ScrollView {
+//                VStack(alignment: .leading, spacing: 15) {
+//                    // Storage Info
+//                  //  storageInfoView
+//                    
+////                    // Quality section
+////                    Text("Quality")
+////                        .font(.subheadline)
+////                        .foregroundColor(.gray)
+////                        .padding(.horizontal)
+////                        .padding(.top)
+//                    LocalizedText("quality")
 //                        .font(.subheadline)
 //                        .foregroundColor(.gray)
 //                        .padding(.horizontal)
 //                        .padding(.top)
-                    LocalizedText("quality")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .padding(.horizontal)
-                        .padding(.top)
-                    
-                  
-
-                    // Quality options
-                    HStack(spacing: 15) {
-                        ForEach(CompressionQuality.allCases, id: \.self) { quality in
-                            qualityButton(quality)
-                           
-                        }
-                        
-                    }
-                    .padding(.horizontal)
-                   
-                    // Image comparison
-                    imageComparisonView
-                    
-                    // Size comparison
-                    sizeComparisonView
-                    
-                    // Action buttons
-                   // actionButtonsView
-                    
-                    // Media list
-//                    if !compressionManager.mediaItems.isEmpty {
-//                        mediaListView
+//                    
+//                  
+//
+//                    // Quality options
+//                    HStack(spacing: 15) {
+//                        ForEach(CompressionQuality.allCases, id: \.self) { quality in
+//                            qualityButton(quality)
+//                           
+//                        }
+//                        
 //                    }
+//                    .padding(.horizontal)
+//                   
+//                    // Image comparison
+//                    imageComparisonView
+//                    
+//                    // Size comparison
+//                    sizeComparisonView
+//                    
+//                    // Action buttons
+//                   // actionButtonsView
+//                    
+//                    // Media list
+////                    if !compressionManager.mediaItems.isEmpty {
+////                        mediaListView
+////                    }
+//                }
+//            }
+//            //.navigationTitle("Media Compression")
+//            
+//            .navigationBarTitleDisplayMode(.inline)
+//            .onAppear {
+//                checkPhotoLibraryAccess()
+//            }
+//            .alert("Permission Required", isPresented: $showingPermissionAlert) {
+//                Button("Settings") {
+//                    if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+//                        UIApplication.shared.open(settingsUrl)
+//                    }
+//                }
+//                Button("Cancel", role: .cancel) {}
+//            } message: {
+//                Text("Please allow access to your photo library to compress images.")
+//            }
+//            .overlay {
+//                if compressionManager.isLoading {
+//                    loadingOverlay
+//                }
+//            }
+//        }
+//    }
+//    
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 15) {
+                        LocalizedText("quality")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                            .padding(.top)
+
+                        HStack(spacing: 15) {
+                            ForEach(CompressionQuality.allCases, id: \.self) { quality in
+                                qualityButton(quality)
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        imageComparisonView
+                        sizeComparisonView
+                    }
+                }
+
+                // ✅ Compress Button at bottom
+                VStack {
+                    Divider()
+                    actionButtonsView
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
+                        .background(Color(UIColor.systemBackground))
                 }
             }
-            //.navigationTitle("Media Compression")
-            
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 checkPhotoLibraryAccess()
@@ -471,7 +560,7 @@ struct MediaCompressionView: View {
                     } else {
                         Image(systemName: "square.and.arrow.down")
                     }
-                    Text(isCompressing ? "Compressing..." : "Compress All Media")
+                    Text(isCompressing ? "Compressing..." : "Compress")
                         .font(.headline)
                 }
                 .foregroundColor(.white)
