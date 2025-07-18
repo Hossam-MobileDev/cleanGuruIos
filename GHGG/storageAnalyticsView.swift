@@ -37,56 +37,42 @@ struct StorageAnalyticsView: View {
         }
     }
     
-//    private var mainContent: some View {
-//        VStack {
-//            // Header with title and upgrade button
-//           // Color(hex: "F2F9FF")
-//            HStack {
-//                HStack(spacing: 0) {
-//                    Text("Clean ")
-//                        .font(.title2)
-//                        .fontWeight(.bold)
-//                        .foregroundColor(.black)
-//                    Text("GURU")
-//                        .font(.title2)
-//                        .fontWeight(.bold)
-//                        .foregroundColor(.blue)
-//                }
-//                Spacer()
-//                // Upgrade button commented out but can be uncommented if needed
-//                // Button(LocalizedStrings.string(for: "upgrade", language: languageManager.currentLanguage)) {
-//                //     showSubscription = true
-//                // }
-//                // .foregroundColor(.orange)
-//            }
-//            
-//            .padding()
-//            .background(Color(hex: "F2F9FF"))
-//            storageAnalyticsHeader
-//            infoCardsSection
-//            deviceInfoSection
-//           // Spacer(minLength: 80)
-//        }
-//        //.padding(.top)
-//        .background(Color(.systemGroupedBackground))
-//        .sheet(isPresented: $showSubscription) {
-//            SubscriptionView()
-//        }
-//    }
-//    
+
     private var mainContent: some View {
         VStack(spacing: 5) { // spacing: 0 removes vertical space
             // Header with title and upgrade button
             HStack(spacing: 0) {
-                Text("Clean ")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                Text("GURU")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
-            }
+//                Text("Clean ")
+//                    .font(.title2)
+//                    .fontWeight(.bold)
+//                    .foregroundColor(.black)
+//                Text("GURU")
+//                    .font(.title2)
+//                    .fontWeight(.bold)
+//                    .foregroundColor(.blue)
+                if languageManager.isArabic {
+                               // Arabic: "كلين" (black) + "جورو" (blue)
+                               Text("كلين ")
+                                   .font(.title2)
+                                   .fontWeight(.bold)
+                                   .foregroundColor(.black)
+                               Text("جورو")
+                                   .font(.title2)
+                                   .fontWeight(.bold)
+                                   .foregroundColor(.blue)
+                           } else {
+                               // English: "Clean" (black) + "GURU" (blue)
+                               Text("Clean ")
+                                   .font(.title2)
+                                   .fontWeight(.bold)
+                                   .foregroundColor(.black)
+                               Text("GURU")
+                                   .font(.title2)
+                                   .fontWeight(.bold)
+                                   .foregroundColor(.blue)
+                           }
+                       }
+            
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             
@@ -123,26 +109,13 @@ struct StorageAnalyticsView: View {
                             )
                     .frame(width: 200, height: 200)
                     .environment(\.layoutDirection, .leftToRight)
-//
-//                HStack(spacing: 0) {
-////                    Text("\(storagePercentage)")
-////                        .font(.system(size: 36, weight: .bold))
-////                    Text("/100")
-////                        .font(.system(size: 20))
-////                        .foregroundColor(.gray)
-//                    Text(verbatim: "\(storagePercentage)/100")
-//                        .font(.system(size: 36, weight: .bold))
-//                        .foregroundStyle(
-//                            Text("\(storagePercentage)", style: .init(size: 36, weight: .bold)) +
-//                            Text("/100", style: .init(size: 20, weight: .regular)).foregroundColor(.gray)
-//                        )
-//                }
+
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text("\(storagePercentage)")
-                        .font(.system(size: 36, weight: .bold))
+                        .font(.system(size: 25, weight: .bold))
                     
                     Text("/100")
-                        .font(.system(size: 20))
+                        .font(.system(size: 15))
                         .foregroundColor(.gray)
                 }
                 .environment(\.layoutDirection, .leftToRight) 
@@ -159,25 +132,91 @@ struct StorageAnalyticsView: View {
     
    
 
-   
+    struct CustomInfoCard<Content: View>: View {
+        let iconName: String
+        let title: String
+        let value: String
+        let languageManager: LanguageManager
+        let content: () -> Content
+        
+        init(
+            iconName: String,
+            title: String,
+            value: String,
+            languageManager: LanguageManager,
+            @ViewBuilder content: @escaping () -> Content
+        ) {
+            self.iconName = iconName
+            self.title = title
+            self.value = value
+            self.languageManager = languageManager
+            self.content = content
+        }
+        
+        var body: some View {
+            VStack(spacing: 0) {
+                // Main row with icon, title, and value
+                HStack(spacing: 12) {
+                    // Icon without background
+                    // Try custom asset first, fallback to SF Symbol
+                    if UIImage(named: iconName) != nil {
+                        Image(iconName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 26, height: 26)
+                    } else {
+                        Image(systemName: iconName)
+                            .font(.system(size: 24, weight: .medium))
+                            .foregroundColor(.blue)
+                            .frame(width: 26, height: 26)
+                    }
+                    
+                    // Title
+                    Text(title)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    // Value (right-aligned)
+                    if !value.isEmpty {
+                        Text(value)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                
+                // Additional content (like Available Space, Used Space, etc.)
+                let additionalContent = content()
+                if !(additionalContent is EmptyView) {
+                    VStack(spacing: 8) {
+                        additionalContent
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+                }
+            }
+        }
+    }
 
-    
     private var infoCardsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 0) {
             // Total Storage
-            InfoCard(
-                icon: "doc.fill",
+            CustomInfoCard(
+                iconName: "storage",
                 title: LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage),
                 value: "\(deviceInfo.totalStorage.0)\(deviceInfo.totalStorage.1)",
                 languageManager: languageManager
             ) {
-                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 4) {
-                    InfoRow(
+                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 6) {
+                    EnhancedInfoRow(
                         title: LocalizedStrings.string(for: "available_space", language: languageManager.currentLanguage),
                         value: "\(deviceInfo.availableStorage.0)\(deviceInfo.availableStorage.1)",
                         languageManager: languageManager
                     )
-                    InfoRow(
+                    EnhancedInfoRow(
                         title: LocalizedStrings.string(for: "used_space", language: languageManager.currentLanguage),
                         value: "\(deviceInfo.usedStorage.0)\(deviceInfo.usedStorage.1)",
                         languageManager: languageManager
@@ -185,9 +224,12 @@ struct StorageAnalyticsView: View {
                 }
             }
             
+            Divider()
+                .padding(.horizontal, 16)
+            
             // Total RAM
-            InfoCard(
-                icon: "memorychip",
+            CustomInfoCard(
+                iconName: "ram",
                 title: LocalizedStrings.string(for: "total_ram", language: languageManager.currentLanguage),
                 value: "\(deviceInfo.totalRAM.0)\(deviceInfo.totalRAM.1)",
                 languageManager: languageManager
@@ -195,20 +237,23 @@ struct StorageAnalyticsView: View {
                 EmptyView()
             }
             
+            Divider()
+                .padding(.horizontal, 16)
+            
             // CPU Information
-            InfoCard(
-                icon: "cpu",
+            CustomInfoCard(
+                iconName: "cpu",
                 title: LocalizedStrings.string(for: "cpu_information", language: languageManager.currentLanguage),
                 value: "",
                 languageManager: languageManager
             ) {
-                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 4) {
-                    InfoRow(
+                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 6) {
+                    EnhancedInfoRow(
                         title: LocalizedStrings.string(for: "core_count", language: languageManager.currentLanguage),
                         value: "\(deviceInfo.cpuCores) \(LocalizedStrings.string(for: "cores", language: languageManager.currentLanguage))",
                         languageManager: languageManager
                     )
-                    InfoRow(
+                    EnhancedInfoRow(
                         title: LocalizedStrings.string(for: "architecture", language: languageManager.currentLanguage),
                         value: deviceInfo.architecture,
                         languageManager: languageManager
@@ -216,20 +261,23 @@ struct StorageAnalyticsView: View {
                 }
             }
             
+            Divider()
+                .padding(.horizontal, 16)
+            
             // Battery Information
-            InfoCard(
-                icon: "battery.75",
+            CustomInfoCard(
+                iconName: "battery",
                 title: LocalizedStrings.string(for: "battery_information", language: languageManager.currentLanguage),
                 value: "",
                 languageManager: languageManager
             ) {
-                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 4) {
-                    InfoRow(
+                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 6) {
+                    EnhancedInfoRow(
                         title: LocalizedStrings.string(for: "battery_percentage", language: languageManager.currentLanguage),
                         value: "\(deviceInfo.batteryPercentage)%",
                         languageManager: languageManager
                     )
-                    InfoRow(
+                    EnhancedInfoRow(
                         title: LocalizedStrings.string(for: "charging_state", language: languageManager.currentLanguage),
                         value: getLocalizedChargingState(deviceInfo.chargingState),
                         languageManager: languageManager
@@ -237,9 +285,56 @@ struct StorageAnalyticsView: View {
                 }
             }
         }
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
         .padding(.horizontal)
     }
     
+    struct EnhancedInfoRow: View {
+        let title: String
+        let value: String
+        let languageManager: LanguageManager
+        
+        var body: some View {
+            HStack {
+                if languageManager.isArabic {
+                    // RTL layout
+                    Text(value)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Text(title)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                } else {
+                    // LTR layout
+                    Text(title)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(value)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.primary)
+                }
+            }
+        }
+    }
+
+
+    private func getCustomIcon(for type: String) -> String {
+        switch type {
+        case "storage":
+            return "storage"
+        case "ram":
+            return "ram"
+        case "cpu":
+            return "cpu"
+        case "battery":
+            return "battery"
+        default:
+            return type
+        }
+    }
     private var deviceInfoSection: some View {
         VStack {
             HStack {
@@ -289,731 +384,176 @@ struct StorageAnalyticsView: View {
     }
 }
 
-//struct GaugeView: View {
-//    let percentage: CGFloat
-//    
-//    var body: some View {
-//        ZStack {
-//            backgroundTrack
-//            progressArc
-//            tickMarks
-//            redPointer
-//        }
-//        .background(Color.clear)
-//    }
-//    
-//    // MARK: - Background Track
-//    private var backgroundTrack: some View {
-//        Circle()
-//            .trim(from: 0, to: 0.8)
-//            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 15, lineCap: .round))
-//            .rotationEffect(.degrees(126))
-//    }
-//    
-//    private var progressArc: some View {
-//        Circle()
-//            .trim(from: 0, to: (percentage / 100) * 0.8)
-//            .stroke(progressGradient, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-//            .rotationEffect(.degrees(126))
-//    }
-//    
-//    // Fixed gradient implementation
-//    private var progressGradient: AngularGradient {
-//        let colors = cumulativeColors
-//        let endAngle = 126 + (288 * Double(percentage) / 100)
-//        
-//        return AngularGradient(
-//            gradient: Gradient(colors: colors),
-//            center: .center,
-//            startAngle: .degrees(126),
-//            endAngle: .degrees(endAngle)
-//        )
-//    }
-//    
-//    private var cumulativeColors: [Color] {
-//        var colors: [Color] = []
-//        
-//        // 0-10%: Green only
-//        if percentage > 0 {
-//            colors.append(Color(red: 0.2, green: 0.8, blue: 0.3)) // 🟢 Green
-//        }
-//        
-//        // 10-20%: Green + Light Green
-//        if percentage >= 10 {
-//            colors.append(Color(red: 0.5, green: 0.9, blue: 0.4)) // 🟢 Light Green
-//        }
-//        
-//        // 20-30%: Green + Light Green + Yellow
-//        if percentage >= 20 {
-//            colors.append(Color(red: 0.9, green: 0.9, blue: 0.2)) // 🟡 Yellow
-//        }
-//        
-//        // 30-40%: Green + Light Green + Yellow + Light Orange
-//        if percentage >= 30 {
-//            colors.append(Color(red: 1.0, green: 0.7, blue: 0.2)) // 🟠 Light Orange
-//        }
-//        
-//        // 40-50%: Green + Light Green + Yellow + Light Orange + Dark Orange
-//        if percentage >= 40 {
-//            let hexStrings = [
-//                    "#33CC66", // Green
-//                    "#FFA61A", // Dark Orange
-//                    "#EAEA33", // Yellow
-//                    "#FFB733", // Light Orange
-//                    "#FF3322"  // Red
-//                ]
-//
-//                for hex in hexStrings {
-//                    colors.append(Color.fromHex(hex))
-//                }
-//            
-//        }
-//        
-//        // 50-60%: Green + Light Green + Yellow + Light Orange + Dark Orange + Red
-//        if percentage >= 50 {
-//            colors.append(Color(red: 1.0, green: 0.2, blue: 0.1)) // 🔴 Red
-//        }
-//        
-//        // Ensure we have at least one color
-//        if colors.isEmpty {
-//            colors.append(Color.gray.opacity(0.3))
-//        }
-//        
-//        return colors
-//    }
-//    
-//    private var tickMarks: some View {
-//        ForEach(0..<12, id: \.self) { i in
-//            if shouldShowTickMark(at: i) {
-//                tickMark(at: i)
-//            }
-//        }
-//    }
-//    
-//    private func shouldShowTickMark(at index: Int) -> Bool {
-//        let angle = Double(index) * 30
-//        return !(angle >= 144 && angle <= 216)
-//    }
-//    
-//    private func tickMark(at index: Int) -> some View {
-//        Rectangle()
-//            .fill(Color.gray.opacity(0.5))
-//            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-//            .offset(y: -80)
-//            .rotationEffect(.degrees(Double(index) * 30))
-//    }
-//    
-//    private var redPointer: some View {
-//        ZStack {
-//            Rectangle()
-//                .fill(Color.red)
-//                .frame(width: 3, height: 60)
-//                .offset(y: -30)
-//                .rotationEffect(.degrees(pointerAngle))
-//            
-//            Circle()
-//                .fill(Color.red)
-//                .frame(width: 12, height: 12)
-//        }
-//    }
-//    
-//    private var pointerAngle: Double {
-//        126 + (Double(percentage) / 100.0) * 288
-//    }
-//}
-//
-//extension Color {
-//    static func fromHex(_ hex: String) -> Color {
-//        let hex = hex.trimmingCharacters(in: .alphanumerics.inverted)
-//        var int: UInt64 = 0
-//        Scanner(string: hex).scanHexInt64(&int)
-//
-//        let r = Double((int >> 16) & 0xFF) / 255
-//        let g = Double((int >> 8) & 0xFF) / 255
-//        let b = Double(int & 0xFF) / 255
-//
-//        return Color(.sRGB, red: r, green: g, blue: b)
-//    }
-//}
-//// MARK: - Preview
-//struct GaugeView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        VStack(spacing: 30) {
-//            GaugeView(percentage: 10)
-//                .frame(width: 200, height: 200)
-//            
-//            GaugeView(percentage: 35)
-//                .frame(width: 200, height: 200)
-//            
-//            GaugeView(percentage: 65)
-//                .frame(width: 200, height: 200)
-//        }
-//        .padding()
-//    }
-//}
 
-
-//struct GaugeView: View {
-//    let percentage: CGFloat
-//
-//    var body: some View {
-//        ZStack {
-//            backgroundTrack
-//            progressArc
-//            tickMarks
-//            redPointer
-//        }
-//        .background(Color.clear)
-//    }
-//
-//    // MARK: - Background Track (gray base arc)
-//    private var backgroundTrack: some View {
-//        Circle()
-//            .trim(from: 0, to: 0.8)
-//            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 15, lineCap: .butt))
-//            .rotationEffect(.degrees(126))
-//    }
-//
-//    // MARK: - Colored Arc Segments
-//    private var progressArc: some View {
-//        let segmentTrimSize: CGFloat = 0.2
-//        let totalTrim = (percentage / 100) * 0.8
-//        let totalSegments = Int(ceil(totalTrim / segmentTrimSize))
-//
-//        return ZStack {
-//            ForEach(0..<totalSegments, id: \.self) { index in
-//                let startTrim = CGFloat(index) * segmentTrimSize
-//                let endTrim = min(startTrim + segmentTrimSize, totalTrim)
-//
-//                Circle()
-//                    .trim(from: startTrim, to: endTrim)
-//                    .stroke(segmentColor(for: index), style: StrokeStyle(lineWidth: 15, lineCap: .butt))
-//                    .rotationEffect(.degrees(126))
-//            }
-//        }
-//    }
-//
-//    // MARK: - Segment Colors by Index
-//    private func segmentColor(for index: Int) -> Color {
-//        let colors = [
-//            Color.fromHex("#33CC66"), // Green
-//            Color.fromHex("#99CC33"), // Light Green
-//            Color.fromHex("#EAEA33"), // Yellow
-//            Color.fromHex("#FFA61A"), // Orange
-//            Color.fromHex("#FF3322")  // Red
-//        ]
-//        return colors[safe: index] ?? .gray
-//    }
-//
-//    // MARK: - Red Pointer
-//    private var redPointer: some View {
-//        ZStack {
-//            Rectangle()
-//                .fill(Color.red)
-//                .frame(width: 4, height: 70)
-//                .offset(y: -35)
-//                .rotationEffect(.degrees(pointerAngle))
-//
-//            Circle()
-//                .fill(Color.red)
-//                .frame(width: 12, height: 12)
-//        }
-//    }
-//
-//    private var pointerAngle: Double {
-//        126 + (Double(percentage) / 100.0) * 288
-//    }
-//
-//    // MARK: - Tick Marks
-//    private var tickMarks: some View {
-//        ForEach(0..<12, id: \.self) { i in
-//            if shouldShowTickMark(at: i) {
-//                tickMark(at: i)
-//            }
-//        }
-//    }
-//
-//    private func shouldShowTickMark(at index: Int) -> Bool {
-//        let angle = Double(index) * 30
-//        return !(angle >= 144 && angle <= 216)
-//    }
-//
-//    private func tickMark(at index: Int) -> some View {
-//        Rectangle()
-//            .fill(Color.gray.opacity(0.5))
-//            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-//            .offset(y: -80)
-//            .rotationEffect(.degrees(Double(index) * 30))
-//    }
-//}
-
-//struct GaugeView: View {
-//    let percentage: CGFloat
-//
-//    var body: some View {
-//        ZStack {
-//            backgroundTrack
-//            progressArc
-//            tickMarks
-//            redPointer
-//        }
-//        .background(Color.clear)
-//    }
-//
-//    // MARK: - Background Track
-//    private var backgroundTrack: some View {
-//        Circle()
-//            .trim(from: 0, to: 0.8)
-//            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 15, lineCap: .butt))
-//            .rotationEffect(.degrees(126))
-//    }
-//
-//    // MARK: - Progress Arc with Colored Segments
-//    private var progressArc: some View {
-//        let segmentTrimSize: CGFloat = 0.2
-//        let totalTrim = (percentage / 100) * 0.8
-//        let totalSegments = Int(ceil(totalTrim / segmentTrimSize))
-//
-//        return ZStack {
-//            ForEach(0..<totalSegments, id: \.self) { index in
-//                let startTrim = CGFloat(index) * segmentTrimSize
-//                let endTrim = min(startTrim + segmentTrimSize, totalTrim)
-//
-//                Circle()
-//                    .trim(from: startTrim, to: endTrim)
-//                    .stroke(segmentColor(for: index), style: StrokeStyle(lineWidth: 15, lineCap: .butt))
-//                    .rotationEffect(.degrees(126))
-//            }
-//        }
-//    }
-//
-//    // MARK: - Segment Colors
-//    private func segmentColor(for index: Int) -> Color {
-//        let colors = [
-//            Color.fromHex("#33CC66"), // Green
-//            Color.fromHex("#99CC33"), // Light Green
-//            Color.fromHex("#EAEA33"), // Yellow
-//            Color.fromHex("#FFA61A"), // Orange
-//            Color.fromHex("#FF3322")  // Red
-//        ]
-//        return colors[safe: index] ?? .gray
-//    }
-//
-//    // MARK: - Red Pointer
-//    private var redPointer: some View {
-//        ZStack {
-//            Rectangle()
-//                .fill(Color.red)
-//                .frame(width: 4, height: 70)
-//                .offset(y: -35)
-//                .rotationEffect(.degrees(pointerToLastSegmentAngle))
-//
-//            Circle()
-//                .fill(Color.red)
-//                .frame(width: 12, height: 12)
-//        }
-//    }
-//
-//    private var pointerToLastSegmentAngle: Double {
-//        let segmentTrimSize: CGFloat = 0.2
-//        let totalTrim = (percentage / 100) * 0.8
-//        let totalSegments = Int(ceil(totalTrim / segmentTrimSize))
-//
-//        if totalSegments == 0 {
-//            return 126 // default
-//        }
-//
-//        let lastIndex = totalSegments - 1
-//        let startTrim = CGFloat(lastIndex) * segmentTrimSize
-//        let endTrim = min(startTrim + segmentTrimSize, totalTrim)
-//        let centerTrim = (startTrim + endTrim) / 2
-//
-//        let degrees = centerTrim * 360
-//        return 126 + Double(degrees)
-//    }
-//
-//    // MARK: - Tick Marks
-//    private var tickMarks: some View {
-//        ForEach(0..<12, id: \.self) { i in
-//            if shouldShowTickMark(at: i) {
-//                tickMark(at: i)
-//            }
-//        }
-//    }
-//
-//    private func shouldShowTickMark(at index: Int) -> Bool {
-//        let angle = Double(index) * 30
-//        return !(angle >= 144 && angle <= 216)
-//    }
-//
-//    private func tickMark(at index: Int) -> some View {
-//        Rectangle()
-//            .fill(Color.gray.opacity(0.5))
-//            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-//            .offset(y: -80)
-//            .rotationEffect(.degrees(Double(index) * 30))
-//    }
-//}
-//struct GaugeView: View {
-//    let percentage: CGFloat
-//
-//    var body: some View {
-//        ZStack {
-//            backgroundTrack
-//            progressArc
-//            tickMarks
-//            redPointer
-//        }
-//        .background(Color.clear)
-//    }
-//
-//    // MARK: - Background Track (gray base arc)
-//    private var backgroundTrack: some View {
-//        Circle()
-//            .trim(from: 0, to: 0.8)
-//            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 15, lineCap: .butt))
-//            .rotationEffect(.degrees(126))
-//    }
-//
-//    // MARK: - Colored Arc Segments
-//    private var progressArc: some View {
-//        let segmentTrimSize: CGFloat = 0.2
-//        let totalTrim = (percentage / 100) * 0.8
-//        let totalSegments = Int(ceil(totalTrim / segmentTrimSize))
-//
-//        return ZStack {
-//            ForEach(0..<totalSegments, id: \.self) { index in
-//                let startTrim = CGFloat(index) * segmentTrimSize
-//                let endTrim = min(startTrim + segmentTrimSize, totalTrim)
-//
-//                Circle()
-//                    .trim(from: startTrim, to: endTrim)
-//                    .stroke(segmentColor(for: index), style: StrokeStyle(lineWidth: 15, lineCap: .butt))
-//                    .rotationEffect(.degrees(126))
-//            }
-//        }
-//    }
-//
-//    // MARK: - Segment Colors by Index
-//    private func segmentColor(for index: Int) -> Color {
-//        let colors = [
-//            Color.fromHex("#33CC66"), // Green
-//            Color.fromHex("#99CC33"), // Light Green
-//            Color.fromHex("#EAEA33"), // Yellow
-//            Color.fromHex("#FFA61A"), // Orange
-//            Color.fromHex("#FF3322")  // Red
-//        ]
-//        return colors[safe: index] ?? .gray
-//    }
-//
-//    // MARK: - Red Pointer
-//    private var redPointer: some View {
-//        ZStack {
-//            Rectangle()
-//                .fill(Color.red)
-//                .frame(width: 4, height: 70)
-//                .offset(y: -35)
-//                .rotationEffect(.degrees(pointerAngleForRange))
-//
-//            Circle()
-//                .fill(Color.red)
-//                .frame(width: 12, height: 12)
-//        }
-//    }
-//
-//    /// MARK: - Fixed Range Angles
-//    private var pointerAngleForRange: Double {
-//        // Define center angle for each range segment
-//        switch percentage {
-//        case 0..<20:
-//            return centerAngle(forTrimMid: 0.1) // Green
-//        case 20..<40:
-//            return centerAngle(forTrimMid: 0.3) // Light Green
-//        case 40..<60:
-//            return centerAngle(forTrimMid: 0.5) // Yellow
-//        case 60..<80:
-//            return centerAngle(forTrimMid: 0.7) // Orange
-//        default:
-//            return centerAngle(forTrimMid: 0.8) // Red or default to end
-//        }
-//    }
-//
-//    private func centerAngle(forTrimMid trim: CGFloat) -> Double {
-//        return 126 + (Double(trim) * 360)
-//    }
-//
-//    // MARK: - Tick Marks
-//    private var tickMarks: some View {
-//        ForEach(0..<12, id: \.self) { i in
-//            if shouldShowTickMark(at: i) {
-//                tickMark(at: i)
-//            }
-//        }
-//    }
-//
-//    private func shouldShowTickMark(at index: Int) -> Bool {
-//        let angle = Double(index) * 30
-//        return !(angle >= 144 && angle <= 216)
-//    }
-//
-//    private func tickMark(at index: Int) -> some View {
-//        Rectangle()
-//            .fill(Color.gray.opacity(0.5))
-//            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-//            .offset(y: -80)
-//            .rotationEffect(.degrees(Double(index) * 30))
-//    }
-//}
 struct GaugeView: View {
     let percentage: CGFloat
-
+    
     var body: some View {
         ZStack {
-           // Color(hex: "#F2F9FF")
-
-            backgroundTrack
-            progressArc
-            tickMarks
-            redPointer
-        }
-        .background(Color.clear)
-       
-     
-
-    }
-
-    // MARK: - Background Track (gray base arc)
-    private var backgroundTrack: some View {
-        Circle()
-            .trim(from: 0, to: 0.8)
-            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 10, lineCap: .butt))
-            .rotationEffect(.degrees(126))
-    }
-
-    // MARK: - Colored Arc Segments
-    private var progressArc: some View {
-        let segmentTrimSize: CGFloat = 0.2
-        let totalTrim = (percentage / 100) * 0.8
-        let totalSegments = Int(ceil(totalTrim / segmentTrimSize))
-
-        return ZStack {
-            ForEach(0..<totalSegments, id: \.self) { index in
-                let startTrim = CGFloat(index) * segmentTrimSize
-                let endTrim = min(startTrim + segmentTrimSize, totalTrim)
-
-                Circle()
-                    .trim(from: startTrim, to: endTrim)
-                    .stroke(segmentColor(for: index), style: StrokeStyle(lineWidth: 10, lineCap: .butt))
-                    .rotationEffect(.degrees(126))
-            }
-        }
-    }
-
-    // MARK: - Segment Colors by Index
-    private func segmentColor(for index: Int) -> Color {
-        let colors = [
-            Color.fromHex("#33CC66"), // Green
-            Color.fromHex("#99CC33"), // Light Green
-            Color.fromHex("#EAEA33"), // Yellow
-            Color.fromHex("#FFA61A"), // Orange
-            Color.fromHex("#FF3322")  // Red
-        ]
-        return colors[safe: index] ?? .gray
-    }
-
-    // MARK: - Red Pointer (shorter and black base circle)
-    private var redPointer: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color.red)
-                .frame(width: 3, height: 50) // shorter needle
-                .offset(y: -25)
-                .rotationEffect(.degrees(pointerAngleForRange))
-
+            // Background gray arc
             Circle()
-                .fill(Color.black) // changed to black
-                .frame(width: 12, height: 12)
+                .trim(from: 0, to: 0.75)
+                .stroke(
+                    Color.gray.opacity(0.2),
+                    style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                )
+                .rotationEffect(.degrees(135))
+            
+            // Gradient arc based on percentage
+            gradientArc
+            
+            // Curved tick marks
+            tickMarks
+            
+            // Pointer needle
+            pointer
+            
+            // Center knob
+            Circle()
+                .fill(Color.black)
+                .frame(width: 15, height: 15)
+            
+            // Value label
+//            VStack {
+//                Spacer()
+//                Text("\(Int(percentage))/100")
+//                    .font(.system(size: 24, weight: .bold))
+//                    .foregroundColor(colorForPercentage(percentage))
+//                    .padding(.top, 160)
+//            }
         }
-    }
-
-    /// MARK: - Fixed Range Angles for Pointer
-//    private var pointerAngleForRange: Double {
-//        switch percentage {
-//        case 0..<20:
-//            return centerAngle(forTrimMid: 0.1) // Green
-//        case 20..<40:
-//            return centerAngle(forTrimMid: 0.3) // Light Green
-//        case 40..<60:
-//            return centerAngle(forTrimMid: 0.5) // Yellow
-//        case 60..<80:
-//            return centerAngle(forTrimMid: 0.7) // Orange
-//        default:
-//            return centerAngle(forTrimMid: 0.9) // Red
-//        }
-//    }
-
-    private var pointerAngleForRange: Double {
-        let gaugeStartAngle = 126.0
-          let gaugeSweepAngle = 400.0 // 0.8 * 360
-          return gaugeStartAngle + (gaugeSweepAngle * Double(percentage / 100))
+        .frame(width: 200, height: 200)
     }
     
-    private func centerAngle(forTrimMid trim: CGFloat) -> Double {
-        return 126 + (Double(trim) * 360)
+    // MARK: - Gradient Arc
+    private var gradientArc: some View {
+        Circle()
+            .trim(from: 0, to: percentage / 100 * 0.75)
+            .stroke(
+                AngularGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color.fromHex("#4CAF50"), location: 0.0),     // Green (0-13%)
+                        .init(color: Color.fromHex("#8BC34A"), location: 0.125),   // Light Green (13-25%)
+                        .init(color: Color.fromHex("#CDDC39"), location: 0.25),    // Lime (25-37%)
+                        .init(color: Color.fromHex("#FFEB3B"), location: 0.375),   // Yellow (37-50%)
+                        .init(color: Color.fromHex("#FFC107"), location: 0.5),     // Amber (50-62%)
+                        .init(color: Color.fromHex("#FF9800"), location: 0.625),   // Orange (62-75%)
+                        .init(color: Color.fromHex("#FF5722"), location: 0.7),     // Deep Orange (75-87%)
+                        .init(color: Color.fromHex("#F44336"), location: 0.75),    // Red (87-100%)
+                        .init(color: Color.fromHex("#4CAF50"), location: 1.0),     // Green (complete circle)
+                    ]),
+                    center: .center
+                ),
+                style: StrokeStyle(lineWidth: 10, lineCap: .round)
+            )
+            .rotationEffect(.degrees(135))
     }
-
-    // MARK: - Tick Marks
+    
+    // MARK: - Curved Tick Marks
     private var tickMarks: some View {
-        ForEach(0..<12, id: \.self) { i in
-            if shouldShowTickMark(at: i) {
+        ZStack {
+            ForEach(0...20, id: \.self) { i in
                 tickMark(at: i)
             }
         }
     }
-
-    private func shouldShowTickMark(at index: Int) -> Bool {
-        let angle = Double(index) * 30
-        return !(angle >= 144 && angle <= 216)
-    }
-
+    
     private func tickMark(at index: Int) -> some View {
-        Rectangle()
-            .fill(Color.gray.opacity(0.5))
-            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-            .offset(y: -80)
-            .rotationEffect(.degrees(Double(index) * 30))
+        let tickCount = 20
+        let angleStart = 135.0
+        let angleEnd = 405.0
+        let angleStep = (angleEnd - angleStart) / Double(tickCount)
+        
+        let angle = angleStart + angleStep * Double(index)
+        
+        let isMajor = index % 5 == 0
+        let tickLength: CGFloat = isMajor ? 15 : 10
+        let tickWidth: CGFloat = isMajor ? 2 : 1
+        
+        return Rectangle()
+            .fill(Color.black.opacity(0.38))
+            .frame(width: tickWidth, height: tickLength)
+            .offset(y: -85 + tickLength / 2)
+            .rotationEffect(.degrees(90))        // tilt tick rightward along tangent
+            .rotationEffect(.degrees(angle))     // position around circle
     }
-}
+    private var pointer: some View {
+        let angle = 135 + (270 * Double(percentage) / 100) - 270
 
-//struct GaugeView: View {
-//    let percentage: CGFloat
-//    let isArabic: Bool
-//    
-//    var body: some View {
-//        ZStack {
-//            backgroundTrack
-//            progressArc
-//            tickMarks
-//            redPointer
-//        }
-//        .background(Color.clear)
-//        .environment(\.layoutDirection, isArabic ? .rightToLeft : .leftToRight)
-//    }
-//
-//    // MARK: - Background Track (gray base arc)
-//    private var backgroundTrack: some View {
-//        Circle()
-//            .trim(from: 0, to: 0.8)
-//            .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 10, lineCap: .butt))
-//            .rotationEffect(.degrees(isArabic ? 126 : 126)) // Mirror for Arabic
-//    }
-//
-//    // MARK: - Colored Arc Segments
-//    private var progressArc: some View {
-//        let segmentTrimSize: CGFloat = 0.2
-//        let totalTrim = (percentage / 100) * 0.8
-//        let totalSegments = Int(ceil(totalTrim / segmentTrimSize))
+        return ZStack {
+            // Red rectangle pointer
+            Rectangle()
+                .fill(Color.fromHex("#F44336")) // Fixed red
+                .frame(width: 2.5, height: 55)
+                .cornerRadius(1.25)
+                .offset(y: -27.5) // adjust center due to shorter needle
+                .rotationEffect(.degrees(angle))
+
+            // Small black center circle
+            Circle()
+                .fill(Color.black)
+                .frame(width: 14, height: 14)
+        }
+    }
+    // MARK: - Pointer Needle
+//    private var pointer: some View {
+//        // Nudge angle slightly for better visual alignment
+//        let angle = 135 + (270 * Double(percentage) / 100) - 270
 //
 //        return ZStack {
-//            ForEach(0..<totalSegments, id: \.self) { index in
-//                let startTrim = CGFloat(index) * segmentTrimSize
-//                let endTrim = min(startTrim + segmentTrimSize, totalTrim)
-//
-//                Circle()
-//                    .trim(from: startTrim, to: endTrim)
-//                    .stroke(segmentColor(for: index), style: StrokeStyle(lineWidth: 10, lineCap: .butt))
-//                    .rotationEffect(.degrees(isArabic ? 126 : 126)) // Mirror for Arabic
-//            }
-//        }
-//    }
-//
-//    // MARK: - Segment Colors by Index
-//    private func segmentColor(for index: Int) -> Color {
-//        let colors = [
-//            Color.fromHex("#33CC66"), // Green
-//            Color.fromHex("#99CC33"), // Light Green
-//            Color.fromHex("#EAEA33"), // Yellow
-//            Color.fromHex("#FFA61A"), // Orange
-//            Color.fromHex("#FF3322")  // Red
-//        ]
-//        return colors[safe: index] ?? .gray
-//    }
-//
-//    // MARK: - Red Pointer (adjusts for Arabic)
-//    private var redPointer: some View {
-//        ZStack {
 //            Rectangle()
-//                .fill(Color.red)
-//                .frame(width: 3, height: 50)
-//                .offset(y: -25)
-//                .rotationEffect(.degrees(pointerAngleForRange))
+//                .fill(colorForPercentage(percentage))
+//                .frame(width: 2.5, height: 55)
+//                .cornerRadius(1.25)
+//                .offset(y: -37.5)
+//                .rotationEffect(.degrees(angle))
 //
 //            Circle()
 //                .fill(Color.black)
-//                .frame(width: 12, height: 12)
+//                .frame(width: 14, height: 14)
+//
+//            Circle()
+//                .fill(colorForPercentage(percentage).opacity(0.8))
+//                .frame(width: 6, height: 6)
 //        }
 //    }
-//
-//    // MARK: - Fixed Range Angles for Pointer
-//    private var pointerAngleForRange: Double {
-//        let baseAngle: Double
-//        
-//        switch percentage {
-//        case 0..<20:
-//            baseAngle = centerAngle(forTrimMid: 0.1) // Green
-//        case 20..<40:
-//            baseAngle = centerAngle(forTrimMid: 0.3) // Light Green
-//        case 40..<60:
-//            baseAngle = centerAngle(forTrimMid: 0.5) // Yellow
-//        case 60..<80:
-//            baseAngle = centerAngle(forTrimMid: 0.7) // Orange
-//        default:
-//            baseAngle = centerAngle(forTrimMid: 0.9) // Red
-//        }
-//        
-//        return baseAngle
-//    }
-//
-//    private func centerAngle(forTrimMid trim: CGFloat) -> Double {
-//        let baseRotation = isArabic ? 54.0 : 126.0 // Different base for Arabic
-//        return baseRotation + (Double(trim) * 360)
-//    }
-//
-//    // MARK: - Tick Marks
-//    private var tickMarks: some View {
-//        ForEach(0..<12, id: \.self) { i in
-//            if shouldShowTickMark(at: i) {
-//                tickMark(at: i)
-//            }
-//        }
-//    }
-//
-//    private func shouldShowTickMark(at index: Int) -> Bool {
-//        let angle = Double(index) * 30
-//        return !(angle >= 144 && angle <= 216)
-//    }
-//
-//    private func tickMark(at index: Int) -> some View {
-//        Rectangle()
-//            .fill(Color.gray.opacity(0.5))
-//            .frame(width: 2, height: index % 3 == 0 ? 10 : 5)
-//            .offset(y: -80)
-//            .rotationEffect(.degrees(Double(index) * 30))
-//    }
-//}
+    
+    // MARK: - Color based on percentage zones
+    private func colorForPercentage(_ percent: CGFloat) -> Color {
+        switch percent {
+        case 0..<13:
+            return Color.fromHex("#4CAF50") // Green
+        case 13..<37:
+            return Color.fromHex("#8BC34A") // Light Green to Lime
+        case 37..<50:
+            return Color.fromHex("#FFEB3B") // Yellow
+        case 50..<62:
+            return Color.fromHex("#FFC107") // Amber
+        case 62..<75:
+            return Color.fromHex("#FF9800") // Orange
+        case 75..<87:
+            return Color.fromHex("#FF5722") // Deep Orange
+        default:
+            return Color.fromHex("#F44336") // Red
+        }
+    }
+}
+
+// MARK: - Color Extension
 extension Color {
     static func fromHex(_ hex: String) -> Color {
         let hex = hex.trimmingCharacters(in: .alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
-
+        
         let r = Double((int >> 16) & 0xFF) / 255
         let g = Double((int >> 8) & 0xFF) / 255
         let b = Double(int & 0xFF) / 255
-
+        
         return Color(.sRGB, red: r, green: g, blue: b)
     }
 }
+
 
 extension Collection {
     subscript(safe index: Index) -> Element? {

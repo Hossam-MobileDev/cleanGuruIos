@@ -150,14 +150,44 @@ struct LocalizedStrings {
             
             "currency_converter": "Currency Converter",
             "currency_converter_desc": "Global Currency Exchange",
-            
+        //"clean_guru": "Clean GURU",     // English
+
             "zakhrafa": "Zakhrafa",
             "zakhrafa_desc": "Arabic Text Decoration",
             
             "steps": "Steps",
             "steps_desc": "Daily Step Counter",
+        
+        "aboserwal":"Aboserwal",
+        "aboserwal_desc":"I’m Abussrwal and Ffinelh",
+        "hegry":"Hegry",
+        "hegry_desc": "Your essential Islamic calendar app",
+        
+        "kaf":"Kaaf Nastaliq",
+        "kaf_desc":"write in the beautiful Nastaliq font",
+        "maany":"Names",
+        "maany_desc":"Meanings of names",
+
+        "moderelhesabat":"Account Manager",
+        "moderelhesabat_desc":"To manage passwords and accounts",
+        
+        "rasm":"Draw on pictures",
+        "rasm_desc":"To draw and write on photos",
+        
+        "rawateb":"Salary Time | Saudi Salaries",
+       "rawateb_desc" : "With the help of the Saudi citizen employee",
+        
+        "tahwel":"Convert images to PDF 4+",
+        "tahwel_desc":"Allow you to convert image into PDF ",
+        
+        " weather":"Weather - forecast ",
+        "weather_desc":"Check the weather forecast",
+        
+        "budget":"Wallet budget",
+        "budget_desc":"Your Ultimate Budget Tracke",
+    
         // Settings View
-        "main_settings": "Main Settings",
+        "main_settings": "Settings",
         "in_app": "In app",
         "language": "Language",
         "help_us_improve": "Help Us Improve",
@@ -303,8 +333,18 @@ struct LocalizedStrings {
         "Remove Events Count": "Remove %@ Events",
         "delete_selected_photos" : "Delete selected photos",
         "delete_selected_videos" :"Delete selected videos",
-        "delete_selected_audio" :"Delete selected audio files"
-
+        "delete_selected_audio" :"Delete selected audio files",
+        "skip": "Skip",
+        "back": "Back",
+        "next": "Next",
+        "get_started": "Get Started",
+        "clean_guru": "Clean GURU",
+        "onboarding_welcome_title": "Welcome to Clean GURU",
+        "onboarding_welcome_subtitle": "Boost your device's performance effortlessly. Manage storage, memory, and system health all in one place.",
+        "onboarding_tools_title": "All-in-One Optimization Tools",
+        "onboarding_tools_subtitle": "Identify & clean up duplicate or large files. Enhance speed by freeing up RAM. Monitor & optimize your device's performance.",
+        "onboarding_control_title": "Your Device, Your Control",
+        "onboarding_control_subtitle": "Take control of your device's health today. Optimize in one tap for a faster, cleaner experience!"
 
     ]
     
@@ -325,7 +365,8 @@ struct LocalizedStrings {
         "Duplicates Contacts selected": "جهات اتصال مكررة محددة",
 
         "compress": "ضغط",
-        
+       // "clean_guru": "كلين جورو",      // Arabic
+
         "have a problem? contact us": "هل تواجه مشكلة؟ تواصل معنا",
 
 
@@ -490,7 +531,46 @@ struct LocalizedStrings {
             "zakhrafa_desc": "زخرفة النصوص العربية",
             
             "steps": "خطواتي",
-            "steps_desc": "عداد الخطوات اليومي"
+            "steps_desc": "عداد الخطوات اليومي",
+        
+        "aboserwal": "أبوسروال",
+          "aboserwal_desc": "أنا أبوسروال وفينيله",
+          "hegry": "هجري",
+          "hegry_desc": "تطبيق التقويم الإسلامي الأساسي",
+          
+          "kaf": "كاف نستعليق",
+          "kaf_desc": "اكتب بخط نستعليق الجميل",
+          "maany": "أسماء",
+          "maany_desc": "معاني الأسماء",
+          
+          "moderelhesabat": "مدير الحسابات",
+          "moderelhesabat_desc": "لإدارة كلمات المرور والحسابات",
+          
+          "rasm": "الرسم على الصور",
+          "rasm_desc": "للرسم والكتابة على الصور",
+          
+          "rawateb": "مواعيد الرواتب | رواتب السعودية",
+          "rawateb_desc": "بمساعدة الموظف المواطن السعودي",
+          
+          "tahwel": "تحويل الصور إلى PDF 4+",
+          "tahwel_desc": "يسمح لك بتحويل الصور إلى PDF",
+          
+          "weather": "الطقس - التوقعات",
+          "weather_desc": "تحقق من توقعات الطقس",
+          
+          "budget": "ميزانية المحفظة",
+          "budget_desc": "أداة تتبع الميزانية المثالية",
+        "skip": "تخطي",
+        "back": "رجوع",
+        "next": "التالي",
+        "get_started": "ابدأ الآن",
+        "clean_guru": "كلين جورو",
+        "onboarding_welcome_title": "مرحباً بك في كلين جورو",
+        "onboarding_welcome_subtitle": "عزز أداء جهازك بسهولة. إدارة التخزين والذاكرة وصحة النظام في مكان واحد.",
+        "onboarding_tools_title": "أدوات التحسين الشاملة",
+        "onboarding_tools_subtitle": "تحديد وتنظيف الملفات المكررة أو الكبيرة. تحسين السرعة بتحرير الذاكرة. مراقبة وتحسين أداء جهازك.",
+        "onboarding_control_title": "جهازك، تحكمك",
+        "onboarding_control_subtitle": "تحكم في صحة جهازك اليوم. تحسين بنقرة واحدة للحصول على تجربة أسرع وأنظف!"
 
     ]
 }

@@ -58,7 +58,8 @@ struct StorageOptimizationView: View {
     @State private var selectedVideos: Set<Int> = []
     @State private var selectedMediaItems: Set<String> = [] // Using localIdentifiers
     @State private var selectedMediaCategory = "Photos" // Default category
-    
+    @StateObject private var deviceInfo = DeviceInfoManager() // Only one instance
+
     // Photos access states
     @State private var photoAssets: PHFetchResult<PHAsset>?
     @State private var photoAccessGranted = false
@@ -113,56 +114,145 @@ struct StorageOptimizationView: View {
     var body: some View {
             VStack(spacing: 0) {
                 // Navigation bar
-                VStack(spacing: 20) {
+                VStack() {
                     HStack {
-                        Spacer()
+                       // Spacer()
                         LocalizedText("storage_optimization")
                             .font(.headline)
-                        Spacer()
-                        Spacer().frame(width: 20)
+                        //Spacer()
+                        //Spacer().frame(width: 20)
                     }
                     .padding(.horizontal)
                     .padding(.top)
-                    
+                    .frame(maxWidth: .infinity, minHeight: 60) // Add height here
+
+                    .background(Color(hex: "#F2F9FF"))
+Divider()
+                        .onAppear {
+                                    deviceInfo.refreshData() // Call refresh on the existing instance
+                                }
                     // Storage analysis section
-                //    storageAnalysisSection
-                    
-                    // Tab selection with localized names
+                    storageAnalysisSection
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
                             ForEach(localizedTabs, id: \.self) { localizedTab in
                                 let originalTab = getOriginalTabKey(for: localizedTab)
                                 
-                                Text(localizedTab)
-                                    .padding(.vertical, 8)
-                                    .padding(.horizontal, 10)
-                                    .font(.subheadline)
-                                    .foregroundColor(storageState.selectedTab == originalTab ? .black : .gray)
-                                    .background(
-                                        storageState.selectedTab == originalTab ?
-                                        Rectangle()
-                                            .fill(Color.white)
-                                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-                                        : nil
-                                    )
-                                    .cornerRadius(4)
-                                    .onTapGesture {
-                                        storageState.selectedTab = originalTab
-                                        
-                                        if originalTab == "Duplicates" {
-                                            if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
-                                                requestPhotoAccessForDuplicates()
-                                            }
-                                        }
-                                        else if originalTab == "Clean Media" && storageState.photoAssets == nil {
-                                            requestPhotoAccess()
+                                VStack(spacing: 8) {
+                                    Text(localizedTab)
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal, 10)
+                                        .font(.subheadline)
+                                        .foregroundColor(storageState.selectedTab == originalTab ? .blue : .gray)
+                                        // Removed background completely
+                                    
+                                    // Blue indicator line
+                                    Rectangle()
+                                        .fill(storageState.selectedTab == originalTab ? Color.blue : Color.clear)
+                                        .frame(height: 2)
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .onTapGesture {
+                                    storageState.selectedTab = originalTab
+                                    
+                                    if originalTab == "Duplicates" {
+                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+                                            requestPhotoAccessForDuplicates()
                                         }
                                     }
+                                    else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+                                        requestPhotoAccess()
+                                    }
+                                }
                             }
                         }
+//                    ScrollView(.horizontal, showsIndicators: false) {
+//                        HStack(spacing: 15) {
+//                            ForEach(localizedTabs, id: \.self) { localizedTab in
+//                                let originalTab = getOriginalTabKey(for: localizedTab)
+//                                
+//                                VStack(spacing: 8) {
+//                                    Text(localizedTab)
+//                                        .padding(.vertical, 8)
+//                                        .padding(.horizontal, 10)
+//                                        .font(.subheadline)
+//                                        .foregroundColor(storageState.selectedTab == originalTab ? .blue : .gray)
+//                                        .background(
+//                                            storageState.selectedTab == originalTab ?
+//                                            Rectangle()
+//                                                .fill(Color.white)
+//                                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+//                                            : nil
+//                                        )
+//                                        .cornerRadius(4)
+//                                    
+//                                    // Blue indicator line
+//                                    Rectangle()
+//                                        .fill(storageState.selectedTab == originalTab ? Color.blue : Color.clear)
+//                                        .frame(height: 2)
+//                                        .frame(maxWidth: .infinity)
+//                                }
+//                                .onTapGesture {
+//                                    storageState.selectedTab = originalTab
+//                                    
+//                                    if originalTab == "Duplicates" {
+//                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+//                                            requestPhotoAccessForDuplicates()
+//                                        }
+//                                    }
+//                                    else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+//                                        requestPhotoAccess()
+//                                    }
+//                                }
+//                            }
+//                        }
                         .padding(.horizontal)
                     }
-                    .background(Color.gray.opacity(0.1))
+                    //.background(Color.gray.opacity(0.1))
+                   
+
+
+
+
+                    // Tab selection with localized names
+//                    ScrollView(.horizontal, showsIndicators: false) {
+//                        HStack(spacing: 15) {
+//                            ForEach(localizedTabs, id: \.self) { localizedTab in
+//                                let originalTab = getOriginalTabKey(for: localizedTab)
+//                                
+//                                Text(localizedTab)
+//                                    .padding(.vertical, 8)
+//                                    .padding(.horizontal, 10)
+//                                    .font(.subheadline)
+//                                    .foregroundColor(storageState.selectedTab == originalTab ? .black : .gray)
+//                                    .background(
+//                                        storageState.selectedTab == originalTab ?
+//                                        Rectangle()
+//                                            .fill(Color.white)
+//                                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+//                                        : nil
+//                                    )
+//                                    .cornerRadius(4)
+//                                    .onTapGesture {
+//                                        storageState.selectedTab = originalTab
+//                                        
+//                                        if originalTab == "Duplicates" {
+//                                            if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+//                                                requestPhotoAccessForDuplicates()
+//                                            }
+//                                        }
+//                                        else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+//                                            requestPhotoAccess()
+//                                        }
+//                                    }
+//                            }
+//                        }
+//                        .padding(.horizontal)
+//                    }
+                    //.background(Color.gray.opacity(0.1))
+                   .background(Color(hex: "#F5F5F5"))
+                   // .background(Color(hex: "#F2F9FF")) // Move background to VStack level
+
                 }
                 
                 // Content area with proper layout
@@ -188,6 +278,329 @@ struct StorageOptimizationView: View {
             }
         }
         
+//    private var storageAnalysisSection: some View {
+//        VStack(alignment: .leading, spacing: 16) {
+//            // Title
+//            HStack {
+//                Text(LocalizedStrings.string(for: "storage_analysis", language: languageManager.currentLanguage))
+//                    .font(.headline)
+//                    .fontWeight(.medium)
+//                Spacer()
+//            }
+//            .padding(.horizontal)
+//            
+//            // Storage breakdown with colored indicators
+//            HStack(spacing: 20) {
+//                // Total Storage
+//                HStack(spacing: 6) {
+//                    Circle()
+//                        .fill(Color.blue)
+//                        .frame(width: 8, height: 8)
+//                    
+//                    VStack(alignment: .leading, spacing: 2) {
+//                        Text(LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                        
+//                        Text("\(formatBytes(totalStorage))")
+//                            .font(.caption)
+//                            .fontWeight(.medium)
+//                            .foregroundColor(.primary)
+//                    }
+//                }
+//                
+//                // Used Storage
+//                HStack(spacing: 6) {
+//                    Circle()
+//                        .fill(Color.red)
+//                        .frame(width: 8, height: 8)
+//                    
+//                    VStack(alignment: .leading, spacing: 2) {
+//                        Text(LocalizedStrings.string(for: "used_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                        
+//                        Text("\(formatBytes(usedStorage))")
+//                            .font(.caption)
+//                            .fontWeight(.medium)
+//                            .foregroundColor(.primary)
+//                    }
+//                }
+//                
+//                // Free Storage
+//                HStack(spacing: 6) {
+//                    Circle()
+//                        .fill(Color.green)
+//                        .frame(width: 8, height: 8)
+//                    
+//                    VStack(alignment: .leading, spacing: 2) {
+//                        Text(LocalizedStrings.string(for: "free_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                        
+//                        Text("\(formatBytes(freeStorage))")
+//                            .font(.caption)
+//                            .fontWeight(.medium)
+//                            .foregroundColor(.primary)
+//                    }
+//                }
+//                
+//                Spacer()
+//            }
+//            .padding(.horizontal)
+//        }
+//        .padding(.vertical, 12)
+//        .background(Color(hex: "#F2F9FF"))
+//    }
+//
+//    
+    private var storageAnalysisSection: some View {
+        VStack(alignment: .leading) {
+            // Title
+            HStack {
+                Text(LocalizedStrings.string(for: "storage_analysis", language: languageManager.currentLanguage))
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            
+            // Storage breakdown in horizontal layout
+            HStack(spacing: 0) {
+                // Total Storage
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 8, height: 8)
+                        
+                        Text(LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage))
+                            .font(.caption)
+                            //.fontWeight(.)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Text("\(deviceInfo.totalStorage.0) \(deviceInfo.totalStorage.1)")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                }
+                
+                Spacer()
+                
+                // Used Storage
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 8, height: 8)
+                        
+                        Text(LocalizedStrings.string(for: "used_storage", language: languageManager.currentLanguage))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Text("\(deviceInfo.usedStorage.0) \(deviceInfo.usedStorage.1)")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
+                
+                Spacer()
+                
+                // Free Storage (Available Storage)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 8, height: 8)
+                        
+                        Text(LocalizedStrings.string(for: "free_storage", language: languageManager.currentLanguage))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Text("\(deviceInfo.availableStorage.0) \(deviceInfo.availableStorage.1)")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+        }
+        .frame(maxWidth: .infinity, minHeight: 60)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "#FBFDFF"),
+                    Color(hex: "#F2F9FF")
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+    }
+//    private var storageAnalysisSection: some View {
+//        VStack(alignment: .leading) {
+//            // Title
+//            HStack {
+//                Text(LocalizedStrings.string(for: "storage_analysis", language: languageManager.currentLanguage))
+//                    .font(.title3)
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(.primary)
+//                Spacer()
+//            }
+//            .padding(.horizontal, 16)
+//            
+//            // Storage breakdown in horizontal layout
+//            HStack(spacing: 0) {
+//                // Total Storage
+//                VStack(alignment: .leading, spacing: 4) {
+//                    HStack(spacing: 6) {
+//                        Circle()
+//                            .fill(Color.blue)
+//                            .frame(width: 8, height: 8)
+//                        
+//                        Text(LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    
+//                    Text("\(deviceInfo.totalStorage.0) \(deviceInfo.totalStorage.1)")
+//                        .font(.caption)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(.primary)
+//                }
+//                
+//                Spacer()
+//                
+//                // Used Storage
+//                VStack(alignment: .leading, spacing: 4) {
+//                    HStack(spacing: 6) {
+//                        Circle()
+//                            .fill(Color.red)
+//                            .frame(width: 8, height: 8)
+//                        
+//                        Text(LocalizedStrings.string(for: "used_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    
+//                    Text("\(deviceInfo.usedStorage.0) \(deviceInfo.usedStorage.1)")
+//                        .font(.caption)
+//                        .fontWeight(.medium)
+//                        .foregroundColor(.primary)
+//                }
+//                
+//                Spacer()
+//                
+//                // Free Storage (Available Storage)
+//                VStack(alignment: .leading, spacing: 4) {
+//                    HStack(spacing: 6) {
+//                        Circle()
+//                            .fill(Color.green)
+//                            .frame(width: 8, height: 8)
+//                        
+//                        Text(LocalizedStrings.string(for: "free_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    
+//                    Text("\(deviceInfo.availableStorage.0) \(deviceInfo.availableStorage.1)")
+//                        .font(.caption)
+//                        .fontWeight(.medium)
+//                        .foregroundColor(.primary)
+//                }
+//            }
+//            .padding(.horizontal, 16)
+//            .padding(.bottom, 16)
+//        }
+//        .frame(maxWidth: .infinity, minHeight: 60)
+//        .background(Color(hex: "#F2F9FF"))
+//    }
+//    private var storageAnalysisSection: some View {
+//        VStack(alignment: .leading) {
+//            // Title
+//            HStack {
+//                Text(LocalizedStrings.string(for: "storage_analysis", language: languageManager.currentLanguage))
+//                    .font(.title3)
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(.primary)
+//                Spacer()
+//            }
+//            .padding(.horizontal, 16)
+//           // .padding(.top, 8)
+//            
+//            // Storage breakdown in horizontal layout
+//            HStack(spacing: 0) {
+//                // Total Storage
+//                VStack(alignment: .leading, spacing: 4) {
+//                    HStack(spacing: 6) {
+//                        Circle()
+//                            .fill(Color.blue)
+//                            .frame(width: 8, height: 8)
+//                        
+//                        Text(LocalizedStrings.string(for: "total_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    
+//                    Text(formatBytes(totalStorage))
+//                        .font(.caption)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(.primary)
+//                }
+//                
+//                Spacer()
+//                
+//                // Used Storage
+//                VStack(alignment: .leading, spacing: 4) {
+//                    HStack(spacing: 6) {
+//                        Circle()
+//                            .fill(Color.red)
+//                            .frame(width: 8, height: 8)
+//                        
+//                        Text(LocalizedStrings.string(for: "used_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    
+//                    Text(formatBytes(usedStorage))
+//                        .font(.caption)
+//                        .fontWeight(.medium)
+//                        .foregroundColor(.primary)
+//                }
+//                
+//                Spacer()
+//                
+//                // Free Storage
+//                VStack(alignment: .leading, spacing: 4) {
+//                    HStack(spacing: 6) {
+//                        Circle()
+//                            .fill(Color.green)
+//                            .frame(width: 8, height: 8)
+//                        
+//                        Text(LocalizedStrings.string(for: "free_storage", language: languageManager.currentLanguage))
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    
+//                    Text(formatBytes(freeStorage))
+//                        .font(.caption)
+//                        .fontWeight(.medium)
+//                        .foregroundColor(.primary)
+//                }
+//            }
+//            .padding(.horizontal, 16)
+//            .padding(.bottom, 16)
+//        }
+//        .frame(maxWidth: .infinity, minHeight: 60) // Add height here
+//
+//        .background(Color(hex: "#F2F9FF"))
+//    }
+    
     private var duplicatesContentViewFixed: some View {
             VStack(spacing: 0) {
                 if storageState.isAnalyzingDuplicates {

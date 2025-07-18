@@ -74,11 +74,13 @@ struct ContentView: View {
 
 
                 case .settings:
+//                    SettinappView(togglefullscreen: $showSettings)
+//                        .environmentObject(languageManager)
+//                        .padding(.top, 15) // Add spacing from status bar
+
                     SettinappView(togglefullscreen: $showSettings)
-                        .environmentObject(languageManager)
-                        .padding(.top, 15) // Add spacing from status bar
-
-
+                            .environmentObject(languageManager)
+                            .padding(.top, 15)
                 }
             }
             

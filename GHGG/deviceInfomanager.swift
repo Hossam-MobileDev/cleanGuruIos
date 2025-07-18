@@ -238,13 +238,50 @@ class DeviceInfoManager: ObservableObject {
         @Published var usedStorage: (String, String) = ("0", "GB")
         @Published var availableStorage: (String, String) = ("0", "GB")
     init() {
+//        fetchStorageInfo()
+//        fetchRAMInfo()
+//        fetchCPUInfo()
+//        fetchBatteryInfo()
+//        fetchDeviceInfo()
         fetchStorageInfo()
-        fetchRAMInfo()
-        fetchCPUInfo()
-        fetchBatteryInfo()
-        fetchDeviceInfo()
+            fetchRAMInfo()
+            fetchCPUInfo()
+            fetchBatteryInfo()
+            fetchDeviceInfo()
+            
+            UIDevice.current.isBatteryMonitoringEnabled = true
+
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(batteryLevelDidChange),
+                name: UIDevice.batteryLevelDidChangeNotification,
+                object: nil
+            )
+
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(batteryStateDidChange),
+                name: UIDevice.batteryStateDidChangeNotification,
+                object: nil
+            )
     }
-    
+    @objc private func batteryLevelDidChange(_ notification: Notification) {
+        let batteryLevel = UIDevice.current.batteryLevel
+        batteryPercentage = batteryLevel < 0 ? 0 : Int(batteryLevel * 100)
+    }
+
+    @objc private func batteryStateDidChange(_ notification: Notification) {
+        switch UIDevice.current.batteryState {
+        case .charging:
+            chargingState = "Charging"
+        case .full:
+            chargingState = "Fully Charged"
+        case .unplugged:
+            chargingState = "Not Charging"
+        default:
+            chargingState = "Unknown"
+        }
+    }
     // Get storage information
 //    func fetchStorageInfo() {
 //            if let homeDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
