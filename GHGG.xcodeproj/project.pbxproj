@@ -18,7 +18,6 @@
 		526744572E21390100A1AF25 /* appOpenAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526744562E21390100A1AF25 /* appOpenAdManager.swift */; };
 		52682D582DDB5D9C002C8588 /* cleanMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52682D572DDB5D9C002C8588 /* cleanMediaView.swift */; };
 		528BEAED2DD37E570095088A /* contactscleanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528BEAEC2DD37E570095088A /* contactscleanView.swift */; };
-		529046472E2ACCCC003B17CE /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 529046462E2ACCCC003B17CE /* Info.plist */; };
 		52A06E532E0049E200C91F3E /* languageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A06E522E0049E200C91F3E /* languageManager.swift */; };
 		52A3A0BD2DFD95E8009F11CC /* SubscribtionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A3A0BC2DFD95E8009F11CC /* SubscribtionView.swift */; };
 		52B5E0BB2E257411008FAD37 /* splashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E0BA2E257411008FAD37 /* splashView.swift */; };
@@ -60,7 +59,6 @@
 		526744562E21390100A1AF25 /* appOpenAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = appOpenAdManager.swift; sourceTree = "<group>"; };
 		52682D572DDB5D9C002C8588 /* cleanMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cleanMediaView.swift; sourceTree = "<group>"; };
 		528BEAEC2DD37E570095088A /* contactscleanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = contactscleanView.swift; sourceTree = "<group>"; };
-		529046462E2ACCCC003B17CE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		52A06E522E0049E200C91F3E /* languageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = languageManager.swift; sourceTree = "<group>"; };
 		52A3A0BC2DFD95E8009F11CC /* SubscribtionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribtionView.swift; sourceTree = "<group>"; };
 		52B5E0BA2E257411008FAD37 /* splashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = splashView.swift; sourceTree = "<group>"; };
@@ -134,7 +132,6 @@
 		52BD8B772DD08ED300CA8400 /* GHGG */ = {
 			isa = PBXGroup;
 			children = (
-				529046462E2ACCCC003B17CE /* Info.plist */,
 				52BD8B782DD08ED300CA8400 /* GHGGApp.swift */,
 				52BD8B7A2DD08ED300CA8400 /* ContentView.swift */,
 				52BD8B7C2DD08EF800CA8400 /* Assets.xcassets */,
@@ -294,7 +291,6 @@
 			files = (
 				52BD8B802DD08EF800CA8400 /* Preview Assets.xcassets in Resources */,
 				52BD8B7D2DD08EF800CA8400 /* Assets.xcassets in Resources */,
-				529046472E2ACCCC003B17CE /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

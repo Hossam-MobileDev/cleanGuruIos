@@ -2,11 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleShortVersionString</key>
-        <string>3</string> <!-- Update this to a higher version than previous submission -->
+   
 
-        <key>CFBundleVersion</key>
-        <string>2</string>
+    
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>CFBundleURLTypes</key>
