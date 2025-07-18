@@ -18,6 +18,7 @@
 		526744572E21390100A1AF25 /* appOpenAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526744562E21390100A1AF25 /* appOpenAdManager.swift */; };
 		52682D582DDB5D9C002C8588 /* cleanMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52682D572DDB5D9C002C8588 /* cleanMediaView.swift */; };
 		528BEAED2DD37E570095088A /* contactscleanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528BEAEC2DD37E570095088A /* contactscleanView.swift */; };
+		529046472E2ACCCC003B17CE /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 529046462E2ACCCC003B17CE /* Info.plist */; };
 		52A06E532E0049E200C91F3E /* languageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A06E522E0049E200C91F3E /* languageManager.swift */; };
 		52A3A0BD2DFD95E8009F11CC /* SubscribtionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A3A0BC2DFD95E8009F11CC /* SubscribtionView.swift */; };
 		52B5E0BB2E257411008FAD37 /* splashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B5E0BA2E257411008FAD37 /* splashView.swift */; };
@@ -59,6 +60,7 @@
 		526744562E21390100A1AF25 /* appOpenAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = appOpenAdManager.swift; sourceTree = "<group>"; };
 		52682D572DDB5D9C002C8588 /* cleanMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cleanMediaView.swift; sourceTree = "<group>"; };
 		528BEAEC2DD37E570095088A /* contactscleanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = contactscleanView.swift; sourceTree = "<group>"; };
+		529046462E2ACCCC003B17CE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		52A06E522E0049E200C91F3E /* languageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = languageManager.swift; sourceTree = "<group>"; };
 		52A3A0BC2DFD95E8009F11CC /* SubscribtionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribtionView.swift; sourceTree = "<group>"; };
 		52B5E0BA2E257411008FAD37 /* splashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = splashView.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		52BD8B772DD08ED300CA8400 /* GHGG */ = {
 			isa = PBXGroup;
 			children = (
+				529046462E2ACCCC003B17CE /* Info.plist */,
 				52BD8B782DD08ED300CA8400 /* GHGGApp.swift */,
 				52BD8B7A2DD08ED300CA8400 /* ContentView.swift */,
 				52BD8B7C2DD08EF800CA8400 /* Assets.xcassets */,
@@ -291,6 +294,7 @@
 			files = (
 				52BD8B802DD08EF800CA8400 /* Preview Assets.xcassets in Resources */,
 				52BD8B7D2DD08EF800CA8400 /* Assets.xcassets in Resources */,
+				529046472E2ACCCC003B17CE /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,6 +427,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NEW_SETTING = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -480,6 +485,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				NEW_SETTING = "";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
@@ -491,8 +497,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CFBundleShortVersionString = 3;
+				CFBundleVersion = 2;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_ASSET_PATHS = "\"GHGG/Preview Content\"";
 				DEVELOPMENT_TEAM = M8S29G9Z3W;
 				ENABLE_PREVIEWS = YES;
@@ -516,7 +524,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2;
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.3rabapp.cleanergrue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -534,9 +543,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CFBundleShortVersionString = 3;
+				CFBundleVersion = 2;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_ASSET_PATHS = "\"GHGG/Preview Content\"";
 				DEVELOPMENT_TEAM = M8S29G9Z3W;
 				ENABLE_PREVIEWS = YES;
@@ -560,7 +571,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2;
+				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.3rabapp.cleanergrue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
