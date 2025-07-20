@@ -148,6 +148,9 @@ struct LocalizedStrings {
             "kitaba": "Kitaba",
             "kitaba_desc": "Design Photos & Arabic Fonts",
             
+       
+        "try_again": "Try Again",
+        
             "currency_converter": "Currency Converter",
             "currency_converter_desc": "Global Currency Exchange",
         //"clean_guru": "Clean GURU",     // English
@@ -344,7 +347,9 @@ struct LocalizedStrings {
         "onboarding_tools_title": "All-in-One Optimization Tools",
         "onboarding_tools_subtitle": "Identify & clean up duplicate or large files. Enhance speed by freeing up RAM. Monitor & optimize your device's performance.",
         "onboarding_control_title": "Your Device, Your Control",
-        "onboarding_control_subtitle": "Take control of your device's health today. Optimize in one tap for a faster, cleaner experience!"
+        "onboarding_control_subtitle": "Take control of your device's health today. Optimize in one tap for a faster, cleaner experience!",
+        "image_compressed_successfully": "Image Compressed Successfully!",
+
 
     ]
     
@@ -353,7 +358,11 @@ struct LocalizedStrings {
         // Tab bar items
         "dashboard": "الرئيسية",
         "Remove Events Count": "حذف %@ من الأحداث",
-
+       
+       
+        "image_compressed_successfully": "تم ضغط الصورة بنجاح",
+        "size": "الحجم",
+        "try_again": "حاول مرة أخرى",
         "storage": "التخزين",
         "settings": "الإعدادات",
         "Restore Contacts": "استعادة جهات الاتصال",

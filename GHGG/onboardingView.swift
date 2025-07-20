@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
-// MARK: - Onboarding Container View
+
+
+
 //struct OnboardingView: View {
 //    @Binding var showOnboarding: Bool
 //    @EnvironmentObject var languageManager: LanguageManager
@@ -25,7 +27,7 @@ import SwiftUI
 //                // Skip Button
 //                HStack {
 //                    Spacer()
-//                    Button("Skip") {
+//                    Button(LocalizedStrings.string(for: "skip", language: languageManager.currentLanguage)) {
 //                        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
 //                        showOnboarding = false
 //                    }
@@ -62,7 +64,7 @@ import SwiftUI
 //                // Navigation Buttons
 //                HStack(spacing: 16) {
 //                    if currentPage > 0 {
-//                        Button("Back") {
+//                        Button(LocalizedStrings.string(for: "back", language: languageManager.currentLanguage)) {
 //                            withAnimation {
 //                                currentPage -= 1
 //                            }
@@ -78,7 +80,7 @@ import SwiftUI
 //                                .stroke(Color(hex: "3182CE"), lineWidth: 1)
 //                        )
 //                        
-//                        Button(currentPage == 2 ? "Get Started" : "Next") {
+//                        Button(currentPage == 2 ? LocalizedStrings.string(for: "get_started", language: languageManager.currentLanguage) : LocalizedStrings.string(for: "next", language: languageManager.currentLanguage)) {
 //                            if currentPage == 2 {
 //                                UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
 //                                showOnboarding = false
@@ -96,7 +98,7 @@ import SwiftUI
 //                        .cornerRadius(25)
 //                    } else {
 //                        // First page - only Next button, centered
-//                        Button("Next") {
+//                        Button(LocalizedStrings.string(for: "next", language: languageManager.currentLanguage)) {
 //                            withAnimation {
 //                                currentPage += 1
 //                            }
@@ -134,13 +136,13 @@ import SwiftUI
 //            
 //            // Text Content
 //            VStack(spacing: 16) {
-//                Text("Welcome to Clean GURU")
+//                LocalizedText("onboarding_welcome_title")
 //                    .font(.custom("AlmaraiBold", size: 24))
 //                    .foregroundColor(Color(hex: "2D3748"))
 //                    .multilineTextAlignment(.center)
 //                    .fixedSize(horizontal: false, vertical: true)
 //                
-//                Text("Boost your device's performance effortlessly. Manage storage, memory, and system health all in one place.")
+//                LocalizedText("onboarding_welcome_subtitle")
 //                    .font(.custom("Almarai", size: 14))
 //                    .foregroundColor(Color(hex: "718096"))
 //                    .multilineTextAlignment(.center)
@@ -173,13 +175,13 @@ import SwiftUI
 //            
 //            // Text Content
 //            VStack(spacing: 16) {
-//                Text("All-in-One Optimization Tools")
+//                LocalizedText("onboarding_tools_title")
 //                    .font(.custom("AlmaraiBold", size: 24))
 //                    .foregroundColor(Color(hex: "2D3748"))
 //                    .multilineTextAlignment(.center)
 //                    .fixedSize(horizontal: false, vertical: true)
 //                
-//                Text("Identify & clean up duplicate or large files. Enhance speed by freeing up RAM. Monitor & optimize your device's performance.")
+//                LocalizedText("onboarding_tools_subtitle")
 //                    .font(.custom("Almarai", size: 14))
 //                    .foregroundColor(Color(hex: "718096"))
 //                    .multilineTextAlignment(.center)
@@ -212,13 +214,13 @@ import SwiftUI
 //            
 //            // Text Content
 //            VStack(spacing: 16) {
-//                Text("Your Device, Your Control")
+//                LocalizedText("onboarding_control_title")
 //                    .font(.custom("AlmaraiBold", size: 24))
 //                    .foregroundColor(Color(hex: "2D3748"))
 //                    .multilineTextAlignment(.center)
 //                    .fixedSize(horizontal: false, vertical: true)
 //                
-//                Text("Take control of your device's health today. Optimize in one tap for a faster, cleaner experience!")
+//                LocalizedText("onboarding_control_subtitle")
 //                    .font(.custom("Almarai", size: 14))
 //                    .foregroundColor(Color(hex: "718096"))
 //                    .multilineTextAlignment(.center)
@@ -261,15 +263,20 @@ struct OnboardingView: View {
             .ignoresSafeArea()
             
             VStack {
-                // Skip Button
+                // Skip Button - Improved clickable area
                 HStack {
                     Spacer()
-                    Button(LocalizedStrings.string(for: "skip", language: languageManager.currentLanguage)) {
+                    Button(action: {
                         UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
                         showOnboarding = false
+                    }) {
+                        Text(LocalizedStrings.string(for: "skip", language: languageManager.currentLanguage))
+                            .font(.custom("Almarai", size: 16))
+                            .foregroundColor(Color(hex: "718096"))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                     }
-                    .font(.custom("Almarai", size: 16))
-                    .foregroundColor(Color(hex: "718096"))
+                    .contentShape(Rectangle()) // Makes entire button area clickable
                     .padding(.trailing, 20)
                     .padding(.top, 10)
                 }
@@ -298,16 +305,20 @@ struct OnboardingView: View {
                 }
                 .padding(.bottom, 30)
                 
-                // Navigation Buttons
+                // Navigation Buttons - Improved with better touch areas
                 HStack(spacing: 16) {
                     if currentPage > 0 {
-                        Button(LocalizedStrings.string(for: "back", language: languageManager.currentLanguage)) {
+                        // Back Button
+                        Button(action: {
                             withAnimation {
                                 currentPage -= 1
                             }
+                        }) {
+                            Text(LocalizedStrings.string(for: "back", language: languageManager.currentLanguage))
+                                .font(.custom("Almarai", size: 16))
+                                .foregroundColor(Color(hex: "3182CE"))
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .font(.custom("Almarai", size: 16))
-                        .foregroundColor(Color(hex: "3182CE"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(Color.white)
@@ -316,8 +327,10 @@ struct OnboardingView: View {
                             RoundedRectangle(cornerRadius: 25)
                                 .stroke(Color(hex: "3182CE"), lineWidth: 1)
                         )
+                        .contentShape(RoundedRectangle(cornerRadius: 25)) // Ensures entire button is clickable
                         
-                        Button(currentPage == 2 ? LocalizedStrings.string(for: "get_started", language: languageManager.currentLanguage) : LocalizedStrings.string(for: "next", language: languageManager.currentLanguage)) {
+                        // Next/Get Started Button
+                        Button(action: {
                             if currentPage == 2 {
                                 UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
                                 showOnboarding = false
@@ -326,25 +339,35 @@ struct OnboardingView: View {
                                     currentPage += 1
                                 }
                             }
+                        }) {
+                            Text(currentPage == 2 ?
+                                 LocalizedStrings.string(for: "get_started", language: languageManager.currentLanguage) :
+                                 LocalizedStrings.string(for: "next", language: languageManager.currentLanguage))
+                                .font(.custom("AlmaraiBold", size: 16))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .font(.custom("AlmaraiBold", size: 16))
-                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(Color(hex: "3182CE"))
                         .cornerRadius(25)
+                        .contentShape(RoundedRectangle(cornerRadius: 25)) // Ensures entire button is clickable
                     } else {
                         // First page - only Next button, centered
-                        Button(LocalizedStrings.string(for: "next", language: languageManager.currentLanguage)) {
+                        Button(action: {
                             withAnimation {
                                 currentPage += 1
                             }
+                        }) {
+                            Text(LocalizedStrings.string(for: "next", language: languageManager.currentLanguage))
+                                .font(.custom("AlmaraiBold", size: 16))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .font(.custom("AlmaraiBold", size: 16))
-                        .foregroundColor(.white)
                         .frame(width: 200, height: 50)
                         .background(Color(hex: "3182CE"))
                         .cornerRadius(25)
+                        .contentShape(RoundedRectangle(cornerRadius: 25)) // Ensures entire button is clickable
                     }
                 }
                 .padding(.horizontal, 20)

@@ -37,6 +37,40 @@ class StorageOptimizationState: ObservableObject {
     @Published var totalStorage: Int64 = 0
     @Published var usedStorage: Int64 = 0
     @Published var freeStorage: Int64 = 0
+    
+    init() {
+            checkCurrentPhotoAuthorizationStatus()
+        }
+        
+        // ADD THIS METHOD
+        private func checkCurrentPhotoAuthorizationStatus() {
+            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+            
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized, .limited:
+                    self.duplicatesAccessGranted = true
+                    self.photoAccessGranted = true
+                    self.hasCheckedDuplicatesAccess = true
+                    self.isLoading = false
+                case .denied, .restricted:
+                    self.duplicatesAccessGranted = false
+                    self.photoAccessGranted = false
+                    self.hasCheckedDuplicatesAccess = true
+                    self.isLoading = false
+                case .notDetermined:
+                    self.duplicatesAccessGranted = false
+                    self.photoAccessGranted = false
+                    self.hasCheckedDuplicatesAccess = false
+                    self.isLoading = false
+                @unknown default:
+                    self.duplicatesAccessGranted = false
+                    self.photoAccessGranted = false
+                    self.hasCheckedDuplicatesAccess = false
+                    self.isLoading = false
+                }
+            }
+        }
 }
 
 struct ContentView: View {

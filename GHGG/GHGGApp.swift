@@ -13,6 +13,7 @@ import GoogleMobileAds
 struct GHGGApp: App {
     @StateObject private var languageManager = LanguageManager()
     @StateObject private var appOpenAdManager = AppOpenAdManager()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate // Add this line
 
     init() {
         GADMobileAds.sharedInstance().start(completionHandler: nil)
@@ -25,6 +26,18 @@ struct GHGGApp: App {
                 .environmentObject(appOpenAdManager)
                 .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
         }
+    }
+}
+
+// Add this AppDelegate class
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        return true
+    }
+    
+    // This method controls the supported orientations
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return .portrait // Lock to portrait orientation only
     }
 }
 
