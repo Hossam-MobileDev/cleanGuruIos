@@ -783,7 +783,8 @@ struct ContactsCleanupView: View {
                     ProgressView("Loading contacts...")
                         .padding()
                     Spacer()
-                }
+                }                .background(Color(hex: "#FCFCFC"))
+
             } else if permissionDenied {
                 // Permission denied view - properly centered and filling space
                 VStack {
@@ -818,7 +819,8 @@ struct ContactsCleanupView: View {
                     .padding(.horizontal, 40)
                     
                     Spacer()
-                }
+                }                .background(Color(hex: "#FCFCFC"))
+
             } else {
                 // Contacts content
                 VStack(spacing: 0) {
@@ -840,7 +842,8 @@ struct ContactsCleanupView: View {
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 10)
-                    
+                    .background(Color(hex: "#FCFCFC"))
+
                     // Contacts list
                     ScrollView {
                         if duplicateGroups.isEmpty || duplicateGroups.values.allSatisfy({ $0.count <= 1 }) {
@@ -860,6 +863,8 @@ struct ContactsCleanupView: View {
                                     .padding(.horizontal)
                             }
                             .padding(.top, 60)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                       .background(Color(hex: "#FCFCFC"))
                         } else {
                             LazyVStack(spacing: 0) {
                                 ForEach(Array(duplicateGroups.keys), id: \.self) { name in
@@ -874,8 +879,12 @@ struct ContactsCleanupView: View {
                                 }
                             }
                             .padding(.bottom, !selectedContacts.isEmpty ? 80 : 20)
+                            .background(Color(hex: "#FCFCFC"))
+
                         }
-                    }
+                    }                    .background(Color(hex: "#FCFCFC"))
+
+
                     
                     // Bottom action buttons - Only show when contacts are selected
                     if !selectedContacts.isEmpty {
@@ -917,7 +926,8 @@ struct ContactsCleanupView: View {
                     }
                 }
             }
-        }
+        }          .background(Color(hex: "#F5F5F5"))
+
         .onAppear {
             requestContactsAccess()
         }
@@ -931,11 +941,13 @@ struct ContactsCleanupView: View {
         } message: {
             Text(LocalizedStrings.string(for: "restore_completed", language: languageManager.currentLanguage))
         }
+    
         .alert(LocalizedStrings.string(for: "error", language: languageManager.currentLanguage), isPresented: $showErrorAlert) {
             Button(LocalizedStrings.string(for: "ok", language: languageManager.currentLanguage), role: .cancel) { }
         } message: {
             Text(errorMessage)
         }
+        
     }
     
     // MARK: - Contact Access and Fetching
@@ -1309,7 +1321,9 @@ struct ContactDuplicateGroup: View {
             }
             .padding(.bottom, 8)
         }
-        .background(Color.gray.opacity(0.05))
+       // .background(Color.gray.opacity(0.05))
+        .background(Color(hex: "#FCFCFC"))
+
     }
     
     private func toggleSelection(contact: CNContact) {

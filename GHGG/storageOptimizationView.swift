@@ -1660,12 +1660,165 @@ Divider()
     }
 
     private func getLocalizedCategoryName(_ category: String, singular: Bool = false) -> String {
-           let key = category.lowercased()
-           let localizedName = LocalizedStrings.string(for: key, language: languageManager.currentLanguage)
-           return singular ? localizedName.singularForm(language: languageManager.currentLanguage) : localizedName
-       }
+        let key = category.lowercased()
+        let localizedName = LocalizedStrings.string(for: key, language: languageManager.currentLanguage)
+        return singular ? localizedName.singularForm(language: languageManager.currentLanguage) : localizedName
+    }
     
 
+//    private var cleanMediaViewFixed: some View {
+//        VStack(spacing: 0) {
+//            // Media category selection
+//            HStack(spacing: 20) {
+//                ForEach(mediaCategories, id: \.self) { category in
+//                    let localizedCategory = LocalizedStrings.string(for: category, language: languageManager.currentLanguage)
+//                    mediaCategoryButton(category: localizedCategory)
+//                }
+//            }
+//            .padding(.horizontal)
+//            .padding(.top, 15)
+//            .padding(.bottom, 5)
+//            
+//            // Loading indicator
+//            if storageState.isLoading {
+//                VStack(spacing: 10) {
+//                    ProgressView()
+//                    Text("\(LocalizedStrings.string(for: "loading", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory).lowercased())...")
+//                        .foregroundColor(.gray)
+//                }
+//                .padding()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            }
+//            
+//            // If photo permission is denied
+//            else if !storageState.photoAccessGranted && storageState.selectedMediaCategory != "Audio" {
+//                VStack(spacing: 20) {
+//                    Image(systemName: "photo.on.rectangle.angled")
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.gray)
+//                    LocalizedText("photo_access_required")
+//                        .font(.headline)
+//                    LocalizedText("allow_access_photos_settings")
+//                        .multilineTextAlignment(.center)
+//                        .padding(.horizontal)
+//                    Button(action: {
+//                        if let url = URL(string: UIApplication.openSettingsURLString) {
+//                            UIApplication.shared.open(url)
+//                        }
+//                    }) {
+//                        LocalizedText("open_settings")
+//                            .foregroundColor(.blue)
+//                    }
+//                }
+//                .padding()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            }
+//            
+//            // AUDIO tab content
+//            else if storageState.selectedMediaCategory == "Audio" {
+//                if storageState.audioFiles.isEmpty {
+//                    VStack(spacing: 20) {
+//                        Image(systemName: categoryIcon(for: "Audio"))
+//                            .font(.system(size: 48))
+//                            .foregroundColor(.gray)
+//
+//                        Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName("Audio")) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
+//                            .font(.headline)
+//
+//                        Text(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))
+//                            .multilineTextAlignment(.center)
+//                            .foregroundColor(.gray)
+//                            .padding(.horizontal)
+//                    }
+//                    .padding()
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                } else {
+//                    List {
+//                        ForEach(storageState.audioFiles, id: \.self) { audioURL in
+//                            Text(audioURL.lastPathComponent)
+//                                .font(.body)
+//                        }
+//                    }
+//                }
+//            }
+//            
+//            // PHOTO/VIDEO tab content
+//            else if !storageState.mediaAssetsArray.isEmpty {
+//                // Selected count and deselect
+//                HStack {
+//                    let selectedCount = storageState.selectedMediaItems.count
+//                    let categoryName = getLocalizedCategoryName(storageState.selectedMediaCategory, singular: true)
+//                    let pluralName = selectedCount == 1 ? categoryName : getLocalizedCategoryName(storageState.selectedMediaCategory)
+//
+//                    Text("\(selectedCount) \(pluralName) \(LocalizedStrings.string(for: "selected", language: languageManager.currentLanguage))")
+//                        .font(.subheadline)
+//                        .foregroundColor(.gray)
+//                    Spacer()
+//                    if selectedCount > 0 {
+//                        Button(action: {
+//                            storageState.selectedMediaItems.removeAll()
+//                        }) {
+//                            LocalizedText("deselect_all")
+//                                .font(.subheadline)
+//                                .foregroundColor(.blue)
+//                        }
+//                    }
+//                }
+//                .padding(.horizontal)
+//                .padding(.vertical, 10)
+//
+//                // Media list
+//                ScrollView {
+//                    LazyVStack(spacing: 0) {
+//                        ForEach(storageState.mediaAssetsArray, id: \.localIdentifier) { asset in
+//                            AssetRow(
+//                                asset: asset,
+//                                isSelected: storageState.selectedMediaItems.contains(asset.localIdentifier),
+//                                onTap: {
+//                                    toggleSelection(id: asset.localIdentifier)
+//                                }
+//                            )
+//                            Divider()
+//                        }
+//
+//                        if !storageState.selectedMediaItems.isEmpty {
+//                            Color.clear.frame(height: 90)
+//                        } else {
+//                            Color.clear.frame(height: 20)
+//                        }
+//                    }
+//                }        .background(Color(hex: "#FCFCFC"))
+//
+//            }
+//
+//            // Empty state for photos/videos
+//            else {
+//                VStack(spacing: 20) {
+//                    Image(systemName: categoryIcon(for: storageState.selectedMediaCategory))
+//                        .font(.system(size: 48))
+//                        .foregroundColor(.gray)
+//
+//                    Text("\(LocalizedStrings.string(for: "no", language: languageManager.currentLanguage)) \(getLocalizedCategoryName(storageState.selectedMediaCategory)) \(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))")
+//                        .font(.headline)
+//
+//                    Text(LocalizedStrings.string(for: "no_media_found", language: languageManager.currentLanguage))
+//                        .multilineTextAlignment(.center)
+//                        .foregroundColor(.gray)
+//                        .padding(.horizontal)
+//                }
+//                .padding()
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            }
+//
+//            // Delete button (only for photo/video)
+//            if storageState.selectedMediaCategory != "Audio",
+//               !storageState.selectedMediaItems.isEmpty {
+//                cleanMediaDeleteButtonFixed
+//            }
+//        }             
+//        .background(Color(hex: "#F5F5F5"))
+//    }
+    
     private var cleanMediaViewFixed: some View {
         VStack(spacing: 0) {
             // Media category selection
@@ -1788,6 +1941,8 @@ Divider()
                         }
                     }
                 }
+                .background(Color(hex: "#FCFCFC"))
+
             }
 
             // Empty state for photos/videos
@@ -1815,6 +1970,7 @@ Divider()
                 cleanMediaDeleteButtonFixed
             }
         }
+        .background(Color(hex: "#F5F5F5"))
     }
     private func deleteButtonTitleKey(for category: String) -> String {
         switch category {
@@ -1830,33 +1986,33 @@ Divider()
     }
     
     private var cleanMediaDeleteButtonFixed: some View {
-            VStack(spacing: 0) {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.clear, Color(.systemBackground).opacity(0.9), Color(.systemBackground)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 20)
-                
-                Button(action: {
-                    deleteSelectedPhotos()
-                }) {
-                    Text(LocalizedStrings.string(for: deleteButtonTitleKey(for: storageState.selectedMediaCategory),
-                                                  language: languageManager.currentLanguage))
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .background(Color.blue)
-                        .cornerRadius(12)
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
-                .background(Color(.systemBackground))
+        VStack(spacing: 0) {
+            LinearGradient(
+                gradient: Gradient(colors: [Color.clear, Color(.systemBackground).opacity(0.9), Color(.systemBackground)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 20)
+            
+            Button(action: {
+                deleteSelectedPhotos()
+            }) {
+                Text(LocalizedStrings.string(for: deleteButtonTitleKey(for: storageState.selectedMediaCategory),
+                                              language: languageManager.currentLanguage))
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .background(Color.blue)
+                    .cornerRadius(12)
             }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .animation(.easeInOut(duration: 0.3), value: !storageState.selectedMediaItems.isEmpty)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 20)
+            .background(Color(.systemBackground))
         }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .animation(.easeInOut(duration: 0.3), value: !storageState.selectedMediaItems.isEmpty)
+    }
 
     // Helper method for media selection
     private func toggleSelection(id: String) {
@@ -1866,21 +2022,71 @@ Divider()
             storageState.selectedMediaItems.insert(id)
         }
     }
-   
-    // Media category button
+//    private func mediaCategoryButton(category: String) -> some View {
+//        VStack {
+//            Button(action: {
+//                print("Switching to category: \(category)")
+//                if storageState.selectedMediaCategory != category {
+//                    storageState.selectedMediaCategory = category
+//                    storageState.isLoading = true
+//                    storageState.selectedMediaItems.removeAll() // Clear selections when changing categories
+//                    
+//                    // Reset photo assets to trigger reload
+//                    storageState.photoAssets = nil
+//                    
+//                    // Fetch new media type
+//                    fetchMedia()
+//                }
+//            }) {
+//                VStack(spacing: 8) {
+//                    ZStack {
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .fill(Color.white)
+//                            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+//                            .frame(width: 100, height: 80)
+//                        
+//                        VStack(spacing: 6) {
+//                            Image(systemName: categoryIcon(for: category))
+//                                .font(.system(size: 24))
+//                                .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .gray)
+//                            
+//                            Text(category)
+//                                .font(.subheadline)
+//                                .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .primary)
+//                        }
+//                    }
+//                }
+//            }
+//            
+//            // Indicator for selected category
+//            Rectangle()
+//                .fill(storageState.selectedMediaCategory == category ? Color.blue : Color.clear)
+//                .frame(height: 2)
+//                .cornerRadius(1)
+//        }
+//    }
+    private func getOriginalCategoryKey(for localizedCategory: String) -> String {
+        let categories = ["Photos", "Videos", "Audio"]
+        
+        for category in categories {
+            if LocalizedStrings.string(for: category, language: languageManager.currentLanguage) == localizedCategory {
+                return category
+            }
+        }
+        return "Photos" // Default fallback
+    }
     private func mediaCategoryButton(category: String) -> some View {
-        VStack {
+        // Get the original English key for this category
+        let originalKey = getOriginalCategoryKey(for: category)
+        
+        return VStack {
             Button(action: {
-                print("Switching to category: \(category)")
-                if storageState.selectedMediaCategory != category {
-                    storageState.selectedMediaCategory = category
+                print("Switching to category: \(originalKey)")
+                if storageState.selectedMediaCategory != originalKey {
+                    storageState.selectedMediaCategory = originalKey
                     storageState.isLoading = true
-                    storageState.selectedMediaItems.removeAll() // Clear selections when changing categories
-                    
-                    // Reset photo assets to trigger reload
+                    storageState.selectedMediaItems.removeAll()
                     storageState.photoAssets = nil
-                    
-                    // Fetch new media type
                     fetchMedia()
                 }
             }) {
@@ -1891,24 +2097,70 @@ Divider()
                             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
                             .frame(width: 100, height: 80)
                         
-                        Image(systemName: categoryIcon(for: category))
-                            .font(.system(size: 24))
-                            .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .gray)
+                        VStack(spacing: 6) {
+                            Image(systemName: categoryIcon(for: originalKey))
+                                .font(.system(size: 24))
+                                .foregroundColor(storageState.selectedMediaCategory == originalKey ? .blue : .gray)
+                            
+                            Text(category)
+                                .font(.subheadline)
+                                .foregroundColor(storageState.selectedMediaCategory == originalKey ? .blue : .primary)
+                        }
                     }
-                    
-                    Text(category)
-                        .font(.subheadline)
-                        .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .primary)
                 }
             }
             
             // Indicator for selected category
             Rectangle()
-                .fill(storageState.selectedMediaCategory == category ? Color.blue : Color.clear)
+                .fill(storageState.selectedMediaCategory == originalKey ? Color.blue : Color.clear)
                 .frame(height: 2)
                 .cornerRadius(1)
         }
     }
+
+
+    // Media category button
+//    private func mediaCategoryButton(category: String) -> some View {
+//        VStack {
+//            Button(action: {
+//                print("Switching to category: \(category)")
+//                if storageState.selectedMediaCategory != category {
+//                    storageState.selectedMediaCategory = category
+//                    storageState.isLoading = true
+//                    storageState.selectedMediaItems.removeAll() // Clear selections when changing categories
+//                    
+//                    // Reset photo assets to trigger reload
+//                    storageState.photoAssets = nil
+//                    
+//                    // Fetch new media type
+//                    fetchMedia()
+//                }
+//            }) {
+//                VStack(spacing: 8) {
+//                    ZStack {
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .fill(Color.white)
+//                            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+//                            .frame(width: 100, height: 80)
+//                        
+//                        Image(systemName: categoryIcon(for: category))
+//                            .font(.system(size: 24))
+//                            .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .gray)
+//                    }
+//                    
+//                    Text(category)
+//                        .font(.subheadline)
+//                        .foregroundColor(storageState.selectedMediaCategory == category ? .blue : .primary)
+//                }
+//            }
+//            
+//            // Indicator for selected category
+//            Rectangle()
+//                .fill(storageState.selectedMediaCategory == category ? Color.blue : Color.clear)
+//                .frame(height: 2)
+//                .cornerRadius(1)
+//        }
+//    }
 
     // Helper function to get icon for category
     private func categoryIcon(for category: String) -> String {
@@ -1963,7 +2215,6 @@ Divider()
             }
         }
     }
-    
     private func scanForAudioFiles() -> [URL] {
         var audioFiles: [URL] = []
         
@@ -1972,19 +2223,40 @@ Divider()
         
         // Scan Documents directory
         if let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            audioFiles.append(contentsOf: findAudioFiles(in: documentsPath, extensions: audioExtensions))
+            audioFiles.append(contentsOf: findAudioFiles(in: documentsPath))
         }
         
         // Scan Downloads directory (if accessible)
         if let downloadsPath = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first {
-            audioFiles.append(contentsOf: findAudioFiles(in: downloadsPath, extensions: audioExtensions))
+            audioFiles.append(contentsOf: findAudioFiles(in: downloadsPath))
         }
         
         return audioFiles
     }
+//    private func scanForAudioFiles() -> [URL] {
+//        var audioFiles: [URL] = []
+//        
+//        // Common audio file extensions
+//        let audioExtensions = ["mp3", "m4a", "wav", "aac", "flac", "ogg"]
+//        
+//        // Scan Documents directory
+//        if let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+//            audioFiles.append(contentsOf: findAudioFiles(in: documentsPath, extensions: audioExtensions))
+//        }
+//        
+//        // Scan Downloads directory (if accessible)
+//        if let downloadsPath = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first {
+//            audioFiles.append(contentsOf: findAudioFiles(in: downloadsPath, extensions: audioExtensions))
+//        }
+//        
+//        return audioFiles
+//    }
     
-    private func findAudioFiles(in directory: URL, extensions: [String]) -> [URL] {
+    private func findAudioFiles(in directory: URL) -> [URL] {
         var audioFiles: [URL] = []
+        
+        // Extended list of audio formats
+        let audioExtensions = ["mp3", "m4a", "wav", "aac", "flac", "ogg", "aiff", "caf", "m4r", "mp4", "mov"]
         
         do {
             let fileURLs = try FileManager.default.contentsOfDirectory(
@@ -1995,16 +2267,29 @@ Divider()
             
             for fileURL in fileURLs {
                 let fileExtension = fileURL.pathExtension.lowercased()
-                if extensions.contains(fileExtension) {
-                    audioFiles.append(fileURL)
+                if audioExtensions.contains(fileExtension) {
+                    // Verify it's actually an audio file by checking its size
+                    if let fileSize = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+                       fileSize > 0 {
+                        audioFiles.append(fileURL)
+                        print("🎵 Found audio: \(fileURL.lastPathComponent) - Size: \(fileSize) bytes")
+                    }
+                }
+                
+                // Recursively search subdirectories
+                var isDirectory: ObjCBool = false
+                if FileManager.default.fileExists(atPath: fileURL.path, isDirectory: &isDirectory),
+                   isDirectory.boolValue {
+                    audioFiles.append(contentsOf: findAudioFiles(in: fileURL))
                 }
             }
         } catch {
-            print("Error scanning directory \(directory): \(error)")
+            print("❌ Error scanning directory \(directory): \(error)")
         }
         
         return audioFiles
     }
+
 //    private func fetchAudioFiles() {
 //        DispatchQueue.global(qos: .userInitiated).async {
 //            // Create dummy PHFetchResult for audio files
@@ -2024,14 +2309,39 @@ Divider()
     
     private func fetchAudioFiles() {
         DispatchQueue.global(qos: .userInitiated).async {
-            let audioFiles = self.scanForAudioFiles()
+            var audioFiles: [URL] = []
+            
+            // 1. Check Documents directory
+            if let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                audioFiles.append(contentsOf: self.findAudioFiles(in: documentsPath))
+                print("📁 Documents directory audio files: \(audioFiles.count)")
+            }
+            
+            // 2. Check app's tmp directory (voice recordings might be here)
+            let tmpDirectory = FileManager.default.temporaryDirectory
+            audioFiles.append(contentsOf: self.findAudioFiles(in: tmpDirectory))
+            
+            // 3. Check shared container if your app uses App Groups
+            if let sharedContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.yourapp") {
+                audioFiles.append(contentsOf: self.findAudioFiles(in: sharedContainer))
+            }
+            
+            // 4. Check if we can access media from Photos library (videos with audio)
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            let videoAssets = PHAsset.fetchAssets(with: .video, options: fetchOptions)
+            
+            print("🎵 Total audio files found: \(audioFiles.count)")
+            print("🎬 Videos in Photos (contain audio): \(videoAssets.count)")
             
             DispatchQueue.main.async {
                 storageState.audioFiles = audioFiles
                 storageState.isLoading = false
-                storageState.photoAssets = nil // Clear old data
                 
-                print("Audio scanning complete. Found \(audioFiles.count) audio files")
+                // If no audio files found in file system, inform user about limitations
+                if audioFiles.isEmpty {
+                    print("ℹ️ No accessible audio files found. Audio files in Music app and other apps are not accessible due to iOS security.")
+                }
             }
         }
     }

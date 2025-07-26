@@ -288,6 +288,8 @@ struct StorageAnalyticsView: View {
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .padding(.horizontal)
+        .environment(\.layoutDirection, languageManager.isArabic ? .rightToLeft : .leftToRight)
+
     }
     
     struct EnhancedInfoRow: View {
@@ -299,13 +301,15 @@ struct StorageAnalyticsView: View {
             HStack {
                 if languageManager.isArabic {
                     // RTL layout
-                    Text(value)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.primary)
-                    Spacer()
                     Text(title)
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
+                    Spacer()
+                    Text(value)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.primary)
+                 
+                  
                 } else {
                     // LTR layout
                     Text(title)
@@ -631,11 +635,16 @@ struct InfoRow: View {
         HStack {
             if languageManager.isArabic {
                 // RTL layout
-                Text(value)
-                    .fontWeight(.medium)
-                Spacer()
+//                Text(value)
+//                    .fontWeight(.medium)
+//                Spacer()
+//                Text(title)
+//                    .foregroundColor(.gray)
                 Text(title)
                     .foregroundColor(.gray)
+                Spacer()
+                Text(value)
+                    .fontWeight(.medium)
             } else {
                 // LTR layout
                 Text(title)

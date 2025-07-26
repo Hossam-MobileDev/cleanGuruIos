@@ -1503,14 +1503,14 @@ struct SettinappView: View {
             VStack(spacing: 0) {
                 // Navigation Bar
                 HStack {
-                    Button(action: {
-                        // Handle back action - you can add your navigation logic here
-                        togglefullscreen = false
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 20))
-                            .foregroundColor(.blue)
-                    }
+//                    Button(action: {
+//                        // Handle back action - you can add your navigation logic here
+//                        togglefullscreen = false
+//                    }) {
+//                        Image(systemName: "chevron.left")
+//                            .font(.system(size: 20))
+//                            .foregroundColor(.blue)
+//                    }
                     
                     Spacer()
                     

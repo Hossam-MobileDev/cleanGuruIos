@@ -157,7 +157,10 @@ struct LocalizedStrings {
 
             "zakhrafa": "Zakhrafa",
             "zakhrafa_desc": "Arabic Text Decoration",
-            
+        "select_image_to_preview": "Select an image to preview",
+        "compressed": "Compressed",
+        "original": "Original",
+        
             "steps": "Steps",
             "steps_desc": "Daily Step Counter",
         
@@ -345,6 +348,7 @@ struct LocalizedStrings {
         "onboarding_welcome_title": "Welcome to Clean GURU",
         "onboarding_welcome_subtitle": "Boost your device's performance effortlessly. Manage storage, memory, and system health all in one place.",
         "onboarding_tools_title": "All-in-One Optimization Tools",
+        "done": "Done",
         "onboarding_tools_subtitle": "Identify & clean up duplicate or large files. Enhance speed by freeing up RAM. Monitor & optimize your device's performance.",
         "onboarding_control_title": "Your Device, Your Control",
         "onboarding_control_subtitle": "Take control of your device's health today. Optimize in one tap for a faster, cleaner experience!",
@@ -397,9 +401,13 @@ struct LocalizedStrings {
         "check_our_apps": "تحقق من تطبيقاتنا",
         "terms_of_use": "شروط الاستخدام",
         "privacy_policy": "سياسة الخصوصية",
-        
+        "select_image_to_preview": "اختر صورة للمعاينة",
+        "compressed": "مضغوط",
+        "original": "أصلي",
         // Storage Analytics
         "storage_analytics": "تحليل التخزين",
+
+
         "total_storage": "إجمالي التخزين",
         "available_space": "المساحة المتاحة",
         "used_space": "المساحة المستخدمة",
