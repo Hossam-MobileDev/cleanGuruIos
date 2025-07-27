@@ -165,103 +165,103 @@ Divider()
                                         requestPhotoAccess()
                                     }
                                 }
-//                                .onTapGesture {
-//                                    storageState.selectedTab = originalTab
-//                                    
-//                                    if originalTab == "Duplicates" {
-//                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
-//                                            requestPhotoAccessForDuplicates()
-//                                        }
-//                                    }
-//                                    else if originalTab == "Clean Media" && storageState.photoAssets == nil {
-//                                        requestPhotoAccess()
-//                                    }
-//                                }
-                            }
-                        }
-//                    ScrollView(.horizontal, showsIndicators: false) {
-//                        HStack(spacing: 15) {
-//                            ForEach(localizedTabs, id: \.self) { localizedTab in
-//                                let originalTab = getOriginalTabKey(for: localizedTab)
-//
-//                                VStack(spacing: 8) {
-//                                    Text(localizedTab)
-//                                        .padding(.vertical, 8)
-//                                        .padding(.horizontal, 10)
-//                                        .font(.subheadline)
-//                                        .foregroundColor(storageState.selectedTab == originalTab ? .blue : .gray)
-//                                        .background(
-//                                            storageState.selectedTab == originalTab ?
-//                                            Rectangle()
-//                                                .fill(Color.white)
-//                                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-//                                            : nil
-//                                        )
-//                                        .cornerRadius(4)
-//
-//                                    // Blue indicator line
-//                                    Rectangle()
-//                                        .fill(storageState.selectedTab == originalTab ? Color.blue : Color.clear)
-//                                        .frame(height: 2)
-//                                        .frame(maxWidth: .infinity)
-//                                }
-//                                .onTapGesture {
-//                                    storageState.selectedTab = originalTab
-//
-//                                    if originalTab == "Duplicates" {
-//                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
-//                                            requestPhotoAccessForDuplicates()
-//                                        }
-//                                    }
-//                                    else if originalTab == "Clean Media" && storageState.photoAssets == nil {
-//                                        requestPhotoAccess()
-//                                    }
-//                                }
-//                            }
-//                        }
-                        .padding(.horizontal)
-                    }
-                    //.background(Color.gray.opacity(0.1))
-                   
+                                //                                .onTapGesture {
+                                //                                    storageState.selectedTab = originalTab
+                                //
+                                //                                    if originalTab == "Duplicates" {
+                                //                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+                                //                                            requestPhotoAccessForDuplicates()
+                                //                                        }
+                                //                                    }
+                                //                                    else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+                                //                                        requestPhotoAccess()
+                                //                                    }
+                                //                                }
+                                                            }
+                                                        }
+                                //                    ScrollView(.horizontal, showsIndicators: false) {
+                                //                        HStack(spacing: 15) {
+                                //                            ForEach(localizedTabs, id: \.self) { localizedTab in
+                                //                                let originalTab = getOriginalTabKey(for: localizedTab)
+                                //
+                                //                                VStack(spacing: 8) {
+                                //                                    Text(localizedTab)
+                                //                                        .padding(.vertical, 8)
+                                //                                        .padding(.horizontal, 10)
+                                //                                        .font(.subheadline)
+                                //                                        .foregroundColor(storageState.selectedTab == originalTab ? .blue : .gray)
+                                //                                        .background(
+                                //                                            storageState.selectedTab == originalTab ?
+                                //                                            Rectangle()
+                                //                                                .fill(Color.white)
+                                //                                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                //                                            : nil
+                                //                                        )
+                                //                                        .cornerRadius(4)
+                                //
+                                //                                    // Blue indicator line
+                                //                                    Rectangle()
+                                //                                        .fill(storageState.selectedTab == originalTab ? Color.blue : Color.clear)
+                                //                                        .frame(height: 2)
+                                //                                        .frame(maxWidth: .infinity)
+                                //                                }
+                                //                                .onTapGesture {
+                                //                                    storageState.selectedTab = originalTab
+                                //
+                                //                                    if originalTab == "Duplicates" {
+                                //                                        if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+                                //                                            requestPhotoAccessForDuplicates()
+                                //                                        }
+                                //                                    }
+                                //                                    else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+                                //                                        requestPhotoAccess()
+                                //                                    }
+                                //                                }
+                                //                            }
+                                //                        }
+                                                        .padding(.horizontal)
+                                                    }
+                                                    //.background(Color.gray.opacity(0.1))
+                                                   
 
 
 
 
-                    // Tab selection with localized names
-//                    ScrollView(.horizontal, showsIndicators: false) {
-//                        HStack(spacing: 15) {
-//                            ForEach(localizedTabs, id: \.self) { localizedTab in
-//                                let originalTab = getOriginalTabKey(for: localizedTab)
-//
-//                                Text(localizedTab)
-//                                    .padding(.vertical, 8)
-//                                    .padding(.horizontal, 10)
-//                                    .font(.subheadline)
-//                                    .foregroundColor(storageState.selectedTab == originalTab ? .black : .gray)
-//                                    .background(
-//                                        storageState.selectedTab == originalTab ?
-//                                        Rectangle()
-//                                            .fill(Color.white)
-//                                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-//                                        : nil
-//                                    )
-//                                    .cornerRadius(4)
-//                                    .onTapGesture {
-//                                        storageState.selectedTab = originalTab
-//
-//                                        if originalTab == "Duplicates" {
-//                                            if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
-//                                                requestPhotoAccessForDuplicates()
-//                                            }
-//                                        }
-//                                        else if originalTab == "Clean Media" && storageState.photoAssets == nil {
-//                                            requestPhotoAccess()
-//                                        }
-//                                    }
-//                            }
-//                        }
-//                        .padding(.horizontal)
-//                    }
+                                                    // Tab selection with localized names
+                                //                    ScrollView(.horizontal, showsIndicators: false) {
+                                //                        HStack(spacing: 15) {
+                                //                            ForEach(localizedTabs, id: \.self) { localizedTab in
+                                //                                let originalTab = getOriginalTabKey(for: localizedTab)
+                                //
+                                //                                Text(localizedTab)
+                                //                                    .padding(.vertical, 8)
+                                //                                    .padding(.horizontal, 10)
+                                //                                    .font(.subheadline)
+                                //                                    .foregroundColor(storageState.selectedTab == originalTab ? .black : .gray)
+                                //                                    .background(
+                                //                                        storageState.selectedTab == originalTab ?
+                                //                                        Rectangle()
+                                //                                            .fill(Color.white)
+                                //                                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                //                                        : nil
+                                //                                    )
+                                //                                    .cornerRadius(4)
+                                //                                    .onTapGesture {
+                                //                                        storageState.selectedTab = originalTab
+                                //
+                                //                                        if originalTab == "Duplicates" {
+                                //                                            if !storageState.hasCheckedDuplicatesAccess && !storageState.duplicatesAccessGranted {
+                                //                                                requestPhotoAccessForDuplicates()
+                                //                                            }
+                                //                                        }
+                                //                                        else if originalTab == "Clean Media" && storageState.photoAssets == nil {
+                                //                                            requestPhotoAccess()
+                                //                                        }
+                                //                                    }
+                                //                            }
+                                //                        }
+                                //                        .padding(.horizontal)
+                                //                    }
                     //.background(Color.gray.opacity(0.1))
                    .background(Color(hex: "#F5F5F5"))
                    // .background(Color(hex: "#F2F9FF")) // Move background to VStack level
@@ -457,368 +457,6 @@ Divider()
     }
 
     
-//    private var duplicatesContentViewFixed: some View {
-//            VStack(spacing: 0) {
-//                if storageState.isAnalyzingDuplicates {
-//                    // Analyzing progress view
-//                    VStack(spacing: 20) {
-//                        ProgressView()
-//                            .scaleEffect(1.5)
-//                        
-//                        LocalizedText("analyzing_photos")
-//                            .font(.headline)
-//                        
-//                        Text("\(storageState.analyzedPhotosCount) \(LocalizedStrings.string(for: "of", language: languageManager.currentLanguage)) \(storageState.totalPhotosCount) \(LocalizedStrings.string(for: "photos_analyzed", language: languageManager.currentLanguage))")
-//                            .font(.subheadline)
-//                            .foregroundColor(.gray)
-//                        
-//                        // Progress bar
-//                        GeometryReader { geometry in
-//                            ZStack(alignment: .leading) {
-//                                Rectangle()
-//                                    .fill(Color.gray.opacity(0.3))
-//                                    .frame(height: 4)
-//                                    .cornerRadius(2)
-//                                
-//                                Rectangle()
-//                                    .fill(Color.blue)
-//                                    .frame(width: geometry.size.width * CGFloat(storageState.analyzedPhotosCount) / CGFloat(max(storageState.totalPhotosCount, 1)), height: 4)
-//                                    .cornerRadius(2)
-//                            }
-//                        }
-//                        .frame(height: 4)
-//                        .padding(.horizontal, 40)
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .padding()
-//                }
-//                else if !storageState.duplicatesAccessGranted {
-//                    // Permission view
-//                    VStack(spacing: 20) {
-//                        Image(systemName: "photo.stack")
-//                            .font(.system(size: 48))
-//                            .foregroundColor(.gray)
-//                        
-//                        LocalizedText("photo_access_required")
-//                            .font(.headline)
-//                        
-//                        LocalizedText("please_allow_access_analyze")
-//                            .multilineTextAlignment(.center)
-//                            .padding(.horizontal)
-//                        
-//                        Button(action: {
-//                            storageState.hasCheckedDuplicatesAccess = false
-//                            requestPhotoAccessForDuplicates()
-//                        }) {
-//                            LocalizedText("grant_access")
-//                                .foregroundColor(.white)
-//                                .padding(.horizontal, 30)
-//                                .padding(.vertical, 12)
-//                                .background(Color.blue)
-//                                .cornerRadius(8)
-//                        }
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .padding()
-//                }
-//                else if storageState.duplicateGroups.isEmpty && !storageState.hasAnalyzedDuplicates {
-//                    // Initial state - show analyze button
-//                    VStack(spacing: 20) {
-//                        Image(systemName: "photo.stack")
-//                            .font(.system(size: 48))
-//                            .foregroundColor(.blue)
-//                        
-//                        LocalizedText("find_duplicate_photos")
-//                            .font(.headline)
-//                        
-//                        LocalizedText("scan_photo_library_description")
-//                            .multilineTextAlignment(.center)
-//                            .padding(.horizontal)
-//                            .foregroundColor(.gray)
-//                        
-//                        Button(action: {
-//                            analyzeDuplicates()
-//                        }) {
-//                            LocalizedText("start_scanning")
-//                                .foregroundColor(.white)
-//                                .padding(.horizontal, 30)
-//                                .padding(.vertical, 12)
-//                                .background(Color.blue)
-//                                .cornerRadius(8)
-//                        }
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .padding()
-//                }
-//                else if storageState.duplicateGroups.isEmpty && storageState.hasAnalyzedDuplicates {
-//                    // No duplicates found
-//                    VStack(spacing: 20) {
-//                        Image(systemName: "checkmark.circle.fill")
-//                            .font(.system(size: 48))
-//                            .foregroundColor(.green)
-//                        
-//                        LocalizedText("no_duplicates_found")
-//                            .font(.headline)
-//                        
-//                        LocalizedText("great_no_duplicates")
-//                            .multilineTextAlignment(.center)
-//                            .padding(.horizontal)
-//                            .foregroundColor(.gray)
-//                        
-//                        Button(action: {
-//                            analyzeDuplicates()
-//                        }) {
-//                            LocalizedText("scan_again")
-//                                .foregroundColor(.blue)
-//                        }
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .padding()
-//                }
-//                else {
-//                    // Show duplicate groups with proper spacing for delete button
-//                    ScrollView {
-//                        VStack(alignment: .leading, spacing: 0) {
-//                            // Summary
-//                            HStack {
-//                                Text("\(storageState.duplicateGroups.count) \(LocalizedStrings.string(for: "duplicate_groups_found", language: languageManager.currentLanguage))")
-//                                    .font(.subheadline)
-//                                    .foregroundColor(.gray)
-//                                
-//                                Spacer()
-//                                
-//                                if !storageState.selectedDuplicates.isEmpty {
-//                                    Button(action: {
-//                                        storageState.selectedDuplicates.removeAll()
-//                                    }) {
-//                                        LocalizedText("deselect_all")
-//                                            .font(.subheadline)
-//                                            .foregroundColor(.blue)
-//                                    }
-//                                }
-//                            }
-//                            .padding()
-//                            
-//                            // Potential savings
-//                            if !storageState.selectedDuplicates.isEmpty {
-//                                let savings = calculateSelectedSavings()
-//                                Text("\(LocalizedStrings.string(for: "potential_savings", language: languageManager.currentLanguage)): \(formatBytes(savings))")
-//                                    .font(.caption)
-//                                    .foregroundColor(.green)
-//                                    .padding(.horizontal)
-//                                    .padding(.bottom, 10)
-//                            }
-//                            
-//                            // Duplicate groups
-//                            ForEach(storageState.duplicateGroups) { group in
-//                                DuplicateGroupView(
-//                                    group: group,
-//                                    selectedDuplicates: $storageState.selectedDuplicates
-//                                )
-//                                .environmentObject(languageManager)
-//                                
-//                                Divider()
-//                                    .padding(.horizontal)
-//                            }
-//                            
-//                            // Bottom padding to prevent overlap with delete button
-//                            if !storageState.selectedDuplicates.isEmpty {
-//                                Color.clear.frame(height: 90)
-//                            } else {
-//                                Color.clear.frame(height: 20)
-//                            }
-//                        }
-//                    }
-//                }
-//                
-//                // Delete button positioned at bottom without overlapping
-//                if !storageState.selectedDuplicates.isEmpty && !storageState.isAnalyzingDuplicates {
-//                    deleteSelectedDuplicatesButtonFixed
-//                }
-//            }
-//        }
-//        
-
-//    private var duplicatesContentViewFixed: some View {
-//        VStack(spacing: 0) {
-//            if storageState.isAnalyzingDuplicates {
-//                // Analyzing progress view
-//                VStack(spacing: 20) {
-//                    ProgressView()
-//                        .scaleEffect(1.5)
-//                    
-//                    LocalizedText("analyzing_photos")
-//                        .font(.headline)
-//                    
-//                    Text("\(storageState.analyzedPhotosCount) \(LocalizedStrings.string(for: "of", language: languageManager.currentLanguage)) \(storageState.totalPhotosCount) \(LocalizedStrings.string(for: "photos_analyzed", language: languageManager.currentLanguage))")
-//                        .font(.subheadline)
-//                        .foregroundColor(.gray)
-//                    
-//                    // Progress bar
-//                    GeometryReader { geometry in
-//                        ZStack(alignment: .leading) {
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.3))
-//                                .frame(height: 4)
-//                                .cornerRadius(2)
-//                            
-//                            Rectangle()
-//                                .fill(Color.blue)
-//                                .frame(width: geometry.size.width * CGFloat(storageState.analyzedPhotosCount) / CGFloat(max(storageState.totalPhotosCount, 1)), height: 4)
-//                                .cornerRadius(2)
-//                        }
-//                    }
-//                    .frame(height: 4)
-//                    .padding(.horizontal, 40)
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else if !storageState.duplicatesAccessGranted {
-//                // Permission view
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.stack")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.gray)
-//                    
-//                    LocalizedText("photo_access_required")
-//                        .font(.headline)
-//                    
-//                    LocalizedText("please_allow_access_analyze")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                    
-//                    // FIXED BUTTON - removed the problematic hasCheckedDuplicatesAccess reset
-//                    Button(action: {
-//                        requestPhotoAccessForDuplicates()
-//                    }) {
-//                        LocalizedText("grant_access")
-//                            .foregroundColor(.white)
-//                            .padding(.horizontal, 30)
-//                            .padding(.vertical, 12)
-//                            .background(Color.blue)
-//                            .cornerRadius(8)
-//                    }
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else if storageState.duplicateGroups.isEmpty && !storageState.hasAnalyzedDuplicates {
-//                // Initial state - show analyze button
-//                VStack(spacing: 20) {
-//                    Image(systemName: "photo.stack")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.blue)
-//                    
-//                    LocalizedText("find_duplicate_photos")
-//                        .font(.headline)
-//                    
-//                    LocalizedText("scan_photo_library_description")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                        .foregroundColor(.gray)
-//                    
-//                    Button(action: {
-//                        analyzeDuplicates()
-//                    }) {
-//                        LocalizedText("start_scanning")
-//                            .foregroundColor(.white)
-//                            .padding(.horizontal, 30)
-//                            .padding(.vertical, 12)
-//                            .background(Color.blue)
-//                            .cornerRadius(8)
-//                    }
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else if storageState.duplicateGroups.isEmpty && storageState.hasAnalyzedDuplicates {
-//                // No duplicates found
-//                VStack(spacing: 20) {
-//                    Image(systemName: "checkmark.circle.fill")
-//                        .font(.system(size: 48))
-//                        .foregroundColor(.green)
-//                    
-//                    LocalizedText("no_duplicates_found")
-//                        .font(.headline)
-//                    
-//                    LocalizedText("great_no_duplicates")
-//                        .multilineTextAlignment(.center)
-//                        .padding(.horizontal)
-//                        .foregroundColor(.gray)
-//                    
-//                    Button(action: {
-//                        analyzeDuplicates()
-//                    }) {
-//                        LocalizedText("scan_again")
-//                            .foregroundColor(.blue)
-//                    }
-//                }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .padding()
-//            }
-//            else {
-//                // Show duplicate groups with proper spacing for delete button
-//                ScrollView {
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        // Summary
-//                        HStack {
-//                            Text("\(storageState.duplicateGroups.count) \(LocalizedStrings.string(for: "duplicate_groups_found", language: languageManager.currentLanguage))")
-//                                .font(.subheadline)
-//                                .foregroundColor(.gray)
-//                            
-//                            Spacer()
-//                            
-//                            if !storageState.selectedDuplicates.isEmpty {
-//                                Button(action: {
-//                                    storageState.selectedDuplicates.removeAll()
-//                                }) {
-//                                    LocalizedText("deselect_all")
-//                                        .font(.subheadline)
-//                                        .foregroundColor(.blue)
-//                                }
-//                            }
-//                        }
-//                        .padding()
-//                        
-//                        // Potential savings
-//                        if !storageState.selectedDuplicates.isEmpty {
-//                            let savings = calculateSelectedSavings()
-//                            Text("\(LocalizedStrings.string(for: "potential_savings", language: languageManager.currentLanguage)): \(formatBytes(savings))")
-//                                .font(.caption)
-//                                .foregroundColor(.green)
-//                                .padding(.horizontal)
-//                                .padding(.bottom, 10)
-//                        }
-//                        
-//                        // Duplicate groups
-//                        ForEach(storageState.duplicateGroups) { group in
-//                            DuplicateGroupView(
-//                                group: group,
-//                                selectedDuplicates: $storageState.selectedDuplicates
-//                            )
-//                            .environmentObject(languageManager)
-//                            
-//                            Divider()
-//                                .padding(.horizontal)
-//                        }
-//                        
-//                        // Bottom padding to prevent overlap with delete button
-//                        if !storageState.selectedDuplicates.isEmpty {
-//                            Color.clear.frame(height: 90)
-//                        } else {
-//                            Color.clear.frame(height: 20)
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            // Delete button positioned at bottom without overlapping
-//            if !storageState.selectedDuplicates.isEmpty && !storageState.isAnalyzingDuplicates {
-//                deleteSelectedDuplicatesButtonFixed
-//            }
-//        }
-//    }
     private var duplicatesContentViewFixed: some View {
         VStack(spacing: 0) {
             if storageState.isAnalyzingDuplicates {
