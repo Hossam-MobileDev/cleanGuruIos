@@ -482,20 +482,6 @@ struct MediaCompressionView: View {
             .onTapGesture {
                 showingImagePicker = true
             }
-            
-            // Add button to pick a new image when one is already selected
-            if selectedImage != nil {
-                Button(action: {
-                    showingImagePicker = true
-                }) {
-                    HStack {
-                        Image(systemName: "photo.on.rectangle")
-                        Text("Select Different Image")
-                    }
-                    .font(.system(size: 14))
-                    .foregroundColor(.blue)
-                }
-            }
         }
         .padding()
     }

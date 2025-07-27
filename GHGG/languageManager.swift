@@ -205,7 +205,8 @@ struct LocalizedStrings {
         "check_our_apps": "Check Our Apps",
         "terms_of_use": "Terms of Use",
         "privacy_policy": "Privacy Policy",
-        
+        "allow_notifications": "Allow Notifications",
+
         // Storage Analytics
         "storage_analytics": "Storage Analytics",
         "total_storage": "Total Storage",
@@ -472,7 +473,8 @@ struct LocalizedStrings {
         "selected": "محدد",
         "deselect_all": "إلغاء تحديد الكل",
         "loading": "جاري التحميل",
-        
+        "allow_notifications": "السماح بالإشعارات",
+
         // Contacts
         "backup_contacts": "نسخ احتياطي لجهات الاتصال",
         "restore_contacts": "استعادة جهات الاتصال",
