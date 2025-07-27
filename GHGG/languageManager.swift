@@ -323,7 +323,7 @@ struct LocalizedStrings {
         // Common
         "cancel": "Cancel",
         "ok": "OK",
-        "done": "Done",
+        //"done": "Done",
         "get": "Get",
         "yes": "Yes",
         "no": "No",
