@@ -262,28 +262,28 @@ struct StorageAnalyticsView: View {
             }
             
             Divider()
-                .padding(.horizontal, 16)
+             //   .padding(.horizontal, 16)
             
             // Battery Information
-            CustomInfoCard(
-                iconName: "battery",
-                title: LocalizedStrings.string(for: "battery_information", language: languageManager.currentLanguage),
-                value: "",
-                languageManager: languageManager
-            ) {
-                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 6) {
-                    EnhancedInfoRow(
-                        title: LocalizedStrings.string(for: "battery_percentage", language: languageManager.currentLanguage),
-                        value: "\(deviceInfo.batteryPercentage)%",
-                        languageManager: languageManager
-                    )
-                    EnhancedInfoRow(
-                        title: LocalizedStrings.string(for: "charging_state", language: languageManager.currentLanguage),
-                        value: getLocalizedChargingState(deviceInfo.chargingState),
-                        languageManager: languageManager
-                    )
-                }
-            }
+//            CustomInfoCard(
+//                iconName: "battery",
+//                title: LocalizedStrings.string(for: "battery_information", language: languageManager.currentLanguage),
+//                value: "",
+//                languageManager: languageManager
+//            ) {
+//                VStack(alignment: languageManager.isArabic ? .trailing : .leading, spacing: 6) {
+//                    EnhancedInfoRow(
+//                        title: LocalizedStrings.string(for: "battery_percentage", language: languageManager.currentLanguage),
+//                        value: "\(deviceInfo.batteryPercentage)%",
+//                        languageManager: languageManager
+//                    )
+//                    EnhancedInfoRow(
+//                        title: LocalizedStrings.string(for: "charging_state", language: languageManager.currentLanguage),
+//                        value: getLocalizedChargingState(deviceInfo.chargingState),
+//                        languageManager: languageManager
+//                    )
+//                }
+//            }
         }
         .background(Color(.systemBackground))
         .cornerRadius(12)

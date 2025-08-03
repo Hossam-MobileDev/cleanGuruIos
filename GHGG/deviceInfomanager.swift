@@ -473,3 +473,5 @@ class DeviceInfoManager: ObservableObject {
         }
     }
 }
+
+

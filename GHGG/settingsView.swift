@@ -17,8 +17,9 @@ struct SettinappView: View {
     @EnvironmentObject var languageManager: LanguageManager
     @State private var selectedLanguage = "English"
     @State private var showLanguageSheet = false
-    @State private var allowNotifications = true
-    
+    //@State private var allowNotifications = true
+    @AppStorage("allowNotifications") private var allowNotifications = true
+
     private let supportEmail = "support@3rabapp.com"
     private let currentAppId = "6743487109"
     
