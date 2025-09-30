@@ -4,11 +4,6 @@ Clean Guru is your all-in-one iPhone cleaner and organizer. Find and remove dupl
 <a href="https://apps.apple.com/ar/app/cleanguru/id6743487109">
   <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="CleanGuru - Download on App Store" width="200">
 </a>
-💰 Also check out our other app:
-<a href="https://apps.apple.com/ar/app/wallet-budget-daily-wallet/id6741729309">
-  <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Wallet Budget - Download on App Store" width="200">
-</a>
-Wallet Budget - A comprehensive personal finance management app that helps you track your income, expenses, and financial goals with an intuitive Arabic interface.
 ✨ Features
 
 🖼️ Duplicate Photo Removal - Find and delete duplicate photos to free up storage space
